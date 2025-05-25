@@ -441,10 +441,7 @@
   </div>
 
   <script>
-    // --- IMPORTANTE: SUBSTITUA ESTA URL PELA URL REAL DO SEU BACKEND ---
-    const BASE_API_URL = 'https://sua-api.com'; // Ex: 'https://meu-backend-haxstore.herokuapp.com'
-
-    // Referências aos elementos DOM
+    // --- Referências aos elementos DOM ---
     const productsContainer = document.getElementById('products-container');
     const adminPanelBtn = document.getElementById('adminPanelBtn');
     const adminModal = document.getElementById('adminModal');
@@ -455,53 +452,41 @@
     const newPixKeyInput = document.getElementById('newPixKey');
     const currentPixKeyDisplay = document.getElementById('currentPixKey');
 
-    // --- Autenticação (Será necessária para todas as chamadas de Admin) ---
-    // Você precisará de um token de autenticação (JWT é comum) após o login
-    // O seu backend deve gerar este token após um login bem-sucedido de 'jhow'
-    function getAuthToken() {
-        return localStorage.getItem('authToken'); // Armazenar o token aqui após o login
+    // --- Chaves para o localStorage ---
+    const LS_PRODUCTS_KEY = 'haxstore_products';
+    const LS_WARNINGS_KEY = 'haxstore_warnings';
+    const LS_PIX_KEY = 'haxstore_pix_key';
+    const LS_IS_ADMIN_KEY = 'haxstore_isAdmin'; // Para persistir o status de admin
+    const LS_LOGGED_USER_KEY = 'haxstore_logged_user'; // Para persistir o status de login
+
+    // --- Funções Auxiliares para localStorage ---
+
+    // Gerador de ID simples para localStorage
+    const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
+
+    function getItemsFromLocalStorage(key) {
+        const items = localStorage.getItem(key);
+        return items ? JSON.parse(items) : [];
     }
 
-    // Função auxiliar para fazer requisições à API
-    async function apiRequest(endpoint, method = 'GET', body = null, requiresAuth = false) {
-        const headers = {
-            'Content-Type': 'application/json',
-        };
-        if (requiresAuth) {
-            const token = getAuthToken();
-            if (!token) {
-                alert('Sessão de administrador expirada ou inválida. Faça login novamente.');
-                // Opcional: Redirecionar para a página de login
-                // window.location.href = 'index.html';
-                throw new Error('Não autorizado: Token não encontrado.');
-            }
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        const options = { method, headers };
-        if (body) {
-            options.body = JSON.stringify(body);
-        }
-
-        try {
-            const response = await fetch(`${BASE_API_URL}${endpoint}`, options);
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || `Erro de rede: ${response.status} ${response.statusText}`);
-            }
-            return response.json(); // Retorna o JSON da resposta
-        } catch (error) {
-            console.error(`Erro na requisição ${method} ${endpoint}:`, error);
-            throw error; // Propaga o erro para o chamador lidar
-        }
+    function saveItemsToLocalStorage(key, items) {
+        localStorage.setItem(key, JSON.stringify(items));
     }
 
+    // --- Autenticação (Apenas para simular login de admin no localstorage) ---
+    // Esta é uma segurança EXTREMAMENTE BÁSICA. NÃO USE EM PRODUÇÃO.
+    const ADMIN_USERNAME = 'jhow';
+    const ADMIN_PASSWORD = 'admin123'; // Senha fixa no código, insegura
 
-    // --- Funções de Inicialização e Verificação de Admin ---
-    document.addEventListener('DOMContentLoaded', async () => {
-        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    function checkAdminStatus() {
+        // Verifica se o status de admin está no localStorage
+        return localStorage.getItem(LS_IS_ADMIN_KEY) === 'true';
+    }
 
-        console.log("HAX STORE: Usuário logado é Admin?", isAdmin);
+    // --- Funções de Inicialização ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Verifica se o usuário já está logado como admin na sessão anterior
+        const isAdmin = checkAdminStatus();
 
         if (isAdmin) {
             adminPanelBtn.style.display = 'block';
@@ -509,17 +494,18 @@
             adminPanelBtn.style.display = 'none';
         }
 
-        // Carrega produtos e avisos do backend para TODOS os usuários
-        await renderProducts();
-        await renderWarnings();
-        await updatePixKeyDisplay(); // Busca a chave PIX do backend
+        renderProducts();
+        renderWarnings();
+        updatePixKeyDisplay();
     });
 
     // --- Funções de Modal de Compra (PIX) ---
     function abrirModal() {
-        if (!localStorage.getItem('loggedUser')) {
+        // No modo sem backend, `loggedUser` é só um marcador local
+        if (!localStorage.getItem(LS_LOGGED_USER_KEY)) {
             alert('Você precisa estar logado para realizar uma compra.');
-            window.location.href = 'index.html';
+            // Redireciona para a página de login, onde o "admin" pode fazer o "login"
+            window.location.href = 'index.html'; 
             return;
         }
         updatePixKeyDisplay();
@@ -539,12 +525,12 @@
 
     // --- Funções do Modal de Administração ---
     adminPanelBtn.addEventListener('click', () => {
-        if (localStorage.getItem('isAdmin') === 'true') {
+        if (checkAdminStatus()) {
             adminModal.style.display = 'flex';
-            openAdminTab(null, 'manage-products');
-            loadAdminProducts();
-            loadAdminWarnings();
-            loadPixKeyForAdmin();
+            openAdminTab(null, 'manage-products'); // Abre a primeira aba por padrão
+            loadAdminProducts(); // Carrega produtos na lista de admin
+            loadAdminWarnings(); // Carrega avisos na lista de admin
+            loadPixKeyForAdmin(); // Carrega chave PIX no campo de admin
         } else {
             alert('Acesso negado. Você não tem permissões de administrador.');
         }
@@ -563,21 +549,13 @@
       }
     });
     
-    // --- Funções de Gerenciamento de Produtos (AGORA COM API) ---
+    // --- Funções de Gerenciamento de Produtos (localStorage) ---
 
-    // Renderiza produtos na parte principal da loja (visível para todos)
-    async function renderProducts() {
-        let products = [];
-        try {
-            products = await apiRequest('/products'); // GET para /products
-        } catch (error) {
-            // O erro já foi logado na apiRequest. Apenas exibe uma mensagem amigável.
-            productsContainer.innerHTML = '<p style="text-align: center; color: #e50914; padding: 20px;">Não foi possível carregar os produtos no momento.</p>';
-            return;
-        }
-
+    // Renderiza produtos na parte principal da loja (visível para o navegador atual)
+    function renderProducts() {
+        const products = getItemsFromLocalStorage(LS_PRODUCTS_KEY);
         productsContainer.innerHTML = '';
-        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        const isAdmin = checkAdminStatus();
 
         if (products.length === 0) {
             productsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 20px;">Nenhum produto disponível no momento.</p>';
@@ -590,6 +568,7 @@
         products.forEach((product) => {
           const productDiv = document.createElement('div');
           productDiv.className = 'produto-item';
+          // Renderiza botões de editar/apagar APENAS se o usuário for administrador
           const adminButtons = isAdmin ? `
             <button class="btn-edit-produto" onclick="editProduct('${product.id}')">Editar</button>
             <button class="btn-delete-produto" onclick="deleteProduct('${product.id}')">Apagar</button>
@@ -609,23 +588,17 @@
           productsContainer.appendChild(productDiv);
         });
 
+        // Adiciona event listeners aos botões de compra para todos os usuários
         document.querySelectorAll('.btn-comprar').forEach(button => {
           button.addEventListener('click', abrirModal);
         });
     }
 
     // Carrega produtos na lista dentro do painel de administração (só admin)
-    async function loadAdminProducts() {
-        if (localStorage.getItem('isAdmin') !== 'true') return;
+    function loadAdminProducts() {
+        if (!checkAdminStatus()) return; // Garante que só admin acesse
 
-        let products = [];
-        try {
-            products = await apiRequest('/products', 'GET', null, true); // GET para /products, requer autenticação
-        } catch (error) {
-            adminProductsList.innerHTML = '<p style="color: #e50914;">Erro ao carregar produtos do admin. Verifique o servidor.</p>';
-            return;
-        }
-
+        const products = getItemsFromLocalStorage(LS_PRODUCTS_KEY);
         adminProductsList.innerHTML = '';
         if (products.length === 0) {
             adminProductsList.innerHTML = '<p style="color: #888;">Nenhum produto cadastrado. Adicione um novo acima!</p>';
@@ -645,8 +618,8 @@
         });
     }
 
-    async function saveProduct() {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
+    function saveProduct() {
+        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
 
         const productIdToEdit = document.getElementById('productIdToEdit').value;
         const title = document.getElementById('productTitle').value.trim();
@@ -659,53 +632,45 @@
             return;
         }
 
-        const productData = { title, description, oldPrice, newPrice };
-
-        try {
-            if (productIdToEdit) { // Editar produto existente
-                await apiRequest(`/products/${productIdToEdit}`, 'PUT', productData, true); // PUT/PATCH para /products/:id
-            } else { // Adicionar novo produto
-                await apiRequest('/products', 'POST', productData, true); // POST para /products
+        let products = getItemsFromLocalStorage(LS_PRODUCTS_KEY);
+        if (productIdToEdit) { // Editar produto existente
+            const index = products.findIndex(p => p.id === productIdToEdit);
+            if (index !== -1) {
+                products[index] = { id: productIdToEdit, title, description, oldPrice, newPrice };
             }
-
-            alert('Produto salvo com sucesso!');
-            clearProductForm();
-            await renderProducts(); // Atualiza a exibição da loja
-            await loadAdminProducts(); // Atualiza a lista no painel admin
-        } catch (error) {
-            console.error("Erro ao salvar produto:", error);
-            alert(`Erro ao salvar produto: ${error.message}. Verifique a autenticação ou se o servidor está online.`);
+        } else { // Adicionar novo produto
+            const newProduct = { id: generateUniqueId(), title, description, oldPrice, newPrice };
+            products.push(newProduct);
         }
+        saveItemsToLocalStorage(LS_PRODUCTS_KEY, products);
+        alert('Produto salvo com sucesso!');
+        clearProductForm();
+        renderProducts(); // Atualiza a exibição da loja
+        loadAdminProducts(); // Atualiza a lista no painel admin
     }
 
-    async function editProduct(productId) {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
-        
-        try {
-            const product = await apiRequest(`/products/${productId}`, 'GET', null, true); // GET para /products/:id
+    function editProduct(productId) {
+        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
+        const products = getItemsFromLocalStorage(LS_PRODUCTS_KEY);
+        const product = products.find(p => p.id === productId);
+        if (product) {
             document.getElementById('productIdToEdit').value = product.id;
             document.getElementById('productTitle').value = product.title;
             document.getElementById('productDesc').value = product.description;
             document.getElementById('productOldPrice').value = product.oldPrice;
             document.getElementById('productNewPrice').value = product.newPrice;
-        } catch (error) {
-            console.error("Erro ao carregar produto para edição:", error);
-            alert("Erro ao carregar produto para edição. Tente novamente.");
         }
     }
 
-    async function deleteProduct(productId) {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
+    function deleteProduct(productId) {
+        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
         if (confirm('Tem certeza que deseja apagar este produto?')) {
-            try {
-                await apiRequest(`/products/${productId}`, 'DELETE', null, true); // DELETE para /products/:id
-                alert('Produto apagado com sucesso!');
-                await renderProducts();
-                await loadAdminProducts();
-            } catch (error) {
-                console.error("Erro ao apagar produto:", error);
-                alert(`Erro ao apagar produto: ${error.message}`);
-            }
+            let products = getItemsFromLocalStorage(LS_PRODUCTS_KEY);
+            products = products.filter(p => p.id !== productId);
+            saveItemsToLocalStorage(LS_PRODUCTS_KEY, products);
+            alert('Produto apagado com sucesso!');
+            renderProducts();
+            loadAdminProducts();
         }
     }
 
@@ -717,16 +682,9 @@
         document.getElementById('productNewPrice').value = '';
     }
 
-    // --- Funções de Gerenciamento de Avisos (AGORA COM API) ---
-    async function renderWarnings() {
-        let warnings = [];
-        try {
-            warnings = await apiRequest('/warnings'); // GET para /warnings
-        } catch (error) {
-            warningsContainer.innerHTML = '<p style="text-align: center; color: #e50914; padding: 10px;">Não foi possível carregar os avisos no momento.</p>';
-            return;
-        }
-
+    // --- Funções de Gerenciamento de Avisos (localStorage) ---
+    function renderWarnings() {
+        const warnings = getItemsFromLocalStorage(LS_WARNINGS_KEY);
         warningsContainer.innerHTML = '';
         if (warnings.length === 0) {
             warningsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 10px;">Nenhum aviso no momento.</p>';
@@ -735,22 +693,14 @@
         warnings.forEach((warning) => {
             const warningDiv = document.createElement('div');
             warningDiv.className = 'admin-warning-message';
-            warningDiv.textContent = warning.message; // Supondo que seu aviso tem um campo 'message'
+            warningDiv.textContent = warning.message;
             warningsContainer.appendChild(warningDiv);
         });
     }
 
-    async function loadAdminWarnings() {
-        if (localStorage.getItem('isAdmin') !== 'true') return;
-
-        let warnings = [];
-        try {
-            warnings = await apiRequest('/warnings', 'GET', null, true); // GET para /warnings, requer autenticação
-        } catch (error) {
-            adminWarningsList.innerHTML = '<p style="color: #e50914;">Erro ao carregar avisos do admin. Verifique o servidor.</p>';
-            return;
-        }
-
+    function loadAdminWarnings() {
+        if (!checkAdminStatus()) return;
+        const warnings = getItemsFromLocalStorage(LS_WARNINGS_KEY);
         adminWarningsList.innerHTML = '';
         if (warnings.length === 0) {
             adminWarningsList.innerHTML = '<p style="color: #888;">Nenhum aviso cadastrado. Adicione um novo acima!</p>';
@@ -767,87 +717,66 @@
         });
     }
 
-    async function addWarning() {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
-
+    function addWarning() {
+        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
         const message = document.getElementById('warningMessage').value.trim();
         if (!message) {
             alert('Por favor, digite uma mensagem para o aviso.');
             return;
         }
-        try {
-            await apiRequest('/warnings', 'POST', { message: message }, true); // POST para /warnings
-            alert('Aviso adicionado com sucesso!');
-            document.getElementById('warningMessage').value = '';
-            await renderWarnings();
-            await loadAdminWarnings();
-        } catch (error) {
-            console.error("Erro ao adicionar aviso:", error);
-            alert(`Erro ao adicionar aviso: ${error.message}`);
-        }
+        let warnings = getItemsFromLocalStorage(LS_WARNINGS_KEY);
+        const newWarning = { id: generateUniqueId(), message: message };
+        warnings.push(newWarning);
+        saveItemsToLocalStorage(LS_WARNINGS_KEY, warnings);
+        alert('Aviso adicionado com sucesso!');
+        document.getElementById('warningMessage').value = '';
+        renderWarnings();
+        loadAdminWarnings();
     }
 
-    async function deleteWarning(warningId) {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
-
+    function deleteWarning(warningId) {
+        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
         if (confirm('Tem certeza que deseja apagar este aviso?')) {
-            try {
-                await apiRequest(`/warnings/${warningId}`, 'DELETE', null, true); // DELETE para /warnings/:id
-                alert('Aviso apagado com sucesso!');
-                await renderWarnings();
-                await loadAdminWarnings();
-            } catch (error) {
-                console.error("Erro ao apagar aviso:", error);
-                alert(`Erro ao apagar aviso: ${error.message}`);
-            }
+            let warnings = getItemsFromLocalStorage(LS_WARNINGS_KEY);
+            warnings = warnings.filter(w => w.id !== warningId);
+            saveItemsToLocalStorage(LS_WARNINGS_KEY, warnings);
+            alert('Aviso apagado com sucesso!');
+            renderWarnings();
+            loadAdminWarnings();
         }
     }
 
-    // --- Funções de Configuração de PIX (AGORA COM API) ---
-    async function updatePixKeyDisplay() {
-        try {
-            const data = await apiRequest('/pix-key'); // GET para /pix-key
-            pixChaveDisplay.textContent = data.key || 'Chave PIX não configurada.';
-        } catch (error) {
-            pixChaveDisplay.textContent = 'Erro ao carregar chave PIX.';
-            console.error("Erro ao carregar chave PIX para exibição:", error);
-        }
+    // --- Funções de Configuração de PIX (localStorage) ---
+    function getPixKeyFromLocalStorage() {
+        return localStorage.getItem(LS_PIX_KEY) || 'Chave PIX não configurada.';
     }
 
-    async function loadPixKeyForAdmin() {
-        if (localStorage.getItem('isAdmin') !== 'true') return;
-        try {
-            const data = await apiRequest('/pix-key', 'GET', null, true); // GET para /pix-key
-            currentPixKeyDisplay.value = data.key || 'Chave PIX não configurada.';
-        } catch (error) {
-            currentPixKeyDisplay.value = 'Erro ao carregar chave PIX.';
-            console.error("Erro ao carregar chave PIX para admin:", error);
-        }
+    function updatePixKeyDisplay() {
+        pixChaveDisplay.textContent = getPixKeyFromLocalStorage();
     }
 
-    async function updatePixKey() {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
+    function loadPixKeyForAdmin() {
+        if (!checkAdminStatus()) return;
+        currentPixKeyDisplay.value = getPixKeyFromLocalStorage();
+    }
 
+    function updatePixKey() {
+        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
         const newKey = newPixKeyInput.value.trim();
         if (!newKey) {
             alert('Por favor, digite uma nova chave PIX.');
             return;
         }
-        try {
-            await apiRequest('/pix-key', 'PUT', { key: newKey }, true); // PUT para /pix-key
-            alert('Chave PIX atualizada com sucesso!');
-            newPixKeyInput.value = '';
-            currentPixKeyDisplay.value = newKey;
-            await updatePixKeyDisplay();
-        } catch (error) {
-            console.error("Erro ao atualizar chave PIX:", error);
-            alert(`Erro ao atualizar chave PIX: ${error.message}`);
-        }
+        localStorage.setItem(LS_PIX_KEY, newKey);
+        alert('Chave PIX atualizada com sucesso!');
+        newPixKeyInput.value = '';
+        currentPixKeyDisplay.value = newKey;
+        updatePixKeyDisplay();
     }
 
     // --- Funções de Abas do Painel de Administração ---
     function openAdminTab(evt, tabName) {
-        if (localStorage.getItem('isAdmin') !== 'true') return;
+        if (!checkAdminStatus()) return;
 
         let i, tabcontent, tablinks;
         tabcontent = adminModal.getElementsByClassName("admin-tab-content");
@@ -868,6 +797,33 @@
             }
         }
     }
+
+    // --- Lógica de Login/Logout para Administrador (na página index.html) ---
+    // Esta parte assume que você tem uma página 'index.html' para o login.
+    // O login faria a verificação da senha e setaria `localStorage.setItem(LS_IS_ADMIN_KEY, 'true');`
+    // e `localStorage.setItem(LS_LOGGED_USER_KEY, 'true');`
+
+    // Exemplo de como seu index.html pode setar isso (apenas para referência)
+    /*
+    // Em index.html, após um login bem-sucedido
+    function performLogin(username, password) {
+        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+            localStorage.setItem(LS_IS_ADMIN_KEY, 'true');
+            localStorage.setItem(LS_LOGGED_USER_KEY, 'true');
+            alert('Login de administrador bem-sucedido! Redirecionando para a loja.');
+            window.location.href = 'loja.html';
+        } else {
+            alert('Usuário ou senha incorretos.');
+            // Para usuários comuns, apenas logar sem ser admin
+            localStorage.setItem(LS_IS_ADMIN_KEY, 'false');
+            localStorage.setItem(LS_LOGGED_USER_KEY, 'true');
+            window.location.href = 'loja.html';
+        }
+    }
+    */
+    // Para logout, basta remover as chaves do localStorage:
+    // localStorage.removeItem(LS_IS_ADMIN_KEY);
+    // localStorage.removeItem(LS_LOGGED_USER_KEY);
   </script>
 
 </body>
