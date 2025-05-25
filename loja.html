@@ -285,6 +285,38 @@
         justify-content: space-between;
         align-items: center;
     }
+
+    /* Estilos para as abas de administração */
+    .admin-tabs {
+        display: flex;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #0f0;
+    }
+
+    .admin-tab-button {
+        background-color: #333;
+        color: #0f0;
+        padding: 10px 15px;
+        border: none;
+        cursor: pointer;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        margin-right: 5px;
+        transition: background-color 0.3s;
+    }
+
+    .admin-tab-button.active {
+        background-color: #0f0;
+        color: #111;
+    }
+
+    .admin-tab-content {
+        display: none; /* Esconde todas as abas por padrão */
+    }
+
+    .admin-tab-content.active {
+        display: block; /* Mostra a aba ativa */
+    }
   </style>
 </head>
 <body>
@@ -295,31 +327,50 @@
   </header>
 
   <div class="content">
-    <div id="warnings-container"></div>
+    <div id="warnings-container">
+      </div>
     <div id="products-container">
       </div>
 
     <div id="admin-panel" class="admin-section" style="display: none;">
       <h3>Painel de Administração</h3>
 
-      <h4>Adicionar/Editar Produto</h4>
-      <input type="hidden" id="productIdToEdit">
-      <input type="text" id="productTitle" placeholder="Título do Produto" required>
-      <textarea id="productDesc" placeholder="Descrição do Produto" rows="3"></textarea>
-      <input type="number" id="productOldPrice" placeholder="Preço Antigo (Ex: 30.00)" step="0.01">
-      <input type="number" id="productNewPrice" placeholder="Preço Atual (Ex: 10.00)" step="0.01" required>
-      <button onclick="saveProduct()">Salvar Produto</button>
-      <button onclick="clearProductForm()">Limpar Formulário</button>
+      <div class="admin-tabs">
+        <button class="admin-tab-button active" onclick="openAdminTab(event, 'manage-products')">Gerenciar Produtos</button>
+        <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-warnings')">Gerenciar Avisos</button>
+        <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-pix')">Configurar PIX</button>
+      </div>
 
-      <h4>Produtos Existentes</h4>
-      <div id="admin-products-list">
-        </div>
+      <div id="manage-products" class="admin-tab-content active">
+        <h4>Adicionar/Editar Produto</h4>
+        <input type="hidden" id="productIdToEdit">
+        <input type="text" id="productTitle" placeholder="Título do Produto" required>
+        <textarea id="productDesc" placeholder="Descrição do Produto" rows="3"></textarea>
+        <input type="number" id="productOldPrice" placeholder="Preço Antigo (Ex: 30.00)" step="0.01">
+        <input type="number" id="productNewPrice" placeholder="Preço Atual (Ex: 10.00)" step="0.01" required>
+        <button onclick="saveProduct()">Salvar Produto</button>
+        <button onclick="clearProductForm()">Limpar Formulário</button>
 
-      <h4>Gerenciar Avisos</h4>
-      <input type="text" id="warningMessage" placeholder="Nova mensagem de aviso">
-      <button onclick="addWarning()">Adicionar Aviso</button>
-      <div id="admin-warnings-list">
-        </div>
+        <h4>Produtos Existentes</h4>
+        <div id="admin-products-list">
+          </div>
+      </div>
+
+      <div id="manage-warnings" class="admin-tab-content">
+        <h4>Gerenciar Avisos</h4>
+        <input type="text" id="warningMessage" placeholder="Nova mensagem de aviso">
+        <button onclick="addWarning()">Adicionar Aviso</button>
+        <div id="admin-warnings-list">
+          </div>
+      </div>
+
+      <div id="manage-pix" class="admin-tab-content">
+        <h4>Chave PIX Atual</h4>
+        <input type="text" id="currentPixKey" placeholder="Chave PIX atual" readonly>
+        <h4>Nova Chave PIX</h4>
+        <input type="text" id="newPixKey" placeholder="Nova Chave PIX">
+        <button onclick="updatePixKey()">Salvar Chave PIX</button>
+      </div>
     </div>
   </div>
 
@@ -330,8 +381,7 @@
   <div class="modal" id="pixModal">
     <div class="modal-content">
       <h3>Pagamento via PIX</h3>
-      <div class="pix-key" id="pixChave">473d4931-6f15-4ab6-bf59-571f6c3a368d</div>
-      <button class="btn-confirmar" onclick="confirmarPagamento()">Confirmar pagamento</button>
+      <div class="pix-key" id="pixChave"></div> <button class="btn-confirmar" onclick="confirmarPagamento()">Confirmar pagamento</button>
       <div class="mensagem-final" id="mensagemFinal">HAX STORE - ENVIE O COMPROVANTE NO TICKET</div>
     </div>
   </div>
@@ -342,9 +392,29 @@
     const adminProductsList = document.getElementById('admin-products-list');
     const warningsContainer = document.getElementById('warnings-container');
     const adminWarningsList = document.getElementById('admin-warnings-list');
+    const pixChaveDisplay = document.getElementById('pixChave');
+    const newPixKeyInput = document.getElementById('newPixKey');
+    const currentPixKeyDisplay = document.getElementById('currentPixKey'); // Adicionado
 
-    // Funções do Modal PIX (mantidas as suas)
+    // --- Funções Iniciais e Verificação de Admin ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        if (isAdmin) {
+            adminPanel.style.display = 'block';
+            loadAdminProducts();
+            loadAdminWarnings();
+            loadPixKeyForAdmin(); // Carrega a chave PIX para o painel de admin
+            openAdminTab(null, 'manage-products'); // Abre a primeira aba por padrão
+        }
+
+        renderProducts();
+        renderWarnings();
+        updatePixKeyDisplay(); // Atualiza a chave PIX no modal para todos os usuários
+    });
+
+    // --- Funções do Modal PIX ---
     function abrirModal() {
+      updatePixKeyDisplay(); // Garante que a chave PIX no modal está atualizada
       document.getElementById('pixModal').style.display = 'flex';
     }
 
@@ -361,20 +431,7 @@
       }
     }
     
-    // Redirecionamento para login se não estiver logado ao tentar comprar
-    document.addEventListener('DOMContentLoaded', () => {
-        const isAdmin = localStorage.getItem('isAdmin') === 'true';
-        if (isAdmin) {
-            adminPanel.style.display = 'block';
-            loadAdminProducts();
-            loadAdminWarnings();
-        }
-
-        renderProducts();
-        renderWarnings();
-    });
-
-    // Funções de produtos
+    // --- Funções de Produtos ---
     function getProducts() {
       return JSON.parse(localStorage.getItem('products') || '[]');
     }
@@ -401,7 +458,7 @@
           <h1 class="produto-titulo">${product.title}</h1>
           <p class="produto-desc">${product.description}</p>
           <div class="precos">
-            ${product.oldPrice ? `<span class="preco-antigo">R$ ${product.oldPrice.toFixed(2).replace('.', ',')}</span><br>` : ''}
+            ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${product.oldPrice.toFixed(2).replace('.', ',')}</span><br>` : ''}
             <span class="preco-atual">R$ ${product.newPrice.toFixed(2).replace('.', ',')}</span>
           </div>
           <button class="btn-comprar" data-product-id="${index}">Comprar agora</button>
@@ -445,8 +502,8 @@
 
     function saveProduct() {
         const idToEdit = document.getElementById('productIdToEdit').value;
-        const title = document.getElementById('productTitle').value;
-        const description = document.getElementById('productDesc').value;
+        const title = document.getElementById('productTitle').value.trim();
+        const description = document.getElementById('productDesc').value.trim();
         const oldPrice = parseFloat(document.getElementById('productOldPrice').value) || 0;
         const newPrice = parseFloat(document.getElementById('productNewPrice').value);
 
@@ -456,7 +513,7 @@
         }
 
         const products = getProducts();
-        if (idToEdit) {
+        if (idToEdit !== '') { // Verifica se há um ID para edição
             // Editando produto existente
             products[idToEdit] = { title, description, oldPrice, newPrice };
         } else {
@@ -499,7 +556,7 @@
         document.getElementById('productNewPrice').value = '';
     }
 
-    // Funções de Avisos
+    // --- Funções de Avisos ---
     function getWarnings() {
       return JSON.parse(localStorage.getItem('warnings') || '[]');
     }
@@ -538,7 +595,7 @@
     }
 
     function addWarning() {
-        const message = document.getElementById('warningMessage').value;
+        const message = document.getElementById('warningMessage').value.trim();
         if (!message) {
             alert('Por favor, digite uma mensagem para o aviso.');
             return;
@@ -560,6 +617,58 @@
             renderWarnings();
             loadAdminWarnings();
             alert('Aviso apagado!');
+        }
+    }
+
+    // --- Funções de PIX ---
+    function getPixKey() {
+        // Retorna a chave PIX, ou uma padrão se não houver
+        return localStorage.getItem('pixKey') || '473d4931-6f15-4ab6-bf59-571f6c3a368d';
+    }
+
+    function savePixKey(key) {
+        localStorage.setItem('pixKey', key);
+    }
+
+    function updatePixKeyDisplay() {
+        // Atualiza a chave PIX exibida no modal para o usuário
+        pixChaveDisplay.textContent = getPixKey();
+    }
+
+    function loadPixKeyForAdmin() {
+        // Carrega a chave PIX no campo de texto para o admin
+        currentPixKeyDisplay.value = getPixKey();
+    }
+
+    function updatePixKey() {
+        const newKey = newPixKeyInput.value.trim();
+        if (!newKey) {
+            alert('Por favor, digite uma nova chave PIX.');
+            return;
+        }
+        savePixKey(newKey);
+        newPixKeyInput.value = '';
+        currentPixKeyDisplay.value = newKey; // Atualiza o campo de visualização no admin
+        updatePixKeyDisplay(); // Atualiza a chave no modal
+        alert('Chave PIX atualizada com sucesso!');
+    }
+
+    // --- Funções de Abas do Painel de Administração ---
+    function openAdminTab(evt, tabName) {
+        let i, tabcontent, tablinks;
+        tabcontent = document.getElementsByClassName("admin-tab-content");
+        for (i = 0; i < tabcontent.length; i++) {
+            tabcontent[i].style.display = "none";
+        }
+        tablinks = document.getElementsByClassName("admin-tab-button");
+        for (i = 0; i < tablinks.length; i++) {
+            tablinks[i].className = tablinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabName).style.display = "block";
+        if (evt) { // Evita erro se chamado sem evento (no DOMContentLoaded)
+            evt.currentTarget.className += " active";
+        } else { // Se for a chamada inicial, ativa o primeiro botão
+            document.querySelector('.admin-tab-button').className += " active";
         }
     }
   </script>

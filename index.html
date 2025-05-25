@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Login - HAX STORE</title>
   <style>
+    /* Seu CSS de login, inalterado */
     * {
       margin: 0;
       padding: 0;
@@ -117,11 +118,25 @@
       e.preventDefault();
       const username = document.getElementById("username").value.toLowerCase();
       const pass = document.getElementById("pass").value;
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+      // Adiciona o usuário 'jhow' com senha 'modder' se não existir
+      const adminUser = { username: "jhow", pass: "modder" };
+      if (!users.some(u => u.username === adminUser.username)) {
+          users.push(adminUser);
+          localStorage.setItem("users", JSON.stringify(users));
+      }
+
       const found = users.find(u => u.username === username && u.pass === pass);
 
       if (found) {
         localStorage.setItem("loggedUser", username);
+        // Verifica se é o administrador
+        if (username === "jhow" && pass === "modder") {
+          localStorage.setItem("isAdmin", "true");
+        } else {
+          localStorage.removeItem("isAdmin");
+        }
         window.location.href = "loja.html";
       } else {
         document.getElementById("msg").textContent = "Usuário ou senha incorretos.";
