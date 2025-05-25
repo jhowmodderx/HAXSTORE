@@ -1,3 +1,48 @@
+
+
+<script>
+    // --- Configuração do Firebase ---
+    // ATENÇÃO: Verifique se estas são as suas chaves corretas!
+   const firebaseConfig = {
+  apiKey: "AIzaSyAx5VNBlcPXveA1xawirSjRVWDNaKdNRmc",
+  authDomain: "haxstore-a250a.firebaseapp.com",
+  projectId: "haxstore-a250a",
+  storageBucket: "haxstore-a250a.firebasestorage.app",
+  messagingSenderId: "39538757064",
+  appId: "1:39538757064:web:7f45d2cba626b6333ac4fd",
+  measurementId: "G-3D42M9L1HF"
+};
+
+    // Inicialize o Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // --- Referências aos elementos DOM ---
+    const productsContainer = document.getElementById('products-container');
+    const adminPanelBtn = document.getElementById('adminPanelBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const adminModal = document.getElementById('adminModal');
+    const adminProductsList = document.getElementById('admin-products-list');
+    const warningsContainer = document.getElementById('warnings-container');
+    const adminWarningsList = document.getElementById('admin-warnings-list');
+    const pixChaveDisplay = document.getElementById('pixChave');
+    const newPixKeyInput = document.getElementById('newPixKey');
+    const currentPixKeyDisplay = document.getElementById('currentPixKey');
+
+    // --- Chaves para o localStorage (apenas para status de login local) ---
+    const LS_IS_ADMIN_KEY = 'haxstore_isAdmin';
+    const LS_LOGGED_USER_KEY = 'haxstore_logged_user';
+
+    // --- Autenticação (Apenas para simular login de admin localmente) ---
+    const ADMIN_USERNAME = 'jhow';
+    const ADMIN_PASSWORD = 'modder'; // Senha fixa no código, insegura
+
+    function checkAdminStatus() {
+        return localStorage.getItem(LS_IS_ADMIN_KEY) === 'true';
+    }
+
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
