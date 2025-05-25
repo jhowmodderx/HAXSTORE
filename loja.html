@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HAX STORE</title>
   <style>
+    /* Seu CSS existente do site deve estar aqui */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background-color: #0c0c0c; color: #fff; }
 
@@ -439,13 +440,14 @@
         if (isAdmin) {
             adminPanelBtn.style.display = 'block'; // Mostra o botão "Painel de Administração"
             // Não carrega adminPanel diretamente no DOM, ele será um modal
-            loadAdminProducts();
-            loadAdminWarnings();
-            loadPixKeyForAdmin();
+            loadAdminProducts(); // Carrega os produtos na lista do admin
+            loadAdminWarnings(); // Carrega os avisos na lista do admin
+            loadPixKeyForAdmin(); // Carrega a chave PIX para o painel de admin
+            openAdminTab(null, 'manage-products'); // Abre a primeira aba por padrão ao carregar o modal
         }
 
-        renderProducts();
-        renderWarnings();
+        renderProducts(); // Renderiza os produtos na loja (visível para todos)
+        renderWarnings(); // Renderiza os avisos na loja (visível para todos)
         updatePixKeyDisplay(); // Atualiza a chave PIX no modal de compra para todos os usuários
     });
 
@@ -469,7 +471,9 @@
     adminPanelBtn.addEventListener('click', () => {
         adminModal.style.display = 'flex';
         // Garante que a primeira aba e os dados sejam carregados ao abrir o modal
-        openAdminTab(null, 'manage-products');
+        // Essas funções já são chamadas no DOMContentLoaded para o admin, mas
+        // é bom garantir que estejam atualizadas ao abrir o modal novamente.
+        openAdminTab(null, 'manage-products'); // Abre a aba de produtos por padrão
         loadAdminProducts();
         loadAdminWarnings();
         loadPixKeyForAdmin();
@@ -583,8 +587,8 @@
         }
         saveProducts(products);
         clearProductForm();
-        renderProducts();
-        loadAdminProducts();
+        renderProducts(); // Atualiza a exibição da loja
+        loadAdminProducts(); // Atualiza a lista no painel admin
         alert('Produto salvo com sucesso!');
     }
 
@@ -603,8 +607,8 @@
             const products = getProducts();
             products.splice(index, 1); // Remove o produto do array
             saveProducts(products);
-            renderProducts();
-            loadAdminProducts();
+            renderProducts(); // Atualiza a exibição da loja
+            loadAdminProducts(); // Atualiza a lista no painel admin
             alert('Produto apagado!');
         }
     }
@@ -665,8 +669,8 @@
         warnings.push(message);
         saveWarnings(warnings);
         document.getElementById('warningMessage').value = '';
-        renderWarnings();
-        loadAdminWarnings();
+        renderWarnings(); // Atualiza a exibição da loja
+        loadAdminWarnings(); // Atualiza a lista no painel admin
         alert('Aviso adicionado com sucesso!');
     }
 
@@ -675,8 +679,8 @@
             const warnings = getWarnings();
             warnings.splice(index, 1);
             saveWarnings(warnings);
-            renderWarnings();
-            loadAdminWarnings();
+            renderWarnings(); // Atualiza a exibição da loja
+            loadAdminWarnings(); // Atualiza a lista no painel admin
             alert('Aviso apagado!');
         }
     }
@@ -717,6 +721,7 @@
     // --- Funções de Abas do Painel de Administração ---
     function openAdminTab(evt, tabName) {
         let i, tabcontent, tablinks;
+        // As abas estão DENTRO do modal de admin, então procuramos por elas lá
         tabcontent = adminModal.getElementsByClassName("admin-tab-content");
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].style.display = "none";
@@ -726,10 +731,14 @@
             tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
         document.getElementById(tabName).style.display = "block";
-        if (evt) { // Evita erro se chamado sem evento (no DOMContentLoaded)
+        if (evt) { // Se a função for chamada por um clique em um botão de aba
             evt.currentTarget.className += " active";
-        } else { // Se for a chamada inicial, ativa o primeiro botão
-            adminModal.querySelector('.admin-tab-button').className += " active";
+        } else { // Se a função for chamada ao abrir o modal (sem evento de clique)
+            // Encontra o botão da aba padrão e o ativa
+            const defaultButton = adminModal.querySelector(`.admin-tab-button[onclick*="'${tabName}'"]`);
+            if (defaultButton) {
+                defaultButton.className += " active";
+            }
         }
     }
   </script>
