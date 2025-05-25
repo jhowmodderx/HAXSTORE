@@ -44,7 +44,7 @@
     /* Banner */
     .banner {
       height: 250px;
-      background: url('imgui') no-repeat center center; /* Imagem do banner */
+      background: url('https://i.imgur.com/xklvTL7.png') no-repeat center center; /* Imagem do banner */
       background-size: cover;
       display: flex;
       align-items: center;
@@ -468,7 +468,7 @@
             adminPanelBtn.style.display = 'none'; // Garante que o botão esteja oculto para não-admins
         }
 
-        // *** ESSAS FUNÇÕES AGORA SÃO CHAMADAS SEMPRE AO CARREGAR A PÁGINA ***
+        // *** ESSAS FUNÇÕES SÃO SEMPRE CHAMADAS AO CARREGAR A PÁGINA PARA EXIBIR O CONTEÚDO ***
         renderProducts(); // Carrega e exibe os produtos na loja para TODOS os usuários
         renderWarnings(); // Carrega e exibe os avisos na loja para TODOS os usuários
         updatePixKeyDisplay(); // Atualiza a chave PIX no modal de compra
@@ -545,13 +545,14 @@
 
       if (products.length === 0) {
           productsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 20px;">Nenhum produto disponível no momento.</p>';
-          // Se for admin e não houver produtos, exibe uma mensagem encorajando a adição
+          // Mensagem extra para admin quando não há produtos
           if (isAdmin) {
               productsContainer.innerHTML += '<p style="text-align: center; color: #0f0;">Como administrador, você pode adicionar produtos através do "Painel de Administração".</p>';
           }
-          return; // Sai da função se não houver produtos
+          return; // Sai da função se não houver produtos para evitar processamento desnecessário
       }
 
+      // Se há produtos, renderiza-os
       products.forEach((product, index) => {
         const productDiv = document.createElement('div');
         productDiv.className = 'produto-item';
