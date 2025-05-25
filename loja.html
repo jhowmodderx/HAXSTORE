@@ -468,8 +468,9 @@
             adminPanelBtn.style.display = 'none'; // Garante que o botão esteja oculto para não-admins
         }
 
-        renderProducts(); // Carrega e exibe os produtos na loja
-        renderWarnings(); // Carrega e exibe os avisos na loja
+        // *** ESSAS FUNÇÕES AGORA SÃO CHAMADAS SEMPRE AO CARREGAR A PÁGINA ***
+        renderProducts(); // Carrega e exibe os produtos na loja para TODOS os usuários
+        renderWarnings(); // Carrega e exibe os avisos na loja para TODOS os usuários
         updatePixKeyDisplay(); // Atualiza a chave PIX no modal de compra
     });
 
@@ -499,12 +500,17 @@
 
     // --- Funções do Modal de Administração ---
     adminPanelBtn.addEventListener('click', () => {
-        adminModal.style.display = 'flex';
-        // Ao abrir o modal, garantimos que a aba de produtos esteja ativa e os dados carregados
-        openAdminTab(null, 'manage-products'); // Passa null para evt, ativa a primeira aba
-        loadAdminProducts();
-        loadAdminWarnings();
-        loadPixKeyForAdmin();
+        // Apenas abre o modal se o usuário for realmente admin (segurança extra)
+        if (localStorage.getItem('isAdmin') === 'true') {
+            adminModal.style.display = 'flex';
+            // Ao abrir o modal, garantimos que a aba de produtos esteja ativa e os dados carregados
+            openAdminTab(null, 'manage-products'); // Passa null para evt, ativa a primeira aba
+            loadAdminProducts();
+            loadAdminWarnings();
+            loadPixKeyForAdmin();
+        } else {
+            alert('Acesso negado. Você não tem permissões de administrador.');
+        }
     });
 
     function closeAdminModal() {
@@ -543,7 +549,7 @@
           if (isAdmin) {
               productsContainer.innerHTML += '<p style="text-align: center; color: #0f0;">Como administrador, você pode adicionar produtos através do "Painel de Administração".</p>';
           }
-          return;
+          return; // Sai da função se não houver produtos
       }
 
       products.forEach((product, index) => {
@@ -568,8 +574,10 @@
       });
     }
 
-    // Carrega produtos na lista dentro do painel de administração
+    // Carrega produtos na lista dentro do painel de administração (só admin)
     function loadAdminProducts() {
+        if (localStorage.getItem('isAdmin') !== 'true') return; // Segurança extra
+
         const products = getProducts();
         adminProductsList.innerHTML = ''; // Limpa a lista antes de carregar
         if (products.length === 0) {
@@ -591,6 +599,8 @@
     }
 
     function saveProduct() {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
+
         const idToEdit = document.getElementById('productIdToEdit').value;
         const title = document.getElementById('productTitle').value.trim();
         const description = document.getElementById('productDesc').value.trim();
@@ -616,6 +626,7 @@
     }
 
     function editProduct(index) {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
         const products = getProducts();
         const product = products[index];
         document.getElementById('productIdToEdit').value = index; // Armazena o índice para edição
@@ -626,6 +637,7 @@
     }
 
     function deleteProduct(index) {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
         if (confirm('Tem certeza que deseja apagar este produto?')) {
             const products = getProducts();
             products.splice(index, 1); // Remove o produto do array
@@ -657,6 +669,10 @@
     function renderWarnings() {
         const warnings = getWarnings();
         warningsContainer.innerHTML = '';
+        if (warnings.length === 0) {
+            warningsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 10px;">Nenhum aviso no momento.</p>';
+            return;
+        }
         warnings.forEach((warning) => {
             const warningDiv = document.createElement('div');
             warningDiv.className = 'admin-warning-message';
@@ -665,8 +681,10 @@
         });
     }
 
-    // Carrega avisos na lista dentro do painel de administração
+    // Carrega avisos na lista dentro do painel de administração (só admin)
     function loadAdminWarnings() {
+        if (localStorage.getItem('isAdmin') !== 'true') return; // Segurança extra
+
         const warnings = getWarnings();
         adminWarningsList.innerHTML = '';
         if (warnings.length === 0) {
@@ -685,6 +703,8 @@
     }
 
     function addWarning() {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
+
         const message = document.getElementById('warningMessage').value.trim();
         if (!message) {
             alert('Por favor, digite uma mensagem para o aviso.');
@@ -700,6 +720,8 @@
     }
 
     function deleteWarning(index) {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
+
         if (confirm('Tem certeza que deseja apagar este aviso?')) {
             const warnings = getWarnings();
             warnings.splice(index, 1);
@@ -725,12 +747,15 @@
         pixChaveDisplay.textContent = getPixKey();
     }
 
-    // Carrega a chave PIX no campo de texto para o admin no modal de administração
+    // Carrega a chave PIX no campo de texto para o admin no modal de administração (só admin)
     function loadPixKeyForAdmin() {
+        if (localStorage.getItem('isAdmin') !== 'true') return; // Segurança extra
         currentPixKeyDisplay.value = getPixKey();
     }
 
     function updatePixKey() {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
+
         const newKey = newPixKeyInput.value.trim();
         if (!newKey) {
             alert('Por favor, digite uma nova chave PIX.');
@@ -745,6 +770,8 @@
 
     // --- Funções de Abas do Painel de Administração ---
     function openAdminTab(evt, tabName) {
+        if (localStorage.getItem('isAdmin') !== 'true') return; // Segurança extra
+
         let i, tabcontent, tablinks;
         // Oculta todas as abas de conteúdo
         tabcontent = adminModal.getElementsByClassName("admin-tab-content");
