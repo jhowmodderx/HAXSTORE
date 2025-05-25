@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HAX STORE</title>
   <style>
-    /* Seu CSS existente do site deve estar aqui */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background-color: #0c0c0c; color: #fff; }
 
@@ -71,6 +70,15 @@
       margin-bottom: 10px;
     }
 
+    .produto-item {
+      background-color: #1a1a1a;
+      border: 1px solid #222;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      position: relative; /* Para o botão de apagar */
+    }
+
     .produto-titulo { font-size: 28px; font-weight: bold; margin: 10px 0; }
     .produto-desc { color: #ccc; margin-bottom: 15px; line-height: 1.6; }
 
@@ -94,6 +102,41 @@
 
     .btn-comprar:hover {
       background-color: #b20710;
+    }
+
+    .btn-delete-produto {
+      background-color: #cc0000;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 12px;
+    }
+
+    .btn-delete-produto:hover {
+        background-color: #990000;
+    }
+
+    .btn-edit-produto {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      position: absolute;
+      top: 10px;
+      right: 60px; /* Ajuste para não sobrepor o delete */
+      font-size: 12px;
+      margin-right: 5px;
+    }
+
+    .btn-edit-produto:hover {
+        background-color: #0056b3;
     }
 
     footer {
@@ -157,6 +200,91 @@
       font-weight: bold;
       display: none;
     }
+
+    /* Estilos de Administração */
+    .admin-section {
+      background-color: #111;
+      border: 2px solid #0f0; /* Cor verde para admin */
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 10px;
+      color: #0f0;
+    }
+
+    .admin-section h3 {
+      color: #0f0;
+      margin-bottom: 15px;
+    }
+
+    .admin-section input[type="text"],
+    .admin-section input[type="number"],
+    .admin-section textarea {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #222;
+      border: 1px solid #333;
+      color: #fff;
+      border-radius: 4px;
+    }
+
+    .admin-section button {
+      background-color: #0f0; /* Botão verde */
+      color: #111;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .admin-section button:hover {
+      background-color: #00cc00;
+    }
+
+    .admin-products-list {
+      margin-top: 20px;
+    }
+
+    .admin-product-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #222;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    .admin-product-item span {
+      flex-grow: 1;
+    }
+
+    .admin-product-item button {
+      margin-left: 10px;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
+
+    .admin-warning-message {
+        background-color: #e50914;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .warning-item {
+        background-color: #333;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
   </style>
 </head>
 <body>
@@ -167,16 +295,32 @@
   </header>
 
   <div class="content">
-    <span class="tag">Em destaque</span>
-    <h1 class="produto-titulo">Script Rio Rise 30 Dias</h1>
-    <p class="produto-desc">
-      Script Lua para Rio Rise com diversas funcoes apelativas e farm!
-    </p>
-    <div class="precos">
-      <span class="preco-antigo">R$ 30,00</span><br>
-      <span class="preco-atual">R$ 10,00</span>
+    <div id="warnings-container"></div>
+    <div id="products-container">
+      </div>
+
+    <div id="admin-panel" class="admin-section" style="display: none;">
+      <h3>Painel de Administração</h3>
+
+      <h4>Adicionar/Editar Produto</h4>
+      <input type="hidden" id="productIdToEdit">
+      <input type="text" id="productTitle" placeholder="Título do Produto" required>
+      <textarea id="productDesc" placeholder="Descrição do Produto" rows="3"></textarea>
+      <input type="number" id="productOldPrice" placeholder="Preço Antigo (Ex: 30.00)" step="0.01">
+      <input type="number" id="productNewPrice" placeholder="Preço Atual (Ex: 10.00)" step="0.01" required>
+      <button onclick="saveProduct()">Salvar Produto</button>
+      <button onclick="clearProductForm()">Limpar Formulário</button>
+
+      <h4>Produtos Existentes</h4>
+      <div id="admin-products-list">
+        </div>
+
+      <h4>Gerenciar Avisos</h4>
+      <input type="text" id="warningMessage" placeholder="Nova mensagem de aviso">
+      <button onclick="addWarning()">Adicionar Aviso</button>
+      <div id="admin-warnings-list">
+        </div>
     </div>
-    <button class="btn-comprar" onclick="abrirModal()">Comprar agora</button>
   </div>
 
   <footer>
@@ -193,6 +337,13 @@
   </div>
 
   <script>
+    const productsContainer = document.getElementById('products-container');
+    const adminPanel = document.getElementById('admin-panel');
+    const adminProductsList = document.getElementById('admin-products-list');
+    const warningsContainer = document.getElementById('warnings-container');
+    const adminWarningsList = document.getElementById('admin-warnings-list');
+
+    // Funções do Modal PIX (mantidas as suas)
     function abrirModal() {
       document.getElementById('pixModal').style.display = 'flex';
     }
@@ -202,7 +353,6 @@
       mensagem.style.display = 'block';
     }
 
-    // Fecha modal ao clicar fora
     window.onclick = function(event) {
       const modal = document.getElementById('pixModal');
       if (event.target == modal) {
@@ -211,16 +361,207 @@
       }
     }
     
-    document.querySelector('.btn-comprar').addEventListener('click', () => {
-      // Verifica se o usuário está logado usando a chave 'loggedUser'
-      if (!localStorage.getItem('loggedUser')) {
-        alert('Você precisa estar logado para comprar.');
-        window.location.href = 'index.html'; // Redireciona para a página de login
-      } else {
-        abrirModal();
-      }
+    // Redirecionamento para login se não estiver logado ao tentar comprar
+    document.addEventListener('DOMContentLoaded', () => {
+        const isAdmin = localStorage.getItem('isAdmin') === 'true';
+        if (isAdmin) {
+            adminPanel.style.display = 'block';
+            loadAdminProducts();
+            loadAdminWarnings();
+        }
+
+        renderProducts();
+        renderWarnings();
     });
 
+    // Funções de produtos
+    function getProducts() {
+      return JSON.parse(localStorage.getItem('products') || '[]');
+    }
+
+    function saveProducts(products) {
+      localStorage.setItem('products', JSON.stringify(products));
+    }
+
+    function renderProducts() {
+      const products = getProducts();
+      productsContainer.innerHTML = ''; // Limpa antes de renderizar
+      const isAdmin = localStorage.getItem('isAdmin') === 'true';
+
+      if (products.length === 0 && !isAdmin) {
+          productsContainer.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum produto disponível no momento.</p>';
+          return;
+      }
+
+      products.forEach((product, index) => {
+        const productDiv = document.createElement('div');
+        productDiv.className = 'produto-item';
+        productDiv.innerHTML = `
+          <span class="tag">Em destaque</span>
+          <h1 class="produto-titulo">${product.title}</h1>
+          <p class="produto-desc">${product.description}</p>
+          <div class="precos">
+            ${product.oldPrice ? `<span class="preco-antigo">R$ ${product.oldPrice.toFixed(2).replace('.', ',')}</span><br>` : ''}
+            <span class="preco-atual">R$ ${product.newPrice.toFixed(2).replace('.', ',')}</span>
+          </div>
+          <button class="btn-comprar" data-product-id="${index}">Comprar agora</button>
+        `;
+        productsContainer.appendChild(productDiv);
+      });
+
+      // Adiciona event listeners para os botões de compra (após a renderização)
+      document.querySelectorAll('.btn-comprar').forEach(button => {
+        button.addEventListener('click', (event) => {
+          if (!localStorage.getItem('loggedUser')) {
+            alert('Você precisa estar logado para comprar.');
+            window.location.href = 'index.html';
+          } else {
+            abrirModal();
+          }
+        });
+      });
+    }
+
+    function loadAdminProducts() {
+        const products = getProducts();
+        adminProductsList.innerHTML = '';
+        if (products.length === 0) {
+            adminProductsList.innerHTML = '<p style="color: #888;">Nenhum produto cadastrado.</p>';
+            return;
+        }
+        products.forEach((product, index) => {
+            const productItem = document.createElement('div');
+            productItem.className = 'admin-product-item';
+            productItem.innerHTML = `
+                <span>${product.title} - R$ ${product.newPrice.toFixed(2).replace('.', ',')}</span>
+                <div>
+                    <button class="btn-edit-produto" onclick="editProduct(${index})">Editar</button>
+                    <button class="btn-delete-produto" onclick="deleteProduct(${index})">Apagar</button>
+                </div>
+            `;
+            adminProductsList.appendChild(productItem);
+        });
+    }
+
+    function saveProduct() {
+        const idToEdit = document.getElementById('productIdToEdit').value;
+        const title = document.getElementById('productTitle').value;
+        const description = document.getElementById('productDesc').value;
+        const oldPrice = parseFloat(document.getElementById('productOldPrice').value) || 0;
+        const newPrice = parseFloat(document.getElementById('productNewPrice').value);
+
+        if (!title || !description || isNaN(newPrice) || newPrice <= 0) {
+            alert('Por favor, preencha todos os campos obrigatórios (Título, Descrição, Preço Atual) e o preço deve ser um número positivo.');
+            return;
+        }
+
+        const products = getProducts();
+        if (idToEdit) {
+            // Editando produto existente
+            products[idToEdit] = { title, description, oldPrice, newPrice };
+        } else {
+            // Adicionando novo produto
+            products.push({ title, description, oldPrice, newPrice });
+        }
+        saveProducts(products);
+        clearProductForm();
+        renderProducts();
+        loadAdminProducts();
+        alert('Produto salvo com sucesso!');
+    }
+
+    function editProduct(index) {
+        const products = getProducts();
+        const product = products[index];
+        document.getElementById('productIdToEdit').value = index;
+        document.getElementById('productTitle').value = product.title;
+        document.getElementById('productDesc').value = product.description;
+        document.getElementById('productOldPrice').value = product.oldPrice;
+        document.getElementById('productNewPrice').value = product.newPrice;
+    }
+
+    function deleteProduct(index) {
+        if (confirm('Tem certeza que deseja apagar este produto?')) {
+            const products = getProducts();
+            products.splice(index, 1); // Remove o produto do array
+            saveProducts(products);
+            renderProducts();
+            loadAdminProducts();
+            alert('Produto apagado!');
+        }
+    }
+
+    function clearProductForm() {
+        document.getElementById('productIdToEdit').value = '';
+        document.getElementById('productTitle').value = '';
+        document.getElementById('productDesc').value = '';
+        document.getElementById('productOldPrice').value = '';
+        document.getElementById('productNewPrice').value = '';
+    }
+
+    // Funções de Avisos
+    function getWarnings() {
+      return JSON.parse(localStorage.getItem('warnings') || '[]');
+    }
+
+    function saveWarnings(warnings) {
+      localStorage.setItem('warnings', JSON.stringify(warnings));
+    }
+
+    function renderWarnings() {
+        const warnings = getWarnings();
+        warningsContainer.innerHTML = '';
+        warnings.forEach((warning, index) => {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'admin-warning-message';
+            warningDiv.textContent = warning;
+            warningsContainer.appendChild(warningDiv);
+        });
+    }
+
+    function loadAdminWarnings() {
+        const warnings = getWarnings();
+        adminWarningsList.innerHTML = '';
+        if (warnings.length === 0) {
+            adminWarningsList.innerHTML = '<p style="color: #888;">Nenhum aviso cadastrado.</p>';
+            return;
+        }
+        warnings.forEach((warning, index) => {
+            const warningItem = document.createElement('div');
+            warningItem.className = 'warning-item';
+            warningItem.innerHTML = `
+                <span>${warning}</span>
+                <button class="btn-delete-produto" onclick="deleteWarning(${index})">Apagar</button>
+            `;
+            adminWarningsList.appendChild(warningItem);
+        });
+    }
+
+    function addWarning() {
+        const message = document.getElementById('warningMessage').value;
+        if (!message) {
+            alert('Por favor, digite uma mensagem para o aviso.');
+            return;
+        }
+        const warnings = getWarnings();
+        warnings.push(message);
+        saveWarnings(warnings);
+        document.getElementById('warningMessage').value = '';
+        renderWarnings();
+        loadAdminWarnings();
+        alert('Aviso adicionado com sucesso!');
+    }
+
+    function deleteWarning(index) {
+        if (confirm('Tem certeza que deseja apagar este aviso?')) {
+            const warnings = getWarnings();
+            warnings.splice(index, 1);
+            saveWarnings(warnings);
+            renderWarnings();
+            loadAdminWarnings();
+            alert('Aviso apagado!');
+        }
+    }
   </script>
 
 </body>
