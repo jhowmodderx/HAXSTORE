@@ -1,27 +1,42 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login - HAX STORE</title>
+  <title>Login</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <div class="container">
+  <form id="loginForm">
     <h2>Login</h2>
-    <form id="loginForm">
-      <input type="text" id="username" placeholder="Usuário" required>
-      <input type="password" id="password" placeholder="Senha" required>
-      <button type="submit">Entrar</button>
-    </form>
-    <div class="message" id="loginMessage"></div>
-    <p style="text-align:center; margin-top:10px;">
-      <a href="register.html" style="color:#e50914;">Criar conta</a>
-    </p>
-  </div>
+    <input type="email" id="email" placeholder="Seu e-mail" required>
+    <input type="password" id="pass" placeholder="Sua senha" required>
+    <button type="submit">Entrar</button>
+    <p id="msg"></p>
+    <a href="register.html">Criar nova conta</a>
+  </form>
 
-  <script src="script.js"></script>
+  <script>
+    const justRegistered = localStorage.getItem("justRegistered");
+    if (justRegistered) {
+      document.getElementById("email").value = justRegistered;
+      localStorage.removeItem("justRegistered");
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value.toLowerCase();
+      const pass = document.getElementById("pass").value;
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const found = users.find(u => u.email === email && u.pass === pass);
+
+      if (found) {
+        localStorage.setItem("logged", email);
+        window.location.href = "loja.html";
+      } else {
+        document.getElementById("msg").textContent = "E-mail ou senha incorretos.";
+        document.getElementById("msg").style.color = "red";
+      }
+    });
+  </script>
 </body>
 </html>

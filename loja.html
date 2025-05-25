@@ -210,6 +210,16 @@
         document.getElementById('mensagemFinal').style.display = "none";
       }
     }
+    
+    document.querySelector('.btn-comprar').addEventListener('click', () => {
+  if (!localStorage.getItem('loggedUser')) {
+    alert('Você precisa estar logado para comprar.');
+    window.location.href = 'index.html';
+  } else {
+    abrirModal();
+  }
+});
+
   </script>
 
 </body>

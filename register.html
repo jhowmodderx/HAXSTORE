@@ -1,28 +1,39 @@
-<!-- register.html -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro - HAX STORE</title>
+  <title>Registro</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <div class="container">
+  <form id="registerForm">
     <h2>Registro</h2>
-    <form id="registerForm">
-      <input type="text" id="newUsername" placeholder="Usuário" required>
-      <input type="email" id="newEmail" placeholder="Email" required>
-      <input type="password" id="newPassword" placeholder="Senha" required>
-      <button type="submit">Registrar</button>
-    </form>
-    <div class="message" id="registerMessage"></div>
-    <p style="text-align:center; margin-top:10px;">
-      <a href="index.html" style="color:#e50914;">Já tem uma conta? Entrar</a>
-    </p>
-  </div>
+    <input type="email" id="newEmail" placeholder="Seu e-mail" required>
+    <input type="password" id="newPass" placeholder="Sua senha" required>
+    <button type="submit">Registrar</button>
+    <p id="msg"></p>
+    <a href="index.html">Já tem conta? Entrar</a>
+  </form>
 
-  <script src="script.js"></script>
+  <script>
+    const form = document.getElementById("registerForm");
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("newEmail").value.toLowerCase();
+      const pass = document.getElementById("newPass").value;
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+      if (users.some(u => u.email === email)) {
+        document.getElementById("msg").textContent = "Este e-mail já está registrado.";
+        document.getElementById("msg").style.color = "red";
+        return;
+      }
+
+      users.push({ email, pass });
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("justRegistered", email);  // usado para login automático
+      window.location.href = "index.html";
+    });
+  </script>
 </body>
 </html>
