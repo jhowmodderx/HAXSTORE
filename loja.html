@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HAX STORE</title>
   <style>
+    /* Seu CSS existente do site deve estar aqui */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: Arial, sans-serif; background-color: #0c0c0c; color: #fff; }
 
@@ -182,7 +183,6 @@
     &copy; 2025 HAX STORE. Todos os direitos reservados.
   </footer>
 
-  <!-- Modal PIX -->
   <div class="modal" id="pixModal">
     <div class="modal-content">
       <h3>Pagamento via PIX</h3>
@@ -212,13 +212,14 @@
     }
     
     document.querySelector('.btn-comprar').addEventListener('click', () => {
-  if (!localStorage.getItem('loggedUser')) {
-    alert('Você precisa estar logado para comprar.');
-    window.location.href = 'index.html';
-  } else {
-    abrirModal();
-  }
-});
+      // Verifica se o usuário está logado usando a chave 'loggedUser'
+      if (!localStorage.getItem('loggedUser')) {
+        alert('Você precisa estar logado para comprar.');
+        window.location.href = 'index.html'; // Redireciona para a página de login
+      } else {
+        abrirModal();
+      }
+    });
 
   </script>
 

@@ -2,13 +2,13 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Registro</title>
+  <title>Registro - HAX STORE</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <form id="registerForm">
     <h2>Registro</h2>
-    <input type="email" id="newEmail" placeholder="Seu e-mail" required>
+    <input type="text" id="newUsername" placeholder="Seu usuário" required>
     <input type="password" id="newPass" placeholder="Sua senha" required>
     <button type="submit">Registrar</button>
     <p id="msg"></p>
@@ -19,19 +19,19 @@
     const form = document.getElementById("registerForm");
     form.addEventListener("submit", function(e) {
       e.preventDefault();
-      const email = document.getElementById("newEmail").value.toLowerCase();
+      const username = document.getElementById("newUsername").value.toLowerCase();
       const pass = document.getElementById("newPass").value;
       const users = JSON.parse(localStorage.getItem("users") || "[]");
 
-      if (users.some(u => u.email === email)) {
-        document.getElementById("msg").textContent = "Este e-mail já está registrado.";
+      if (users.some(u => u.username === username)) {
+        document.getElementById("msg").textContent = "Este usuário já está registrado.";
         document.getElementById("msg").style.color = "red";
         return;
       }
 
-      users.push({ email, pass });
+      users.push({ username, pass });
       localStorage.setItem("users", JSON.stringify(users));
-      localStorage.setItem("justRegistered", email);  // usado para login automático
+      localStorage.setItem("justRegistered", username);  // Usado para login automático
       window.location.href = "index.html";
     });
   </script>

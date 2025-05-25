@@ -2,13 +2,13 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Login</title>
+  <title>Login - HAX STORE</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <form id="loginForm">
     <h2>Login</h2>
-    <input type="email" id="email" placeholder="Seu e-mail" required>
+    <input type="text" id="username" placeholder="Seu usuário" required>
     <input type="password" id="pass" placeholder="Sua senha" required>
     <button type="submit">Entrar</button>
     <p id="msg"></p>
@@ -18,22 +18,22 @@
   <script>
     const justRegistered = localStorage.getItem("justRegistered");
     if (justRegistered) {
-      document.getElementById("email").value = justRegistered;
+      document.getElementById("username").value = justRegistered;
       localStorage.removeItem("justRegistered");
     }
 
     document.getElementById("loginForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const email = document.getElementById("email").value.toLowerCase();
+      const username = document.getElementById("username").value.toLowerCase();
       const pass = document.getElementById("pass").value;
       const users = JSON.parse(localStorage.getItem("users") || "[]");
-      const found = users.find(u => u.email === email && u.pass === pass);
+      const found = users.find(u => u.username === username && u.pass === pass);
 
       if (found) {
-        localStorage.setItem("logged", email);
-        window.location.href = "loja.html";
+        localStorage.setItem("loggedUser", username); // Atualizado para 'loggedUser'
+        window.location.href = "loja.html"; // Redireciona para a página da loja após login
       } else {
-        document.getElementById("msg").textContent = "E-mail ou senha incorretos.";
+        document.getElementById("msg").textContent = "Usuário ou senha incorretos.";
         document.getElementById("msg").style.color = "red";
       }
     });

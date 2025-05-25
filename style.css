@@ -1,65 +1,90 @@
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #111;
-  color: white;
-  height: 100vh;
+  background-color: #0c0c0c;
+  color: #fff;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
 form {
-  background: #1e1e1e;
+  background-color: #111;
   padding: 30px;
   border-radius: 10px;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-  width: 100%;
-  max-width: 350px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+  text-align: center;
+  width: 90%;
+  max-width: 400px;
+  border: 2px solid #e50914;
+  box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
 }
 
-input {
-  padding: 10px;
-  background: #333;
-  border: none;
-  border-radius: 5px;
-  color: white;
+form h2 {
+  color: #e50914;
+  margin-bottom: 25px;
+  font-size: 28px;
 }
 
-button {
-  background: #0066ff;
+form input {
+  width: calc(100% - 20px);
+  padding: 12px;
+  margin-bottom: 15px;
+  background-color: #222;
+  border: 1px solid #333;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+}
+
+form input::placeholder {
+  color: #888;
+}
+
+form input:focus {
+  border-color: #e50914;
+  box-shadow: 0 0 8px rgba(229, 9, 20, 0.4);
+}
+
+form button {
+  background-color: #e50914;
   color: white;
-  padding: 10px;
   border: none;
-  border-radius: 5px;
-  font-weight: bold;
+  padding: 12px 25px;
+  font-size: 18px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: 0.3s;
+  width: 100%;
+  margin-top: 10px;
 }
 
-button:hover {
-  background: #0050cc;
+form button:hover {
+  background-color: #b20710;
 }
 
-a {
-  color: #00bfff;
-  text-align: center;
+form p#msg {
+  margin-top: 20px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+form a {
+  display: block;
+  margin-top: 20px;
+  color: #e50914;
   text-decoration: none;
+  font-size: 15px;
+  transition: 0.3s;
 }
 
-a:hover {
+form a:hover {
   text-decoration: underline;
-}
-
-p#msg {
-  font-size: 14px;
-  text-align: center;
+  color: #ff3344;
 }
