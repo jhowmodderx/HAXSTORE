@@ -19,7 +19,12 @@
 
     .logo { color: #e50914; font-size: 22px; font-weight: bold; }
 
-    .discord-btn {
+    .header-buttons {
+        display: flex;
+        gap: 10px; /* Espaçamento entre os botões */
+    }
+
+    .discord-btn, .admin-panel-btn {
       background: transparent;
       border: 2px solid #e50914;
       color: #e50914;
@@ -29,7 +34,7 @@
       transition: 0.3s;
     }
 
-    .discord-btn:hover {
+    .discord-btn:hover, .admin-panel-btn:hover {
       background-color: #e50914;
       color: white;
     }
@@ -148,7 +153,7 @@
       font-size: 14px;
     }
 
-    /* Modal */
+    /* Modals */
     .modal {
       display: none;
       position: fixed;
@@ -168,11 +173,20 @@
       width: 90%;
       max-width: 400px;
       border: 2px solid #e50914;
+      position: relative; /* Para o botão de fechar */
+    }
+
+    .modal-content.admin-modal {
+        max-width: 600px; /* Mais largo para o painel de admin */
+        border: 2px solid #0f0; /* Borda verde para o modal admin */
     }
 
     .modal-content h3 {
       color: #e50914;
       margin-bottom: 15px;
+    }
+    .modal-content.admin-modal h3 {
+        color: #0f0; /* Título do modal admin verde */
     }
 
     .pix-key {
@@ -201,21 +215,24 @@
       display: none;
     }
 
-    /* Estilos de Administração */
-    .admin-section {
-      background-color: #111;
-      border: 2px solid #0f0; /* Cor verde para admin */
-      padding: 20px;
-      margin-top: 30px;
-      border-radius: 10px;
-      color: #0f0;
+    .close-button {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      color: #aaa;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
     }
 
-    .admin-section h3 {
-      color: #0f0;
-      margin-bottom: 15px;
+    .close-button:hover,
+    .close-button:focus {
+      color: #fff;
+      text-decoration: none;
+      cursor: pointer;
     }
 
+    /* Estilos de Administração (dentro do modal agora) */
     .admin-section input[type="text"],
     .admin-section input[type="number"],
     .admin-section textarea {
@@ -244,6 +261,9 @@
 
     .admin-products-list {
       margin-top: 20px;
+      max-height: 200px; /* Limita a altura para rolagem */
+      overflow-y: auto; /* Adiciona barra de rolagem se necessário */
+      padding-right: 10px; /* Espaço para a barra de rolagem */
     }
 
     .admin-product-item {
@@ -258,12 +278,14 @@
 
     .admin-product-item span {
       flex-grow: 1;
+      text-align: left; /* Alinha texto à esquerda */
     }
 
     .admin-product-item button {
       margin-left: 10px;
       padding: 5px 10px;
       font-size: 14px;
+      flex-shrink: 0; /* Evita que os botões diminuam */
     }
 
     .admin-warning-message {
@@ -284,6 +306,12 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+
+    .admin-warnings-list {
+        max-height: 200px;
+        overflow-y: auto;
+        padding-right: 10px;
     }
 
     /* Estilos para as abas de administração */
@@ -312,6 +340,7 @@
 
     .admin-tab-content {
         display: none; /* Esconde todas as abas por padrão */
+        text-align: left; /* Alinha o conteúdo da aba à esquerda */
     }
 
     .admin-tab-content.active {
@@ -323,7 +352,10 @@
 
   <header>
     <div class="logo">HAX STORE</div>
-    <button class="discord-btn">Entrar no Discord</button>
+    <div class="header-buttons">
+        <button class="discord-btn">Entrar no Discord</button>
+        <button id="adminPanelBtn" class="admin-panel-btn" style="display: none;">Painel de Administração</button>
+    </div>
   </header>
 
   <div class="content">
@@ -331,47 +363,6 @@
       </div>
     <div id="products-container">
       </div>
-
-    <div id="admin-panel" class="admin-section" style="display: none;">
-      <h3>Painel de Administração</h3>
-
-      <div class="admin-tabs">
-        <button class="admin-tab-button active" onclick="openAdminTab(event, 'manage-products')">Gerenciar Produtos</button>
-        <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-warnings')">Gerenciar Avisos</button>
-        <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-pix')">Configurar PIX</button>
-      </div>
-
-      <div id="manage-products" class="admin-tab-content active">
-        <h4>Adicionar/Editar Produto</h4>
-        <input type="hidden" id="productIdToEdit">
-        <input type="text" id="productTitle" placeholder="Título do Produto" required>
-        <textarea id="productDesc" placeholder="Descrição do Produto" rows="3"></textarea>
-        <input type="number" id="productOldPrice" placeholder="Preço Antigo (Ex: 30.00)" step="0.01">
-        <input type="number" id="productNewPrice" placeholder="Preço Atual (Ex: 10.00)" step="0.01" required>
-        <button onclick="saveProduct()">Salvar Produto</button>
-        <button onclick="clearProductForm()">Limpar Formulário</button>
-
-        <h4>Produtos Existentes</h4>
-        <div id="admin-products-list">
-          </div>
-      </div>
-
-      <div id="manage-warnings" class="admin-tab-content">
-        <h4>Gerenciar Avisos</h4>
-        <input type="text" id="warningMessage" placeholder="Nova mensagem de aviso">
-        <button onclick="addWarning()">Adicionar Aviso</button>
-        <div id="admin-warnings-list">
-          </div>
-      </div>
-
-      <div id="manage-pix" class="admin-tab-content">
-        <h4>Chave PIX Atual</h4>
-        <input type="text" id="currentPixKey" placeholder="Chave PIX atual" readonly>
-        <h4>Nova Chave PIX</h4>
-        <input type="text" id="newPixKey" placeholder="Nova Chave PIX">
-        <button onclick="updatePixKey()">Salvar Chave PIX</button>
-      </div>
-    </div>
   </div>
 
   <footer>
@@ -380,42 +371,93 @@
 
   <div class="modal" id="pixModal">
     <div class="modal-content">
+      <span class="close-button" onclick="closePixModal()">&times;</span>
       <h3>Pagamento via PIX</h3>
       <div class="pix-key" id="pixChave"></div> <button class="btn-confirmar" onclick="confirmarPagamento()">Confirmar pagamento</button>
       <div class="mensagem-final" id="mensagemFinal">HAX STORE - ENVIE O COMPROVANTE NO TICKET</div>
     </div>
   </div>
 
+  <div class="modal" id="adminModal">
+    <div class="modal-content admin-modal">
+        <span class="close-button" onclick="closeAdminModal()">&times;</span>
+        <h3>Painel de Administração</h3>
+
+        <div class="admin-tabs">
+            <button class="admin-tab-button active" onclick="openAdminTab(event, 'manage-products')">Gerenciar Produtos</button>
+            <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-warnings')">Gerenciar Avisos</button>
+            <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-pix')">Configurar PIX</button>
+        </div>
+
+        <div id="manage-products" class="admin-tab-content active">
+            <h4>Adicionar/Editar Produto</h4>
+            <input type="hidden" id="productIdToEdit">
+            <input type="text" id="productTitle" placeholder="Título do Produto" required>
+            <textarea id="productDesc" placeholder="Descrição do Produto" rows="3"></textarea>
+            <input type="number" id="productOldPrice" placeholder="Preço Antigo (Ex: 30.00)" step="0.01">
+            <input type="number" id="productNewPrice" placeholder="Preço Atual (Ex: 10.00)" step="0.01" required>
+            <button onclick="saveProduct()">Salvar Produto</button>
+            <button onclick="clearProductForm()">Limpar Formulário</button>
+
+            <h4>Produtos Existentes</h4>
+            <div id="admin-products-list">
+            </div>
+        </div>
+
+        <div id="manage-warnings" class="admin-tab-content">
+            <h4>Gerenciar Avisos</h4>
+            <input type="text" id="warningMessage" placeholder="Nova mensagem de aviso">
+            <button onclick="addWarning()">Adicionar Aviso</button>
+            <div id="admin-warnings-list">
+            </div>
+        </div>
+
+        <div id="manage-pix" class="admin-tab-content">
+            <h4>Chave PIX Atual</h4>
+            <input type="text" id="currentPixKey" placeholder="Chave PIX atual" readonly>
+            <h4>Nova Chave PIX</h4>
+            <input type="text" id="newPixKey" placeholder="Nova Chave PIX">
+            <button onclick="updatePixKey()">Salvar Chave PIX</button>
+        </div>
+    </div>
+  </div>
+
   <script>
     const productsContainer = document.getElementById('products-container');
-    const adminPanel = document.getElementById('admin-panel');
+    const adminPanelBtn = document.getElementById('adminPanelBtn'); // Novo botão na header
+    const adminModal = document.getElementById('adminModal'); // Novo modal de administração
     const adminProductsList = document.getElementById('admin-products-list');
     const warningsContainer = document.getElementById('warnings-container');
     const adminWarningsList = document.getElementById('admin-warnings-list');
-    const pixChaveDisplay = document.getElementById('pixChave');
-    const newPixKeyInput = document.getElementById('newPixKey');
-    const currentPixKeyDisplay = document.getElementById('currentPixKey'); // Adicionado
+    const pixChaveDisplay = document.getElementById('pixChave'); // PIX no modal de compra
+    const newPixKeyInput = document.getElementById('newPixKey'); // PIX no painel admin
+    const currentPixKeyDisplay = document.getElementById('currentPixKey'); // PIX no painel admin
 
     // --- Funções Iniciais e Verificação de Admin ---
     document.addEventListener('DOMContentLoaded', () => {
         const isAdmin = localStorage.getItem('isAdmin') === 'true';
         if (isAdmin) {
-            adminPanel.style.display = 'block';
+            adminPanelBtn.style.display = 'block'; // Mostra o botão "Painel de Administração"
+            // Não carrega adminPanel diretamente no DOM, ele será um modal
             loadAdminProducts();
             loadAdminWarnings();
-            loadPixKeyForAdmin(); // Carrega a chave PIX para o painel de admin
-            openAdminTab(null, 'manage-products'); // Abre a primeira aba por padrão
+            loadPixKeyForAdmin();
         }
 
         renderProducts();
         renderWarnings();
-        updatePixKeyDisplay(); // Atualiza a chave PIX no modal para todos os usuários
+        updatePixKeyDisplay(); // Atualiza a chave PIX no modal de compra para todos os usuários
     });
 
-    // --- Funções do Modal PIX ---
+    // --- Funções do Modal PIX (compra) ---
     function abrirModal() {
       updatePixKeyDisplay(); // Garante que a chave PIX no modal está atualizada
       document.getElementById('pixModal').style.display = 'flex';
+    }
+
+    function closePixModal() {
+      document.getElementById('pixModal').style.display = 'none';
+      document.getElementById('mensagemFinal').style.display = "none";
     }
 
     function confirmarPagamento() {
@@ -423,11 +465,30 @@
       mensagem.style.display = 'block';
     }
 
+    // --- Funções do Modal de Administração ---
+    adminPanelBtn.addEventListener('click', () => {
+        adminModal.style.display = 'flex';
+        // Garante que a primeira aba e os dados sejam carregados ao abrir o modal
+        openAdminTab(null, 'manage-products');
+        loadAdminProducts();
+        loadAdminWarnings();
+        loadPixKeyForAdmin();
+    });
+
+    function closeAdminModal() {
+      adminModal.style.display = 'none';
+    }
+
+    // Fecha modais ao clicar fora (geral para ambos)
     window.onclick = function(event) {
-      const modal = document.getElementById('pixModal');
-      if (event.target == modal) {
-        modal.style.display = "none";
-        document.getElementById('mensagemFinal').style.display = "none";
+      const pixModal = document.getElementById('pixModal');
+      const adminModal = document.getElementById('adminModal');
+
+      if (event.target == pixModal) {
+        closePixModal();
+      }
+      if (event.target == adminModal) {
+        closeAdminModal();
       }
     }
     
@@ -631,12 +692,12 @@
     }
 
     function updatePixKeyDisplay() {
-        // Atualiza a chave PIX exibida no modal para o usuário
+        // Atualiza a chave PIX exibida no modal de compra para o usuário
         pixChaveDisplay.textContent = getPixKey();
     }
 
     function loadPixKeyForAdmin() {
-        // Carrega a chave PIX no campo de texto para o admin
+        // Carrega a chave PIX no campo de texto para o admin no modal de admin
         currentPixKeyDisplay.value = getPixKey();
     }
 
@@ -649,18 +710,18 @@
         savePixKey(newKey);
         newPixKeyInput.value = '';
         currentPixKeyDisplay.value = newKey; // Atualiza o campo de visualização no admin
-        updatePixKeyDisplay(); // Atualiza a chave no modal
+        updatePixKeyDisplay(); // Atualiza a chave no modal de compra
         alert('Chave PIX atualizada com sucesso!');
     }
 
     // --- Funções de Abas do Painel de Administração ---
     function openAdminTab(evt, tabName) {
         let i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("admin-tab-content");
+        tabcontent = adminModal.getElementsByClassName("admin-tab-content");
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].style.display = "none";
         }
-        tablinks = document.getElementsByClassName("admin-tab-button");
+        tablinks = adminModal.getElementsByClassName("admin-tab-button");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
@@ -668,7 +729,7 @@
         if (evt) { // Evita erro se chamado sem evento (no DOMContentLoaded)
             evt.currentTarget.className += " active";
         } else { // Se for a chamada inicial, ativa o primeiro botão
-            document.querySelector('.admin-tab-button').className += " active";
+            adminModal.querySelector('.admin-tab-button').className += " active";
         }
     }
   </script>
