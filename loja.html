@@ -446,19 +446,20 @@
   <script>
     // --- Configuração do Firebase ---
     // ATENÇÃO: Verifique se estas são as suas chaves corretas!
-   const firebaseConfig = {
-  apiKey: "AIzaSyAx5VNBlcPXveA1xawirSjRVWDNaKdNRmc",
-  authDomain: "haxstore-a250a.firebaseapp.com",
-  projectId: "haxstore-a250a",
-  storageBucket: "haxstore-a250a.firebasestorage.app",
-  messagingSenderId: "39538757064",
-  appId: "1:39538757064:web:7f45d2cba626b6333ac4fd",
-  measurementId: "G-3D42M9L1HF"
-};
+    // As chaves abaixo são exemplos e DEVEM ser substituídas pelas do seu projeto Firebase.
+    const firebaseConfig = {
+        apiKey: "AIzaSyAx5VNBlcPXveA1xawirSjRVWDNaKdNRmc", // Substitua pela sua API Key do Firebase
+        authDomain: "haxstore-a250a.firebaseapp.com", // Substitua pelo seu Auth Domain
+        projectId: "haxstore-a250a", // Substitua pelo seu Project ID
+        storageBucket: "haxstore-a250a.firebasestorage.app", // Substitua pelo seu Storage Bucket
+        messagingSenderId: "39538757064", // Substitua pelo seu Messaging Sender ID
+        appId: "1:39538757064:web:7f45d2cba626b6333ac4fd", // Substitua pelo seu App ID
+        measurementId: "G-3D42M9L1HF" // Substitua pelo seu Measurement ID (se estiver usando Analytics)
+    };
 
     // Inicialize o Firebase
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const db = firebase.firestore(); // Cria uma referência ao seu banco de dados Firestore
 
     // --- Referências aos elementos DOM ---
     const productsContainer = document.getElementById('products-container');
@@ -472,53 +473,42 @@
     const newPixKeyInput = document.getElementById('newPixKey');
     const currentPixKeyDisplay = document.getElementById('currentPixKey');
 
-    // --- Chaves para o localStorage (apenas para status de login local) ---
-    const LS_IS_ADMIN_KEY = 'haxstore_isAdmin';
-    const LS_LOGGED_USER_KEY = 'haxstore_logged_user';
-
-    // --- Autenticação (Apenas para simular login de admin localmente) ---
-    const ADMIN_USERNAME = 'jhow';
-    const ADMIN_PASSWORD = 'modder'; // Senha fixa no código, insegura
+    // --- Chaves para o localStorage (CORRESPONDENDO AO INDEX.HTML) ---
+    // Estas chaves devem ser as mesmas usadas no seu arquivo index.html
+    const LS_IS_ADMIN_KEY = 'isAdmin';
+    const LS_LOGGED_USER_KEY = 'loggedUser';
 
     function checkAdminStatus() {
         return localStorage.getItem(LS_IS_ADMIN_KEY) === 'true';
     }
 
     function checkLoggedInStatus() {
-        return localStorage.getItem(LS_LOGGED_USER_KEY) === 'true';
+        return localStorage.getItem(LS_LOGGED_USER_KEY) !== null;
     }
 
     // --- Funções de Inicialização ---
     document.addEventListener('DOMContentLoaded', () => {
-        // Se o usuário não está logado, redireciona para a página de login
         if (!checkLoggedInStatus()) {
-            window.location.href = 'index.html';
-            return; // Interrompe a execução para evitar que o resto do script tente carregar dados
+            window.location.href = 'index.html'; // Redireciona para o login se não estiver logado
+            return;
         }
 
-        // Se está logado, verifica status de admin e exibe botões
         const isAdmin = checkAdminStatus();
         if (isAdmin) {
             adminPanelBtn.style.display = 'block';
         } else {
             adminPanelBtn.style.display = 'none';
         }
-        logoutBtn.style.display = 'block'; // O botão de sair aparece para qualquer usuário logado
-
-        // Carrega e renderiza o conteúdo da loja
-        renderProducts();
-        renderWarnings();
-        updatePixKeyDisplay();
+        logoutBtn.style.display = 'block';
     });
 
     // --- Funções de Modal de Compra (PIX) ---
     function abrirModal() {
         if (!checkLoggedInStatus()) {
             alert('Você precisa estar logado para realizar uma compra.');
-            window.location.href = 'index.html'; // Redireciona para o login
+            window.location.href = 'index.html';
             return;
         }
-        updatePixKeyDisplay();
         document.getElementById('pixModal').style.display = 'flex';
         document.getElementById('mensagemFinal').style.display = "none";
     }
@@ -538,9 +528,6 @@
         if (checkAdminStatus()) {
             adminModal.style.display = 'flex';
             openAdminTab(null, 'manage-products'); // Abre a primeira aba por padrão
-            loadAdminProducts(); // Carrega produtos na lista de admin
-            loadAdminWarnings(); // Carrega avisos na lista de admin
-            loadPixKeyForAdmin(); // Carrega chave PIX no campo de admin
         } else {
             alert('Acesso negado. Você não tem permissões de administrador.');
         }
@@ -571,20 +558,18 @@
 
     // --- Funções de Gerenciamento de Produtos (Firestore) ---
 
-    // Listener para produtos em tempo real
     db.collection('products').onSnapshot((snapshot) => {
         const products = [];
         snapshot.forEach(doc => {
             products.push({ id: doc.id, ...doc.data() });
         });
         renderProducts(products);
-        loadAdminProducts(products); // Atualiza também a lista no admin modal
+        loadAdminProducts(products);
     }, (error) => {
         console.error("Erro ao obter produtos: ", error);
         productsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar produtos. Verifique sua conexão ou as regras do Firebase.</p>';
     });
 
-    // Renderiza produtos na parte principal da loja (visível para o usuário)
     function renderProducts(products) {
         productsContainer.innerHTML = '';
         const isAdmin = checkAdminStatus();
@@ -624,7 +609,6 @@
         });
     }
 
-    // Carrega produtos na lista dentro do painel de administração (só admin)
     function loadAdminProducts(products) {
         if (!checkAdminStatus()) return;
 
@@ -659,8 +643,8 @@
         const oldPrice = parseFloat(document.getElementById('productOldPrice').value || 0);
         const newPrice = parseFloat(document.getElementById('productNewPrice').value);
 
-        if (!title || !newPrice) {
-            alert('Título e Preço Atual são obrigatórios.');
+        if (!title || isNaN(newPrice)) { // Verifica se newPrice é um número válido
+            alert('Título e Preço Atual são obrigatórios e o preço deve ser um número.');
             return;
         }
 
@@ -668,11 +652,9 @@
 
         try {
             if (productId) {
-                // Editar produto existente
                 await db.collection('products').doc(productId).update(productData);
                 alert('Produto atualizado com sucesso!');
             } else {
-                // Adicionar novo produto
                 await db.collection('products').add(productData);
                 alert('Produto adicionado com sucesso!');
             }
@@ -697,9 +679,8 @@
                 document.getElementById('productDesc').value = product.description;
                 document.getElementById('productOldPrice').value = product.oldPrice;
                 document.getElementById('productNewPrice').value = product.newPrice;
-                // Abre a aba de gerenciar produtos no modal
-                openAdminTab(null, 'manage-products');
-                adminModal.style.display = 'flex';
+                openAdminTab(null, 'manage-products'); // Garante que a aba de produtos esteja ativa
+                adminModal.style.display = 'flex'; // Abre o modal
             } else {
                 alert('Produto não encontrado.');
             }
@@ -735,24 +716,22 @@
 
     // --- Funções de Gerenciamento de Avisos (Firestore) ---
 
-    // Listener para avisos em tempo real
     db.collection('warnings').onSnapshot((snapshot) => {
         const warnings = [];
         snapshot.forEach(doc => {
             warnings.push({ id: doc.id, ...doc.data() });
         });
         renderWarnings(warnings);
-        loadAdminWarnings(warnings); // Atualiza também a lista no admin modal
+        loadAdminWarnings(warnings);
     }, (error) => {
         console.error("Erro ao obter avisos: ", error);
         warningsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar avisos. Verifique sua conexão ou as regras do Firebase.</p>';
     });
 
-    // Renderiza avisos na parte principal da loja
     function renderWarnings(warnings) {
         warningsContainer.innerHTML = '';
         if (warnings.length === 0) {
-            warningsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 20px;">Nenhum aviso no momento.</p>';
+            warningsContainer.innerHTML = ''; // Não exibe a mensagem se não houver avisos
             return;
         }
         warnings.forEach(warning => {
@@ -763,7 +742,6 @@
         });
     }
 
-    // Carrega avisos na lista dentro do painel de administração
     function loadAdminWarnings(warnings) {
         if (!checkAdminStatus()) return;
 
@@ -821,12 +799,11 @@
 
     // --- Funções de Gerenciamento da Chave PIX (Firestore) ---
 
-    // Listener para a chave PIX em tempo real (assumindo um único documento 'pixKeyDoc')
     db.collection('pixKey').doc('mainPix').onSnapshot((doc) => {
         if (doc.exists) {
             const pixData = doc.data();
             pixChaveDisplay.textContent = pixData.key || 'Nenhuma chave PIX configurada.';
-            if (checkAdminStatus()) {
+            if (checkAdminStatus()) { // Atualiza o campo no painel de admin apenas se for admin
                 currentPixKeyDisplay.value = pixData.key || '';
             }
         } else {
@@ -840,13 +817,6 @@
         pixChaveDisplay.textContent = 'Erro ao carregar chave PIX.';
     });
 
-    function updatePixKeyDisplay() {
-        // Esta função agora é redundantemente chamada no DOMContentLoaded,
-        // mas o listener do Firestore já a atualiza automaticamente.
-        // Apenas para garantir, se precisar de um acionamento manual:
-        // O listener acima já cuida disso em tempo real.
-    }
-
     async function updatePixKey() {
         if (!checkAdminStatus()) {
             alert('Acesso negado.');
@@ -858,7 +828,6 @@
             return;
         }
         try {
-            // Usa set com merge: true para criar ou atualizar o documento sem apagar outros campos
             await db.collection('pixKey').doc('mainPix').set({ key: newKey }, { merge: true });
             alert('Chave PIX atualizada com sucesso!');
             newPixKeyInput.value = '';
@@ -867,13 +836,6 @@
             alert("Erro ao atualizar chave PIX. Verifique suas regras do Firestore e conexão.");
         }
     }
-
-    function loadPixKeyForAdmin() {
-        // Esta função é chamada quando o modal admin é aberto.
-        // O listener do Firestore já atualiza o campo currentPixKeyDisplay automaticamente.
-        // Não é necessário buscar novamente aqui, a menos que você queira um comportamento diferente.
-    }
-
 
     // --- Funções de Abas do Painel de Administração ---
     function openAdminTab(evt, tabName) {
@@ -886,7 +848,7 @@
         document.getElementById(tabName).style.display = 'block';
         if (evt) {
             evt.currentTarget.classList.add('active');
-        } else { // Se chamado sem evento (ex: ao abrir modal), ativa o botão manualmente
+        } else {
             const defaultButton = document.querySelector(`.admin-tab-button[onclick*="${tabName}"]`);
             if (defaultButton) defaultButton.classList.add('active');
         }
