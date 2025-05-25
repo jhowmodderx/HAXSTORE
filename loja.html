@@ -1,1194 +1,1151 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>HAX STORE</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script> <style>
-    /* Reset e base */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background-color: #0c0c0c; color: #fff; line-height: 1.6; }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>HAX STORE</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script> <style>
+        /* Reset e base */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #0c0c0c; color: #fff; line-height: 1.6; }
 
-    /* Header */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #111;
-      padding: 15px 20px;
-      border-bottom: 2px solid #e50914;
-    }
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #111;
+            padding: 15px 20px;
+            border-bottom: 2px solid #e50914;
+        }
 
-    .logo { color: #e50914; font-size: 22px; font-weight: bold; }
+        .logo { color: #e50914; font-size: 22px; font-weight: bold; }
 
-    .header-buttons {
-        display: flex;
-        gap: 10px; /* Espaçamento entre os botões */
-    }
+        .header-buttons {
+            display: flex;
+            gap: 10px; /* Espaçamento entre os botões */
+        }
 
-    .discord-btn, .admin-panel-btn, .logout-btn {
-      background: transparent;
-      border: 2px solid #e50914;
-      color: #e50914;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+        .discord-btn, .admin-panel-btn, .logout-btn {
+            background: transparent;
+            border: 2px solid #e50914;
+            color: #e50914;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
 
-    .discord-btn:hover, .admin-panel-btn:hover, .logout-btn:hover {
-      background-color: #e50914;
-      color: white;
-    }
+        .discord-btn:hover, .admin-panel-btn:hover, .logout-btn:hover {
+            background-color: #e50914;
+            color: white;
+        }
 
-    /* Banner */
-    .banner {
-      height: 250px;
-      background: url('https://i.imgur.com/xklvTL7.png') no-repeat center center; /* Imagem do banner */
-      background-size: cover;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
+        /* Banner */
+        .banner {
+            height: 250px;
+            background: url('') no-repeat center center; /* Imagem do banner */
+            background-size: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
 
-    .banner h2 {
-      background-color: rgba(0, 0, 0, 0.6);
-      border: 2px solid #e50914;
-      color: #e50914;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-size: 24px;
-      font-weight: bold;
-    }
+        .banner h2 {
+            background-color: rgba(0, 0, 0, 0.6);
+            border: 2px solid #e50914;
+            color: #e50914;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+        }
 
-    /* Conteúdo principal */
-    .content {
-      padding: 30px 20px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
+        /* Conteúdo principal */
+        .content {
+            padding: 30px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
 
-    /* Tag de destaque */
-    .tag {
-      display: inline-block;
-      background-color: #e50914;
-      color: white;
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
+        /* Tag de destaque */
+        .tag {
+            display: inline-block;
+            background-color: #e50914;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
 
-    /* Item de produto */
-    .produto-item {
-      background-color: #1a1a1a;
-      border: 1px solid #222;
-      padding: 20px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      position: relative;
-    }
+        /* Item de produto */
+        .produto-item {
+            background-color: #1a1a1a;
+            border: 1px solid #222;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            position: relative;
+        }
 
-    .produto-titulo { font-size: 28px; font-weight: bold; margin: 10px 0; color: #e50914;}
-    .produto-desc { color: #ccc; margin-bottom: 15px; }
+        .produto-titulo { font-size: 28px; font-weight: bold; margin: 10px 0; color: #e50914;}
+        .produto-desc { color: #ccc; margin-bottom: 15px; }
 
-    .precos { margin-bottom: 15px; }
-    .preco-antigo { text-decoration: line-through; color: #888; font-size: 16px; margin-right: 10px; }
-    .preco-atual { color: #0f0; font-size: 28px; font-weight: bold; } /* Preço atual em verde */
+        .precos { margin-bottom: 15px; }
+        .preco-antigo { text-decoration: line-through; color: #888; font-size: 16px; margin-right: 10px; }
+        .preco-atual { color: #0f0; font-size: 28px; font-weight: bold; } /* Preço atual em verde */
 
-    .btn-comprar {
-      background-color: #e50914;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
+        .btn-comprar {
+            background-color: #e50914;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
 
-    .btn-comprar:hover {
-      background-color: #b20710;
-    }
+        .btn-comprar:hover {
+            background-color: #b20710;
+        }
 
-    /* Botões de Admin no produto (só aparecem para admin) */
-    .btn-delete-produto {
-      background-color: #cc0000;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 12px;
-      transition: 0.2s;
-    }
-    .btn-delete-produto:hover { background-color: #990000; }
+        /* Botões de Admin no produto (só aparecem para admin) */
+        .btn-delete-produto {
+            background-color: #cc0000;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .btn-delete-produto:hover { background-color: #990000; }
 
-    .btn-edit-produto {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      cursor: pointer;
-      position: absolute;
-      top: 10px;
-      right: 70px; /* Ajuste para não sobrepor o delete */
-      font-size: 12px;
-      transition: 0.2s;
-    }
-    .btn-edit-produto:hover { background-color: #0056b3; }
+        .btn-edit-produto {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 70px; /* Ajuste para não sobrepor o delete */
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .btn-edit-produto:hover { background-color: #0056b3; }
 
 
-    /* Footer */
-    footer {
-      background-color: #111;
-      text-align: center;
-      padding: 15px;
-      color: #777;
-      margin-top: 40px;
-      font-size: 14px;
-    }
+        /* Footer */
+        footer {
+            background-color: #111;
+            text-align: center;
+            padding: 15px;
+            color: #777;
+            margin-top: 40px;
+            font-size: 14px;
+        }
 
-    /* Modals base */
-    .modal {
-      display: none; /* Escondido por padrão */
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-      justify-content: center;
-      align-items: center;
-      overflow: auto; /* Para modais altos em telas pequenas */
-    }
+        /* Modals base */
+        .modal {
+            display: none; /* Escondido por padrão */
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0;
+            width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            overflow: auto; /* Para modais altos em telas pequenas */
+        }
 
-    .modal-content {
-      background-color: #111;
-      padding: 25px;
-      border-radius: 10px;
-      text-align: center;
-      width: 90%;
-      max-width: 450px; /* Largura padrão */
-      border: 2px solid #e50914; /* Borda vermelha para modal de compra */
-      position: relative;
-      animation: fadeIn 0.3s ease-out;
-    }
+        .modal-content {
+            background-color: #111;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            width: 90%;
+            max-width: 450px; /* Largura padrão */
+            border: 2px solid #e50914; /* Borda vermelha para modal de compra */
+            position: relative;
+            animation: fadeIn 0.3s ease-out;
+        }
 
-    .modal-content.admin-modal {
-        max-width: 700px; /* Mais largo para o painel de admin */
-        border: 2px solid #0f0; /* Borda verde para o modal admin */
-    }
+        .modal-content.admin-modal {
+            max-width: 700px; /* Mais largo para o painel de admin */
+            border: 2px solid #0f0; /* Borda verde para o modal admin */
+        }
 
-    .modal-content h3 {
-      color: #e50914;
-      margin-bottom: 20px;
-      font-size: 24px;
-    }
-    .modal-content.admin-modal h3 {
-        color: #0f0; /* Título do modal admin verde */
-    }
+        .modal-content h3 {
+            color: #e50914;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .modal-content.admin-modal h3 {
+            color: #0f0; /* Título do modal admin verde */
+        }
 
-    .pix-key-display { /* Novo nome para a chave PIX estática */
-      background-color: #222;
-      padding: 12px;
-      border-radius: 6px;
-      font-size: 16px;
-      word-wrap: break-word; /* Quebra texto longo */
-      margin-bottom: 20px;
-      border: 1px solid #e50914;
-    }
+        .pix-key {
+            background-color: #222;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            word-wrap: break-word; /* Quebra texto longo */
+            margin-bottom: 20px;
+            border: 1px solid #e50914;
+        }
 
-    .btn-confirmar {
-      background-color: #e50914;
-      border: none;
-      color: white;
-      padding: 12px 25px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      transition: 0.3s;
-    }
-    .btn-confirmar:hover { background-color: #b20710; }
+        .btn-confirmar {
+            background-color: #e50914;
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+            margin-top: 10px; /* Adicionado margem para o botão de upload */
+        }
+        .btn-confirmar:hover { background-color: #b20710; }
 
-    .mensagem-final {
-      margin-top: 25px;
-      color: #0f0;
-      font-weight: bold;
-      font-size: 18px;
-      display: none;
-    }
+        .mensagem-final {
+            margin-top: 25px;
+            color: #0f0;
+            font-weight: bold;
+            font-size: 18px;
+            display: none;
+        }
 
-    .close-button {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      color: #aaa;
-      font-size: 30px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    .close-button:hover, .close-button:focus {
-      color: #fff;
-    }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: #aaa;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .close-button:hover, .close-button:focus {
+            color: #fff;
+        }
 
-    /* Estilos de Administração (dentro do modal) */
-    .admin-tab-content h4 {
-        color: #eee;
-        margin-top: 25px;
-        margin-bottom: 15px;
-        font-size: 20px;
-        border-bottom: 1px solid #333;
-        padding-bottom: 5px;
-    }
+        /* Estilos de Administração (dentro do modal) */
+        .admin-tab-content h4 {
+            color: #eee;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 20px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
 
-    .admin-section input[type="text"],
-    .admin-section input[type="number"],
-    .admin-section textarea,
-    .admin-section input[type="file"] { /* Adicionado input file */
-      width: calc(100% - 20px);
-      padding: 10px;
-      margin-bottom: 10px;
-      background-color: #222;
-      border: 1px solid #333;
-      color: #fff;
-      border-radius: 4px;
-      font-size: 15px;
-    }
+        .admin-section input[type="text"],
+        .admin-section input[type="number"],
+        .admin-section textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #222;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 15px;
+        }
 
-    .admin-section button {
-      background-color: #0f0; /* Botão verde */
-      color: #111;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-right: 10px;
-      transition: 0.3s;
-      font-size: 15px;
-    }
+        .admin-section button {
+            background-color: #0f0; /* Botão verde */
+            color: #111;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: 0.3s;
+            font-size: 15px;
+        }
 
-    .admin-section button:hover {
-      background-color: #00cc00;
-    }
+        .admin-section button:hover {
+            background-color: #00cc00;
+        }
 
-    .admin-products-list, .admin-warnings-list, .admin-pending-orders-list, .admin-approved-orders-list { /* Adicionado listas */
-      margin-top: 20px;
-      max-height: 250px; /* Limita a altura para rolagem */
-      overflow-y: auto; /* Adiciona barra de rolagem se necessário */
-      padding-right: 10px; /* Espaço para a barra de rolagem */
-      border-top: 1px solid #333;
-      padding-top: 15px;
-    }
+        .admin-products-list, .admin-warnings-list, #pending-payments-list, #processed-payments-list, #logs-list {
+            margin-top: 20px;
+            max-height: 250px; /* Limita a altura para rolagem */
+            overflow-y: auto; /* Adiciona barra de rolagem se necessário */
+            padding-right: 10px; /* Espaço para a barra de rolagem */
+            border-top: 1px solid #333;
+            padding-top: 15px;
+        }
 
-    .admin-product-item, .warning-item, .pending-order-item, .approved-order-item { /* Adicionado itens */
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background-color: #222;
-      padding: 12px;
-      border-radius: 5px;
-      margin-bottom: 10px;
-      border: 1px solid #333;
-      flex-wrap: wrap; /* Permite que os itens quebrem linha */
-    }
+        .admin-product-item, .warning-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #222;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #333;
+        }
 
-    .admin-product-item span, .warning-item span, .pending-order-item span, .approved-order-item span {
-      flex-grow: 1;
-      text-align: left;
-      font-size: 15px;
-      margin-bottom: 5px; /* Espaço abaixo do texto */
-    }
+        .admin-product-item span, .warning-item span {
+            flex-grow: 1;
+            text-align: left;
+            font-size: 15px;
+        }
 
-    .pending-order-item div, .approved-order-item div {
-        display: flex;
-        gap: 5px;
-        flex-wrap: wrap; /* Permite que botões quebrem linha */
-    }
+        .admin-product-item button, .warning-item button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
 
-    .admin-product-item button, .warning-item button, .pending-order-item button, .approved-order-item button {
-      margin-left: 5px; /* Espaço entre botões */
-      padding: 5px 10px;
-      font-size: 13px;
-      flex-shrink: 0;
-    }
-    
-    .pending-order-item img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 5px;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #555;
-    }
+        .admin-warning-message {
+            background-color: #e50914;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
 
-    .admin-warning-message {
-        background-color: #e50914;
-        color: white;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 16px;
-    }
+        /* Estilos para as abas de administração */
+        .admin-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #0f0;
+            overflow-x: auto; /* Permite rolagem horizontal se muitas abas */
+        }
 
-    /* Estilos para as abas de administração */
-    .admin-tabs {
-        display: flex;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #0f0;
-        overflow-x: auto; /* Permite rolagem horizontal se muitas abas */
-    }
+        .admin-tab-button {
+            background-color: #333;
+            color: #0f0;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            margin-right: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            flex-shrink: 0; /* Evita que os botões encolham */
+        }
 
-    .admin-tab-button {
-        background-color: #333;
-        color: #0f0;
-        padding: 10px 15px;
-        border: none;
-        cursor: pointer;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-        margin-right: 5px;
-        transition: background-color 0.3s, color 0.3s;
-        flex-shrink: 0; /* Evita que os botões encolham */
-    }
+        .admin-tab-button.active {
+            background-color: #0f0;
+            color: #111;
+        }
 
-    .admin-tab-button.active {
-        background-color: #0f0;
-        color: #111;
-    }
+        .admin-tab-content {
+            display: none;
+            text-align: left;
+            padding-top: 15px; /* Espaço após as abas */
+        }
 
-    .admin-tab-content {
-        display: none;
-        text-align: left;
-        padding-top: 15px; /* Espaço após as abas */
-    }
+        .admin-tab-content.active {
+            display: block;
+        }
 
-    .admin-tab-content.active {
-        display: block;
-    }
-
-    /* Animação para modal */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: scale(0.9); }
-        to { opacity: 1; transform: scale(1); }
-    }
-  </style>
+        /* Animação para modal */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo">HAX STORE</div>
-    <div class="header-buttons">
-        <button class="discord-btn" onclick="window.open('https://discord.gg/SEU_CONVITE_DISCORD', '_blank')">Entrar no Discord</button>
-        <button id="adminPanelBtn" class="admin-panel-btn" style="display: none;">Painel de Administração</button>
-        <button id="logoutBtn" class="logout-btn" style="display: none;">Sair</button>
+    <header>
+        <div class="logo">HAX STORE</div>
+        <div class="header-buttons">
+            <button class="discord-btn" onclick="window.open('https://discord.gg/gJ79TUn6Bb', '_blank')">Entrar no Discord</button>
+            <button id="adminPanelBtn" class="admin-panel-btn" style="display: none;">Painel de Administração</button>
+            <button id="logoutBtn" class="logout-btn" style="display: none;">Sair</button>
+        </div>
+    </header>
+
+    <div class="banner">
+        <h2>Bem-vindo à HAX STORE!</h2>
     </div>
-  </header>
 
-  <div class="banner">
-    <h2>Bem-vindo à HAX STORE!</h2>
-  </div>
-
-  <div class="content">
-    <div id="warnings-container"></div>
-    <div id="products-container"></div>
-  </div>
-
-  <footer>
-    &copy; 2025 HAX STORE. Todos os direitos reservados.
-  </footer>
-
-  <div class="modal" id="manualPixModal">
-    <div class="modal-content">
-      <span class="close-button" onclick="closeManualPixModal()">&times;</span>
-      <h3>Pagamento via PIX</h3>
-      <p>Para finalizar sua compra, faça um PIX para a chave abaixo e envie o comprovante.</p>
-      <div class="pix-key-display" id="manual_pix_key_display">Carregando chave PIX...</div>
-      <button onclick="copyManualPixKey()" style="background-color: #007bff; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px;">Copiar Chave PIX</button>
-      <span id="manualPixCopyMessage" style="color: #0f0; margin-left: 10px; display: none;">Copiado!</span>
-
-      <h4 style="margin-top: 25px;">Enviar Comprovante</h4>
-      <input type="file" id="proofFileInput" accept="image/*" style="width: 100%; margin-bottom: 15px;">
-      <button class="btn-confirmar" id="sendProofBtn" onclick="sendPaymentProof()">Enviar Comprovante</button>
-      <p id="proofStatusMessage" style="margin-top: 15px; font-weight: bold;"></p>
-      <div class="mensagem-final" id="paymentApprovalMessage" style="display: none;">Seu pagamento foi aprovado! Acesse seu produto.</div>
+    <div class="content">
+        <div id="warnings-container"></div>
+        <div id="products-container"></div>
     </div>
-  </div>
 
-  <div class="modal" id="adminModal">
-    <div class="modal-content admin-modal">
-        <span class="close-button" onclick="closeAdminModal()">&times;</span>
-        <h3>Painel de Administração</h3>
+    <footer>
+        &copy; 2025 HAX STORE. Todos os direitos reservados.
+    </footer>
 
-        <div class="admin-tabs">
-            <button class="admin-tab-button active" onclick="openAdminTab(event, 'manage-products')">Gerenciar Produtos</button>
-            <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-warnings')">Gerenciar Avisos</button>
-            <button class="admin-tab-button" onclick="openAdminTab(event, 'config-pix-key')">Configurar Chave PIX</button>
-            <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-pending-orders')">Pedidos Pendentes</button> <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-approved-orders')">Pedidos Aprovados</button> </div>
+    <div class="modal" id="pixModal">
+        <div class="modal-content" id="pixModalContent">
+            <span class="close-button" onclick="closePixModal()">&times;</span>
+            <h3>Pagamento via PIX</h3>
+            <p>Escaneie o QR Code ou use a chave PIX abaixo:</p>
+            <div class="pix-key" id="pixChave"></div>
+            
+            <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 15px;">
+                <h4>Anexar Comprovante</h4>
+                <input type="file" id="comprovanteFile" accept="image/*,application/pdf" style="margin-bottom: 10px; color: #fff;">
+                <button class="btn-confirmar" onclick="uploadComprovante()">Enviar Comprovante</button>
+            </div>
 
-        <div id="manage-products" class="admin-tab-content active admin-section">
-            <h4>Adicionar/Editar Produto</h4>
-            <input type="hidden" id="productIdToEdit">
-            <input type="text" id="productTitle" placeholder="Título do Produto" required>
-            <textarea id="productDesc" placeholder="Descrição do Produto" rows="3"></textarea>
-            <input type="number" id="productOldPrice" placeholder="Preço Antigo (Ex: 30.00)" step="0.01">
-            <input type="number" id="productNewPrice" placeholder="Preço Atual (Ex: 10.00)" step="0.01" required>
-            <button onclick="saveProduct()">Salvar Produto</button>
-            <button onclick="clearProductForm()">Limpar Formulário</button>
-
-            <h4>Produtos Existentes</h4>
-            <div id="admin-products-list"></div>
-        </div>
-
-        <div id="manage-warnings" class="admin-tab-content admin-section">
-            <h4>Gerenciar Avisos</h4>
-            <input type="text" id="warningMessage" placeholder="Nova mensagem de aviso">
-            <button onclick="addWarning()">Adicionar Aviso</button>
-            <div id="admin-warnings-list"></div>
-        </div>
-
-        <div id="config-pix-key" class="admin-tab-content admin-section">
-            <h4>Chave PIX Atual para Clientes</h4>
-            <input type="text" id="currentPixKeyAdmin" placeholder="Chave PIX atual" readonly>
-            <h4>Nova Chave PIX</h4>
-            <input type="text" id="newPixKeyAdmin" placeholder="Digite a nova chave PIX">
-            <button onclick="updatePixKeyAdmin()">Salvar Chave PIX</button>
-        </div>
-
-        <div id="manage-pending-orders" class="admin-tab-content admin-section">
-            <h4>Pedidos Aguardando Confirmação</h4>
-            <div id="admin-pending-orders-list"></div>
-        </div>
-
-        <div id="manage-approved-orders" class="admin-tab-content admin-section">
-            <h4>Pedidos Aprovados</h4>
-            <div id="admin-approved-orders-list"></div>
+            <button class="btn-confirmar" onclick="confirmarPagamento()">Já realizei o pagamento (apenas para avisar)</button>
+            <div class="mensagem-final" id="mensagemFinal">HAX STORE - ENVIE O COMPROVANTE NO TICKET DO DISCORD!</div>
         </div>
     </div>
-  </div>
 
-  <script>
-    // --- Configuração do Firebase ---
-    // ATENÇÃO: Verifique se estas são as suas chaves corretas!
-    const firebaseConfig = {
-        apiKey: "AIzaSyAx5VNBlcPXveA1xawirSjRVWDNaKdNRmc",
-        authDomain: "haxstore-a250a.firebaseapp.com",
-        projectId: "haxstore-a250a",
-        storageBucket: "haxstore-a250a.appspot.com", // SEU Storage Bucket AQUI
-        messagingSenderId: "39538757064",
-        appId: "1:39538757064:web:7f45d2cba626b6333ac4fd",
-        measurementId: "G-3D42M9L1HF"
-    };
+    <div class="modal" id="adminModal">
+        <div class="modal-content admin-modal">
+            <span class="close-button" onclick="closeAdminModal()">&times;</span>
+            <h3>Painel de Administração</h3>
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const storage = firebase.storage(); // Inicializa o Storage
+            <div class="admin-tabs">
+                <button class="admin-tab-button active" onclick="openAdminTab(event, 'manage-products')">Gerenciar Produtos</button>
+                <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-warnings')">Gerenciar Avisos</button>
+                <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-pix')">Configurar PIX</button>
+                <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-payments')">Gerenciar Pagamentos</button>
+                <button class="admin-tab-button" onclick="openAdminTab(event, 'admin-logs')">Logs de Atividade</button>
+            </div>
 
-    // --- Referências aos elementos DOM ---
-    const productsContainer = document.getElementById('products-container');
-    const adminPanelBtn = document.getElementById('adminPanelBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const adminModal = document.getElementById('adminModal');
-    const adminProductsList = document.getElementById('admin-products-list');
-    const warningsContainer = document.getElementById('warnings-container');
-    const adminWarningsList = document.getElementById('admin-warnings-list');
+            <div id="manage-products" class="admin-tab-content active admin-section">
+                <h4>Adicionar/Editar Produto</h4>
+                <input type="hidden" id="productIdToEdit">
+                <input type="text" id="productTitle" placeholder="Título do Produto" required>
+                <textarea id="productDesc" placeholder="Descrição do Produto" rows="3"></textarea>
+                <input type="number" id="productOldPrice" placeholder="Preço Antigo (Ex: 30.00)" step="0.01">
+                <input type="number" id="productNewPrice" placeholder="Preço Atual (Ex: 10.00)" step="0.01" required>
+                <button onclick="saveProduct()">Salvar Produto</button>
+                <button onclick="clearProductForm()">Limpar Formulário</button>
 
-    // NOVOS ELEMENTOS DOM PARA PIX MANUAL
-    const manualPixModal = document.getElementById('manualPixModal');
-    const manualPixKeyDisplay = document.getElementById('manual_pix_key_display');
-    const proofFileInput = document.getElementById('proofFileInput');
-    const sendProofBtn = document.getElementById('sendProofBtn');
-    const proofStatusMessage = document.getElementById('proofStatusMessage');
-    const paymentApprovalMessage = document.getElementById('paymentApprovalMessage');
-    const manualPixCopyMessage = document.getElementById('manualPixCopyMessage');
+                <h4>Produtos Existentes</h4>
+                <div id="admin-products-list"></div>
+            </div>
 
-    // NOVOS ELEMENTOS DOM PARA ADMIN PIX KEY E PEDIDOS
-    const currentPixKeyAdmin = document.getElementById('currentPixKeyAdmin');
-    const newPixKeyAdmin = document.getElementById('newPixKeyAdmin');
-    const adminPendingOrdersList = document.getElementById('admin-pending-orders-list');
-    const adminApprovedOrdersList = document.getElementById('admin-approved-orders-list');
+            <div id="manage-warnings" class="admin-tab-content admin-section">
+                <h4>Gerenciar Avisos</h4>
+                <input type="text" id="warningMessage" placeholder="Nova mensagem de aviso">
+                <button onclick="addWarning()">Adicionar Aviso</button>
+                <div id="admin-warnings-list"></div>
+            </div>
 
+            <div id="manage-pix" class="admin-tab-content admin-section">
+                <h4>Chave PIX Atual</h4>
+                <input type="text" id="currentPixKey" placeholder="Chave PIX atual" readonly>
+                <h4>Nova Chave PIX</h4>
+                <input type="text" id="newPixKey" placeholder="Nova Chave PIX">
+                <button onclick="updatePixKey()">Salvar Chave PIX</button>
+            </div>
 
-    // --- Chaves para o localStorage ---
-    const LS_IS_ADMIN_KEY = 'isAdmin'; // Este é um indicador LOCAL, não seguro para controle de acesso real
-    const LS_LOGGED_USER_KEY = 'loggedUser'; // ID do usuário logado
+            <div id="manage-payments" class="admin-tab-content admin-section">
+                <h4>Solicitações de Pagamento Pendentes</h4>
+                <div id="pending-payments-list">
+                    </div>
+                <h4>Histórico de Pagamentos Confirmados/Rejeitados</h4>
+                <div id="processed-payments-list" style="max-height: 200px; overflow-y: auto;">
+                    </div>
+            </div>
 
-    // --- Variáveis para controle de compra ---
-    let currentProductIdForPurchase = null; // ID do produto que o usuário está comprando
-    let currentPaymentPendingOrderId = null; // ID do pedido pendente no Firestore
+            <div id="admin-logs" class="admin-tab-content admin-section">
+                <h4>Logs Recentes</h4>
+                <div id="logs-list" style="max-height: 400px; overflow-y: auto; text-align: left;">
+                    </div>
+            </div>
+        </div>
+    </div>
 
-    // --- Função para verificar se o usuário é admin (baseado em localStorage, para UI apenas) ---
-    // Para segurança real, você precisaria de Firebase Admin SDK e Custom Claims
-    function checkAdminStatus() {
-        return localStorage.getItem(LS_IS_ADMIN_KEY) === 'true';
-    }
+    <script>
+        // --- Configuração do Firebase ---
+        // ATENÇÃO: Verifique se estas são as suas chaves corretas!
+        // As chaves abaixo são exemplos e DEVEM ser substituídas pelas do seu projeto Firebase.
+        const firebaseConfig = {
+            apiKey: "AIzaSyAx5VNBlcPXveA1xawirSjRVWDNaKdNRmc", // Substitua pela sua API Key do Firebase
+            authDomain: "haxstore-a250a.firebaseapp.com", // Substitua pelo seu Auth Domain
+            projectId: "haxstore-a250a", // Substitua pelo seu Project ID
+            storageBucket: "haxstore-a250a.appspot.com", // Substitua pelo seu Storage Bucket
+            messagingSenderId: "39538757064", // Substitua pelo seu Messaging Sender ID
+            appId: "1:39538757064:web:7f45d2cba626b6333ac4fd", // Substitua pelo seu App ID
+            measurementId: "G-3D42M9L1HF" // Substitua pelo seu Measurement ID (se estiver usando Analytics)
+        };
 
-    function checkLoggedInStatus() {
-        return localStorage.getItem(LS_LOGGED_USER_KEY) !== null;
-    }
+        // Inicialize o Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(); // Cria uma referência ao seu banco de dados Firestore
+        const storage = firebase.storage(); // Cria uma referência ao seu Firebase Storage
 
-    // --- Funções de Inicialização ---
-    document.addEventListener('DOMContentLoaded', () => {
-        if (!checkLoggedInStatus()) {
-            window.location.href = 'index.html';
-            return;
+        // --- Referências aos elementos DOM ---
+        const productsContainer = document.getElementById('products-container');
+        const adminPanelBtn = document.getElementById('adminPanelBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminModal = document.getElementById('adminModal');
+        const adminProductsList = document.getElementById('admin-products-list');
+        const warningsContainer = document.getElementById('warnings-container');
+        const adminWarningsList = document.getElementById('admin-warnings-list');
+        const pixChaveDisplay = document.getElementById('pixChave');
+        const newPixKeyInput = document.getElementById('newPixKey');
+        const currentPixKeyDisplay = document.getElementById('currentPixKey');
+
+        // Novas referências DOM
+        const comprovanteFileInput = document.getElementById('comprovanteFile');
+        const pendingPaymentsList = document.getElementById('pending-payments-list');
+        const processedPaymentsList = document.getElementById('processed-payments-list');
+        const logsList = document.getElementById('logs-list');
+
+        // --- Chaves para o localStorage (CORRESPONDENDO AO INDEX.HTML) ---
+        // Estas chaves devem ser as mesmas usadas no seu arquivo index.html
+        const LS_IS_ADMIN_KEY = 'isAdmin';
+        const LS_LOGGED_USER_KEY = 'loggedUser';
+
+        function checkAdminStatus() {
+            return localStorage.getItem(LS_IS_ADMIN_KEY) === 'true';
         }
 
-        const isAdmin = checkAdminStatus();
-        if (isAdmin) {
-            adminPanelBtn.style.display = 'block';
-            // Se for admin, carregue as claims para verificar se é admin de fato (se estiver usando Cloud Functions)
-            firebase.auth().currentUser.getIdTokenResult(true)
-                .then((idTokenResult) => {
-                    if (idTokenResult.claims.admin) {
-                        console.log("Usuário é um administrador verificado.");
-                        // Opcional: Atualizar algo na UI se a verificação for bem-sucedida
-                    } else {
-                        console.log("Usuário logado, mas não tem permissões de administrador no token.");
-                        localStorage.removeItem(LS_IS_ADMIN_KEY); // Remove o isAdmin local se não for admin de verdade
-                        adminPanelBtn.style.display = 'none';
-                    }
-                })
-                .catch((error) => {
-                    console.error("Erro ao obter token do ID para verificar admin:", error);
-                    localStorage.removeItem(LS_IS_ADMIN_KEY);
-                    adminPanelBtn.style.display = 'none';
+        function checkLoggedInStatus() {
+            return localStorage.getItem(LS_LOGGED_USER_KEY) !== null;
+        }
+
+        // --- Funções de Inicialização ---
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!checkLoggedInStatus()) {
+                window.location.href = 'index.html'; // Redireciona para o login se não estiver logado
+                return;
+            }
+
+            const isAdmin = checkAdminStatus();
+            if (isAdmin) {
+                adminPanelBtn.style.display = 'block';
+            } else {
+                adminPanelBtn.style.display = 'none';
+            }
+            logoutBtn.style.display = 'block';
+        });
+
+        // --- Funções de Modal de Compra (PIX) ---
+        // Função para abrir o modal de compra (renomeada para melhor clareza)
+        function comprarAgora() {
+            if (!checkLoggedInStatus()) {
+                alert('Você precisa estar logado para realizar uma compra.');
+                window.location.href = 'index.html';
+                return;
+            }
+            document.getElementById('pixModal').style.display = 'flex';
+            document.getElementById('mensagemFinal').style.display = "none";
+            // Limpa o input de arquivo caso o usuário abra e feche várias vezes
+            comprovanteFileInput.value = ''; 
+        }
+
+        function closePixModal() {
+            document.getElementById('pixModal').style.display = 'none';
+            document.getElementById('mensagemFinal').style.display = "none";
+        }
+
+        function confirmarPagamento() {
+            const mensagem = document.getElementById('mensagemFinal');
+            mensagem.style.display = 'block';
+            // Esta função agora serve apenas como um aviso adicional ao usuário
+            // o comprovante de fato é enviado pela função `uploadComprovante`
+        }
+
+        // --- Funções de Upload de Comprovante ---
+        async function uploadComprovante() {
+            if (!checkLoggedInStatus()) {
+                alert('Você precisa estar logado para enviar um comprovante.');
+                return;
+            }
+
+            const file = comprovanteFileInput.files[0];
+            if (!file) {
+                alert('Por favor, selecione um arquivo de comprovante.');
+                return;
+            }
+
+            const currentUser = localStorage.getItem(LS_LOGGED_USER_KEY);
+            const userId = currentUser ? JSON.parse(currentUser).uid : 'anonymous';
+            const userName = currentUser ? JSON.parse(currentUser).username : 'Usuário Desconhecido';
+            
+            const fileName = `${Date.now()}_${file.name}`;
+            const storageRef = storage.ref(`comprovantes/${userId}/${fileName}`);
+            const uploadTask = storageRef.put(file);
+
+            try {
+                const loadingMessage = document.createElement('p');
+                loadingMessage.textContent = 'Enviando comprovante...';
+                loadingMessage.style.color = '#e50914';
+                loadingMessage.id = 'uploadLoadingMessage';
+                document.getElementById('pixModalContent').appendChild(loadingMessage);
+
+                await uploadTask;
+                const downloadURL = await storageRef.getDownloadURL();
+
+                await db.collection('comprovantes').add({
+                    userId: userId,
+                    userName: userName,
+                    fileName: fileName,
+                    fileURL: downloadURL,
+                    status: 'pendente', // 'pendente', 'confirmado', 'rejeitado'
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-        } else {
-            adminPanelBtn.style.display = 'none';
+                document.getElementById('uploadLoadingMessage').remove();
+                alert('Comprovante enviado com sucesso! Aguarde a confirmação do administrador.');
+                closePixModal();
+                logAdminAction('Upload de Comprovante', `Usuário ${userName} (UID: ${userId.substring(0, 5)}...) enviou comprovante para análise.`);
+
+            } catch (error) {
+                console.error("Erro ao fazer upload do comprovante: ", error);
+                alert('Erro ao enviar comprovante. Verifique o console para mais detalhes.');
+                const loadingMessage = document.getElementById('uploadLoadingMessage');
+                if (loadingMessage) loadingMessage.remove();
+            }
         }
-        logoutBtn.style.display = 'block';
 
-        // Ouvir alterações na coleção de pedidos pendentes para o admin
-        if (isAdmin) {
-            db.collection('pending_orders').onSnapshot(loadAdminPendingOrders, (error) => {
-                console.error("Erro ao carregar pedidos pendentes para admin:", error);
-                adminPendingOrdersList.innerHTML = '<p style="text-align: center; color: red;">Erro ao carregar pedidos pendentes.</p>';
-            });
-            db.collection('approved_orders').onSnapshot(loadAdminApprovedOrders, (error) => {
-                console.error("Erro ao carregar pedidos aprovados para admin:", error);
-                adminApprovedOrdersList.innerHTML = '<p style="text-align: center; color: red;">Erro ao carregar pedidos aprovados.</p>';
-            });
-        }
-        // Ouvir alterações no status do próprio pedido do usuário (se houver um em andamento)
-        checkUserPendingOrder();
-    });
-
-    // Função para verificar se o usuário tem um pedido pendente (para exibir no frontend do cliente)
-    async function checkUserPendingOrder() {
-        const userId = localStorage.getItem(LS_LOGGED_USER_KEY);
-        if (!userId) return;
-
-        try {
-            // Busca pedidos pendentes do usuário logado que não foram "enviados"
-            const querySnapshot = await db.collection('pending_orders')
-                .where('userId', '==', userId)
-                .where('status', '==', 'pending_proof') // Ou 'awaiting_approval'
-                .limit(1) // Pega apenas um, se houver
-                .get();
-
-            if (!querySnapshot.empty) {
-                const order = querySnapshot.docs[0];
-                currentPaymentPendingOrderId = order.id;
-                // Exibe uma mensagem para o usuário que ele tem um pedido aguardando
-                // Isso pode ser em um banner ou em algum lugar da tela.
-                console.log(`Você tem um pedido (${order.id}) aguardando aprovação.`);
-                // Opcional: Reabrir o modal de PIX com o status
-                // openManualPixModal(order.data().productId, order.id);
-                // proofStatusMessage.textContent = 'Você já enviou um comprovante. Aguardando aprovação...';
+        // --- Funções do Modal de Administração ---
+        adminPanelBtn.addEventListener('click', () => {
+            if (checkAdminStatus()) {
+                adminModal.style.display = 'flex';
+                openAdminTab(null, 'manage-products'); // Abre a primeira aba por padrão
             } else {
-                console.log('Nenhum pedido pendente para este usuário.');
+                alert('Acesso negado. Você não tem permissões de administrador.');
             }
-        } catch (error) {
-            console.error('Erro ao verificar pedidos pendentes do usuário:', error);
-        }
-    }
-
-
-    // --- Funções de Modal de Compra PIX MANUAL ---
-    async function openManualPixModal(productId) {
-        if (!checkLoggedInStatus()) {
-            alert('Você precisa estar logado para realizar uma compra.');
-            window.location.href = 'index.html';
-            return;
-        }
-        
-        currentProductIdForPurchase = productId; // Armazena o ID do produto para quando o comprovante for enviado
-
-        // Resetar modal
-        manualPixKeyDisplay.textContent = 'Carregando chave PIX...';
-        proofFileInput.value = ''; // Limpa o input de arquivo
-        proofStatusMessage.textContent = '';
-        paymentApprovalMessage.style.display = 'none';
-        sendProofBtn.disabled = false; // Habilita o botão de enviar comprovante
-        manualPixCopyMessage.style.display = 'none';
-
-        manualPixModal.style.display = 'flex';
-
-        try {
-            // Carregar a chave PIX do Firebase
-            const pixDoc = await db.collection('pixKey').doc('mainPix').get();
-            if (pixDoc.exists) {
-                manualPixKeyDisplay.textContent = pixDoc.data().key || 'Chave PIX não configurada.';
-            } else {
-                manualPixKeyDisplay.textContent = 'Chave PIX não configurada pelo administrador.';
-            }
-        } catch (error) {
-            console.error('Erro ao carregar chave PIX:', error);
-            manualPixKeyDisplay.textContent = 'Erro ao carregar chave PIX.';
-        }
-    }
-
-    function closeManualPixModal() {
-        manualPixModal.style.display = 'none';
-        paymentApprovalMessage.style.display = "none";
-        currentProductIdForPurchase = null;
-        currentPaymentPendingOrderId = null; // Reseta o ID do pedido pendente
-        manualPixCopyMessage.style.display = 'none';
-    }
-
-    function copyManualPixKey() {
-        const pixKey = manualPixKeyDisplay.textContent;
-        navigator.clipboard.writeText(pixKey).then(() => {
-            manualPixCopyMessage.style.display = 'inline';
-            setTimeout(() => {
-                manualPixCopyMessage.style.display = 'none';
-            }, 2000);
-        }).catch(err => {
-            console.error('Erro ao copiar texto: ', err);
-            alert('Falha ao copiar a chave PIX.');
-        });
-    }
-
-    // FUNÇÃO PARA ENVIAR O COMPROVANTE
-    async function sendPaymentProof() {
-        if (!currentProductIdForPurchase) {
-            alert('Erro: Produto não selecionado para compra.');
-            return;
-        }
-
-        const file = proofFileInput.files[0];
-        if (!file) {
-            alert('Por favor, selecione uma imagem de comprovante.');
-            return;
-        }
-        if (!file.type.startsWith('image/')) {
-            alert('Por favor, selecione um arquivo de imagem (JPG, PNG, GIF).');
-            return;
-        }
-
-        sendProofBtn.disabled = true;
-        proofStatusMessage.textContent = 'Enviando comprovante...';
-        proofStatusMessage.style.color = 'orange';
-
-        const userId = localStorage.getItem(LS_LOGGED_USER_KEY);
-        const userName = firebase.auth().currentUser ? firebase.auth().currentUser.displayName || firebase.auth().currentUser.email : 'Usuário Desconhecido';
-        const timestamp = new Date().toISOString();
-        const fileName = `${userId}_${currentProductIdForPurchase}_${Date.now()}_${file.name}`;
-        const storageRef = storage.ref(`comprovantes/${fileName}`);
-
-        try {
-            // 1. Upload do arquivo para o Firebase Storage
-            const snapshot = await storageRef.put(file);
-            const downloadURL = await snapshot.ref.getDownloadURL();
-            console.log('Comprovante enviado:', downloadURL);
-
-            // 2. Salvar o pedido pendente no Firestore
-            const productDoc = await db.collection('products').doc(currentProductIdForPurchase).get();
-            if (!productDoc.exists) {
-                throw new Error('Produto não encontrado ao salvar pedido pendente.');
-            }
-            const productData = productDoc.data();
-
-            const pendingOrderRef = await db.collection('pending_orders').add({
-                productId: currentProductIdForPurchase,
-                productTitle: productData.title,
-                productPrice: productData.newPrice,
-                userId: userId,
-                userName: userName,
-                proofUrl: downloadURL,
-                status: 'awaiting_approval', // Novo status
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            currentPaymentPendingOrderId = pendingOrderRef.id; // Guarda o ID do pedido pendente recém-criado
-
-            proofStatusMessage.textContent = 'Comprovante enviado! Aguardando aprovação de Jhow Modder.';
-            proofStatusMessage.style.color = '#0f0'; // Verde para enviado com sucesso
-            
-            // Opcional: Desabilitar o input de arquivo e o botão após o envio
-            proofFileInput.disabled = true;
-            sendProofBtn.style.display = 'none'; // Esconde o botão após o envio
-
-        } catch (error) {
-            console.error('Erro ao enviar comprovante ou salvar pedido:', error);
-            proofStatusMessage.textContent = `Erro ao enviar: ${error.message}`;
-            proofStatusMessage.style.color = 'red';
-            sendProofBtn.disabled = false; // Reabilita o botão em caso de erro
-        }
-    }
-
-    // --- Atualização da Função RENDER PRODUCTS ---
-    function renderProducts(products) {
-        productsContainer.innerHTML = '';
-        const isAdmin = checkAdminStatus();
-
-        if (products.length === 0) {
-            productsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 20px;">Nenhum produto disponível no momento.</p>';
-            if (isAdmin) {
-                productsContainer.innerHTML += '<p style="text-align: center; color: #0f0;">Como administrador, você pode adicionar produtos através do "Painel de Administração".</p>';
-            }
-            return;
-        }
-
-        products.forEach((product) => {
-          const productDiv = document.createElement('div');
-          productDiv.className = 'produto-item';
-          const adminButtons = isAdmin ? `
-            <button class="btn-edit-produto" onclick="editProduct('${product.id}')">Editar</button>
-            <button class="btn-delete-produto" onclick="deleteProduct('${product.id}')">Apagar</button>
-          ` : '';
-
-          productDiv.innerHTML = `
-            ${adminButtons}
-            <span class="tag">Em destaque</span>
-            <h1 class="produto-titulo">${product.title}</h1>
-            <p class="produto-desc">${product.description}</p>
-            <div class="precos">
-              ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${parseFloat(product.oldPrice).toFixed(2).replace('.', ',')}</span>` : ''}
-              <span class="preco-atual">R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
-            </div>
-            <button class="btn-comprar" data-product-id="${product.id}">Comprar agora (PIX)</button>
-          `;
-          productsContainer.appendChild(productDiv);
         });
 
-        document.querySelectorAll('.btn-comprar').forEach(button => {
-          button.addEventListener('click', (event) => {
-              const productId = event.target.dataset.productId;
-              openManualPixModal(productId); // Chama o modal de PIX manual
-          });
-        });
-    }
-
-    // --- Funções do Modal de Administração ---
-    adminPanelBtn.addEventListener('click', () => {
-        if (checkAdminStatus()) {
-            adminModal.style.display = 'flex';
-            openAdminTab(null, 'manage-products'); // Abre a aba de produtos por padrão
-        } else {
-            alert('Acesso negado. Você não tem permissões de administrador.');
+        function closeAdminModal() {
+            adminModal.style.display = 'none';
         }
-    });
 
-    function closeAdminModal() {
-      adminModal.style.display = 'none';
-    }
-
-    logoutBtn.addEventListener('click', () => {
-        if (confirm('Tem certeza que deseja sair?')) {
-            localStorage.removeItem(LS_IS_ADMIN_KEY);
-            localStorage.removeItem(LS_LOGGED_USER_KEY);
-            firebase.auth().signOut().then(() => {
+        // Botão de Logout
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja sair?')) {
+                localStorage.removeItem(LS_IS_ADMIN_KEY);
+                localStorage.removeItem(LS_LOGGED_USER_KEY);
                 alert('Sessão encerrada. Redirecionando para o login.');
                 window.location.href = 'index.html';
-            }).catch((error) => {
-                console.error('Erro ao fazer logout:', error);
-                alert('Erro ao sair.');
+            }
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target == document.getElementById('pixModal')) {
+                closePixModal();
+            }
+            if (event.target == document.getElementById('adminModal')) {
+                closeAdminModal();
+            }
+        });
+
+        // --- Funções de Gerenciamento de Produtos (Firestore) ---
+
+        db.collection('products').onSnapshot((snapshot) => {
+            const products = [];
+            snapshot.forEach(doc => {
+                products.push({ id: doc.id, ...doc.data() });
+            });
+            renderProducts(products);
+            loadAdminProducts(products);
+        }, (error) => {
+            console.error("Erro ao obter produtos: ", error);
+            productsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar produtos. Verifique sua conexão ou as regras do Firebase.</p>';
+        });
+
+        function renderProducts(products) {
+            productsContainer.innerHTML = '';
+            const isAdmin = checkAdminStatus();
+
+            if (products.length === 0) {
+                productsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 20px;">Nenhum produto disponível no momento.</p>';
+                if (isAdmin) {
+                    productsContainer.innerHTML += '<p style="text-align: center; color: #0f0;">Como administrador, você pode adicionar produtos através do "Painel de Administração".</p>';
+                }
+                return;
+            }
+
+            products.forEach((product) => {
+                const productDiv = document.createElement('div');
+                productDiv.className = 'produto-item';
+                const adminButtons = isAdmin ? `
+                    <button class="btn-edit-produto" onclick="editProduct('${product.id}')">Editar</button>
+                    <button class="btn-delete-produto" onclick="deleteProduct('${product.id}')">Apagar</button>
+                ` : '';
+
+                productDiv.innerHTML = `
+                    ${adminButtons}
+                    <span class="tag">Em destaque</span>
+                    <h1 class="produto-titulo">${product.title}</h1>
+                    <p class="produto-desc">${product.description}</p>
+                    <div class="precos">
+                        ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${parseFloat(product.oldPrice).toFixed(2).replace('.', ',')}</span>` : ''}
+                        <span class="preco-atual">R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
+                    </div>
+                    <button class="btn-comprar">Comprar agora</button>
+                `;
+                productsContainer.appendChild(productDiv);
+            });
+
+            // Atualiza para a nova função comprarAgora
+            document.querySelectorAll('.btn-comprar').forEach(button => {
+                button.removeEventListener('click', comprarAgora); // Remove ouvintes antigos se houver
+                button.addEventListener('click', comprarAgora);
             });
         }
-    });
 
-    window.addEventListener('click', function(event) {
-      if (event.target == manualPixModal) {
-        closeManualPixModal();
-      }
-      if (event.target == adminModal) {
-        closeAdminModal();
-      }
-    });
+        function loadAdminProducts(products) {
+            if (!checkAdminStatus()) return;
 
-    // --- Funções de Gerenciamento de Produtos (Firestore - Sem alteração) ---
-    db.collection('products').onSnapshot((snapshot) => {
-        const products = [];
-        snapshot.forEach(doc => {
-            products.push({ id: doc.id, ...doc.data() });
-        });
-        renderProducts(products);
-        loadAdminProducts(products);
-    }, (error) => {
-        console.error("Erro ao obter produtos: ", error);
-        productsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar produtos. Verifique sua conexão ou as regras do Firebase.</p>';
-    });
-
-    function loadAdminProducts(products) {
-        if (!checkAdminStatus()) return;
-
-        adminProductsList.innerHTML = '';
-        if (products.length === 0) {
-            adminProductsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum produto adicionado ainda.</p>';
-            return;
-        }
-
-        products.forEach(product => {
-            const productItem = document.createElement('div');
-            productItem.className = 'admin-product-item';
-            productItem.innerHTML = `
-                <span>${product.title} - R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
-                <div>
-                    <button onclick="editProduct('${product.id}')">Editar</button>
-                    <button onclick="deleteProduct('${product.id}')">Apagar</button>
-                </div>
-            `;
-            adminProductsList.appendChild(productItem);
-        });
-    }
-
-    async function saveProduct() {
-        if (!checkAdminStatus()) {
-            alert('Acesso negado.');
-            return;
-        }
-        const productId = document.getElementById('productIdToEdit').value;
-        const title = document.getElementById('productTitle').value;
-        const description = document.getElementById('productDesc').value;
-        const oldPrice = parseFloat(document.getElementById('productOldPrice').value || 0);
-        const newPrice = parseFloat(document.getElementById('productNewPrice').value);
-
-        if (!title || isNaN(newPrice)) {
-            alert('Título e Preço Atual são obrigatórios e o preço deve ser um número.');
-            return;
-        }
-
-        const productData = { title, description, oldPrice, newPrice };
-
-        try {
-            if (productId) {
-                await db.collection('products').doc(productId).update(productData);
-                alert('Produto atualizado com sucesso!');
-            } else {
-                await db.collection('products').add(productData);
-                alert('Produto adicionado com sucesso!');
+            adminProductsList.innerHTML = '';
+            if (products.length === 0) {
+                adminProductsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum produto adicionado ainda.</p>';
+                return;
             }
-            clearProductForm();
-        } catch (e) {
-            console.error("Erro ao salvar produto: ", e);
-            alert("Erro ao salvar produto. Verifique suas regras do Firestore e conexão.");
-        }
-    }
 
-    async function editProduct(id) {
-        if (!checkAdminStatus()) {
-            alert('Acesso negado.');
-            return;
+            products.forEach(product => {
+                const productItem = document.createElement('div');
+                productItem.className = 'admin-product-item';
+                productItem.innerHTML = `
+                    <span>${product.title} - R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
+                    <div>
+                        <button onclick="editProduct('${product.id}')">Editar</button>
+                        <button onclick="deleteProduct('${product.id}')">Apagar</button>
+                    </div>
+                `;
+                adminProductsList.appendChild(productItem);
+            });
         }
-        try {
-            const doc = await db.collection('products').doc(id).get();
-            if (doc.exists) {
-                const product = doc.data();
-                document.getElementById('productIdToEdit').value = id;
-                document.getElementById('productTitle').value = product.title;
-                document.getElementById('productDesc').value = product.description;
-                document.getElementById('productOldPrice').value = product.oldPrice;
-                document.getElementById('productNewPrice').value = product.newPrice;
-                openAdminTab(null, 'manage-products');
-                adminModal.style.display = 'flex';
-            } else {
-                alert('Produto não encontrado.');
+
+        async function saveProduct() {
+            if (!checkAdminStatus()) {
+                alert('Acesso negado.');
+                return;
             }
-        } catch (e) {
-            console.error("Erro ao carregar produto para edição: ", e);
-            alert("Erro ao carregar produto para edição.");
-        }
-    }
+            const productId = document.getElementById('productIdToEdit').value;
+            const title = document.getElementById('productTitle').value;
+            const description = document.getElementById('productDesc').value;
+            const oldPrice = parseFloat(document.getElementById('productOldPrice').value || 0);
+            const newPrice = parseFloat(document.getElementById('productNewPrice').value);
 
-    async function deleteProduct(id) {
-        if (!checkAdminStatus()) {
-            alert('Acesso negado.');
-            return;
-        }
-        if (confirm('Tem certeza que deseja apagar este produto?')) {
+            if (!title || isNaN(newPrice)) {
+                alert('Título e Preço Atual são obrigatórios e o preço deve ser um número.');
+                return;
+            }
+
+            const productData = { title, description, oldPrice, newPrice };
+
             try {
-                await db.collection('products').doc(id).delete();
-                alert('Produto apagado com sucesso!');
+                if (productId) {
+                    await db.collection('products').doc(productId).update(productData);
+                    alert('Produto atualizado com sucesso!');
+                    logAdminAction('Atualizar Produto', `Admin ${getCurrentAdminUsername()} atualizou o produto "${title}".`);
+                } else {
+                    await db.collection('products').add(productData);
+                    alert('Produto adicionado com sucesso!');
+                    logAdminAction('Criar Produto', `Admin ${getCurrentAdminUsername()} criou o produto "${title}".`);
+                }
+                clearProductForm();
             } catch (e) {
-                console.error("Erro ao apagar produto: ", e);
-                alert("Erro ao apagar produto. Verifique suas regras do Firestore e conexão.");
+                console.error("Erro ao salvar produto: ", e);
+                alert("Erro ao salvar produto. Verifique suas regras do Firestore e conexão.");
             }
         }
-    }
 
-    function clearProductForm() {
-        document.getElementById('productIdToEdit').value = '';
-        document.getElementById('productTitle').value = '';
-        document.getElementById('productDesc').value = '';
-        document.getElementById('productOldPrice').value = '';
-        document.getElementById('productNewPrice').value = '';
-    }
+        async function editProduct(id) {
+            if (!checkAdminStatus()) {
+                alert('Acesso negado.');
+                return;
+            }
+            try {
+                const doc = await db.collection('products').doc(id).get();
+                if (doc.exists) {
+                    const product = doc.data();
+                    document.getElementById('productIdToEdit').value = id;
+                    document.getElementById('productTitle').value = product.title;
+                    document.getElementById('productDesc').value = product.description;
+                    document.getElementById('productOldPrice').value = product.oldPrice;
+                    document.getElementById('productNewPrice').value = product.newPrice;
+                    openAdminTab(null, 'manage-products'); // Garante que a aba de produtos esteja ativa
+                    adminModal.style.display = 'flex'; // Abre o modal
+                } else {
+                    alert('Produto não encontrado.');
+                }
+            } catch (e) {
+                console.error("Erro ao carregar produto para edição: ", e);
+                alert("Erro ao carregar produto para edição.");
+            }
+        }
 
-    // --- Funções de Gerenciamento de Avisos (Firestore - Sem alteração) ---
-    db.collection('warnings').onSnapshot((snapshot) => {
-        const warnings = [];
-        snapshot.forEach(doc => {
-            warnings.push({ id: doc.id, ...doc.data() });
+        async function deleteProduct(id) {
+            if (!checkAdminStatus()) {
+                alert('Acesso negado.');
+                return;
+            }
+            if (confirm('Tem certeza que deseja apagar este produto?')) {
+                try {
+                    const productDoc = await db.collection('products').doc(id).get();
+                    const productName = productDoc.exists ? productDoc.data().title : 'Produto Desconhecido';
+                    await db.collection('products').doc(id).delete();
+                    alert('Produto apagado com sucesso!');
+                    logAdminAction('Deletar Produto', `Admin ${getCurrentAdminUsername()} apagou o produto "${productName}".`);
+                } catch (e) {
+                    console.error("Erro ao apagar produto: ", e);
+                    alert("Erro ao apagar produto. Verifique suas regras do Firestore e conexão.");
+                }
+            }
+        }
+
+        function clearProductForm() {
+            document.getElementById('productIdToEdit').value = '';
+            document.getElementById('productTitle').value = '';
+            document.getElementById('productDesc').value = '';
+            document.getElementById('productOldPrice').value = '';
+            document.getElementById('productNewPrice').value = '';
+        }
+
+        // --- Funções de Gerenciamento de Avisos (Firestore) ---
+
+        db.collection('warnings').onSnapshot((snapshot) => {
+            const warnings = [];
+            snapshot.forEach(doc => {
+                warnings.push({ id: doc.id, ...doc.data() });
+            });
+            renderWarnings(warnings);
+            loadAdminWarnings(warnings);
+        }, (error) => {
+            console.error("Erro ao obter avisos: ", error);
+            warningsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar avisos. Verifique sua conexão ou as regras do Firebase.</p>';
         });
-        renderWarnings(warnings);
-        loadAdminWarnings(warnings);
-    }, (error) => {
-        console.error("Erro ao obter avisos: ", error);
-        warningsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar avisos. Verifique sua conexão ou as regras do Firebase.</p>';
-    });
 
-    function renderWarnings(warnings) {
-        warningsContainer.innerHTML = '';
-        if (warnings.length === 0) {
+        function renderWarnings(warnings) {
             warningsContainer.innerHTML = '';
-            return;
+            if (warnings.length === 0) {
+                warningsContainer.innerHTML = ''; // Não exibe a mensagem se não houver avisos
+                return;
+            }
+            warnings.forEach(warning => {
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'admin-warning-message';
+                warningDiv.textContent = warning.message;
+                warningsContainer.appendChild(warningDiv);
+            });
         }
-        warnings.forEach(warning => {
-            const warningDiv = document.createElement('div');
-            warningDiv.className = 'admin-warning-message';
-            warningDiv.textContent = warning.message;
-            warningsContainer.appendChild(warningDiv);
-        });
-    }
 
-    function loadAdminWarnings(warnings) {
-        if (!checkAdminStatus()) return;
+        function loadAdminWarnings(warnings) {
+            if (!checkAdminStatus()) return;
 
-        adminWarningsList.innerHTML = '';
-        if (warnings.length === 0) {
-            adminWarningsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum aviso adicionado ainda.</p>';
-            return;
+            adminWarningsList.innerHTML = '';
+            if (warnings.length === 0) {
+                adminWarningsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum aviso adicionado ainda.</p>';
+                return;
+            }
+            warnings.forEach(warning => {
+                const warningItem = document.createElement('div');
+                warningItem.className = 'warning-item';
+                warningItem.innerHTML = `
+                    <span>${warning.message}</span>
+                    <button onclick="deleteWarning('${warning.id}')" style="background-color: #cc0000;">Apagar</button>
+                `;
+                adminWarningsList.appendChild(warningItem);
+            });
         }
-        warnings.forEach(warning => {
-            const warningItem = document.createElement('div');
-            warningItem.className = 'warning-item';
-            warningItem.innerHTML = `
-                <span>${warning.message}</span>
-                <button onclick="deleteWarning('${warning.id}')" style="background-color: #cc0000;">Apagar</button>
-            `;
-            adminWarningsList.appendChild(warningItem);
-        });
-    }
 
-    async function addWarning() {
-        if (!checkAdminStatus()) {
-            alert('Acesso negado.');
-            return;
-        }
-        const message = document.getElementById('warningMessage').value;
-        if (!message) {
-            alert('A mensagem de aviso não pode ser vazia.');
-            return;
-        }
-        try {
-            await db.collection('warnings').add({ message });
-            alert('Aviso adicionado com sucesso!');
-            document.getElementById('warningMessage').value = '';
-        } catch (e) {
-            console.error("Erro ao adicionar aviso: ", e);
-            alert("Erro ao adicionar aviso. Verifique suas regras do Firestore e conexão.");
-        }
-    }
-
-    async function deleteWarning(id) {
-        if (!checkAdminStatus()) {
-            alert('Acesso negado.');
-            return;
-        }
-        if (confirm('Tem certeza que deseja apagar este aviso?')) {
+        async function addWarning() {
+            if (!checkAdminStatus()) {
+                alert('Acesso negado.');
+                return;
+            }
+            const message = document.getElementById('warningMessage').value;
+            if (!message) {
+                alert('A mensagem de aviso não pode ser vazia.');
+                return;
+            }
             try {
-                await db.collection('warnings').doc(id).delete();
-                alert('Aviso apagado com sucesso!');
+                await db.collection('warnings').add({ message });
+                alert('Aviso adicionado com sucesso!');
+                logAdminAction('Adicionar Aviso', `Admin ${getCurrentAdminUsername()} adicionou o aviso: "${message.substring(0, 50)}...".`);
+                document.getElementById('warningMessage').value = '';
+            } catch (e) {
+                console.error("Erro ao adicionar aviso: ", e);
+                alert("Erro ao adicionar aviso. Verifique suas regras do Firestore e conexão.");
             }
         }
-    }
 
-    // --- Funções de Gerenciamento da Chave PIX (Firestore - Agora só para o Admin) ---
-    // A chave PIX principal será armazenada em um documento fixo 'mainPix' na coleção 'pixKey'
-    db.collection('pixKey').doc('mainPix').onSnapshot((doc) => {
-        if (doc.exists) {
-            const pixData = doc.data();
-            manualPixKeyDisplay.textContent = pixData.key || 'Nenhuma chave PIX configurada.'; // Para o cliente
-            if (checkAdminStatus()) {
-                currentPixKeyAdmin.value = pixData.key || ''; // Para o admin
+        async function deleteWarning(id) {
+            if (!checkAdminStatus()) {
+                alert('Acesso negado.');
+                return;
             }
-        } else {
-            manualPixKeyDisplay.textContent = 'Nenhuma chave PIX configurada.';
-            if (checkAdminStatus()) {
-                currentPixKeyAdmin.value = '';
+            if (confirm('Tem certeza que deseja apagar este aviso?')) {
+                try {
+                    const warningDoc = await db.collection('warnings').doc(id).get();
+                    const warningMessage = warningDoc.exists ? warningDoc.data().message : 'Aviso Desconhecido';
+                    await db.collection('warnings').doc(id).delete();
+                    alert('Aviso apagado com sucesso!');
+                    logAdminAction('Deletar Aviso', `Admin ${getCurrentAdminUsername()} apagou o aviso: "${warningMessage.substring(0, 50)}...".`);
+                } catch (e) {
+                    console.error("Erro ao apagar aviso: ", e);
+                    alert("Erro ao apagar aviso. Verifique suas regras do Firestore e conexão.");
+                }
             }
         }
-    }, (error) => {
-        console.error("Erro ao obter chave PIX: ", error);
-        manualPixKeyDisplay.textContent = 'Erro ao carregar chave PIX.';
-    });
 
-    async function updatePixKeyAdmin() {
-        if (!checkAdminStatus()) {
-            alert('Acesso negado.');
-            return;
-        }
-        const newKey = newPixKeyAdmin.value;
-        if (!newKey) {
-            alert('A nova chave PIX não pode ser vazia.');
-            return;
-        }
-        try {
-            await db.collection('pixKey').doc('mainPix').set({ key: newKey }, { merge: true });
-            alert('Chave PIX atualizada com sucesso!');
-            newPixKeyAdmin.value = '';
-        } catch (e) {
-            console.error("Erro ao atualizar chave PIX: ", e);
-            alert("Erro ao atualizar chave PIX. Verifique suas regras do Firestore e conexão.");
-        }
-    }
+        // --- Funções de Gerenciamento da Chave PIX (Firestore) ---
 
-    // --- NOVA FUNÇÃO: Carregar Pedidos Pendentes (APENAS ADMIN) ---
-    function loadAdminPendingOrders(snapshot) {
-        if (!checkAdminStatus()) return;
-
-        adminPendingOrdersList.innerHTML = '';
-        if (snapshot.empty) {
-            adminPendingOrdersList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum pedido pendente no momento.</p>';
-            return;
-        }
-
-        snapshot.forEach(doc => {
-            const order = doc.data();
-            const orderItem = document.createElement('div');
-            orderItem.className = 'pending-order-item';
-            orderItem.innerHTML = `
-                <span>
-                    <strong>Pedido ID:</strong> ${doc.id.substring(0, 8)}...<br>
-                    <strong>Produto:</strong> ${order.productTitle} (R$ ${parseFloat(order.productPrice).toFixed(2).replace('.', ',')})<br>
-                    <strong>Comprador:</strong> ${order.userName} (ID: ${order.userId.substring(0, 8)}...)<br>
-                    <strong>Status:</strong> ${order.status}<br>
-                    <strong>Data:</strong> ${new Date(order.timestamp.toDate()).toLocaleString()}
-                </span>
-                ${order.proofUrl ? `<img src="${order.proofUrl}" alt="Comprovante" style="width: 150px; height: auto; cursor: pointer;" onclick="window.open('${order.proofUrl}', '_blank');">` : ''}
-                <div>
-                    <button style="background-color: #0f0;" onclick="approveOrder('${doc.id}', '${order.productId}', '${order.userId}', '${order.productTitle}')">Aprovar</button>
-                    <button style="background-color: #cc0000;" onclick="rejectOrder('${doc.id}')">Rejeitar</button>
-                </div>
-            `;
-            adminPendingOrdersList.appendChild(orderItem);
+        db.collection('pixKey').doc('mainPix').onSnapshot((doc) => {
+            if (doc.exists) {
+                const pixData = doc.data();
+                pixChaveDisplay.textContent = pixData.key || 'Nenhuma chave PIX configurada.';
+                if (checkAdminStatus()) { // Atualiza o campo no painel de admin apenas se for admin
+                    currentPixKeyDisplay.value = pixData.key || '';
+                }
+            } else {
+                pixChaveDisplay.textContent = 'Nenhuma chave PIX configurada.';
+                if (checkAdminStatus()) {
+                    currentPixKeyDisplay.value = '';
+                }
+            }
+        }, (error) => {
+            console.error("Erro ao obter chave PIX: ", error);
+            pixChaveDisplay.textContent = 'Erro ao carregar chave PIX.';
         });
-    }
 
-    // --- NOVA FUNÇÃO: Carregar Pedidos Aprovados (APENAS ADMIN) ---
-    function loadAdminApprovedOrders(snapshot) {
-        if (!checkAdminStatus()) return;
-
-        adminApprovedOrdersList.innerHTML = '';
-        if (snapshot.empty) {
-            adminApprovedOrdersList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum pedido aprovado ainda.</p>';
-            return;
-        }
-
-        snapshot.forEach(doc => {
-            const order = doc.data();
-            const orderItem = document.createElement('div');
-            orderItem.className = 'approved-order-item';
-            orderItem.innerHTML = `
-                <span>
-                    <strong>Pedido ID:</strong> ${doc.id.substring(0, 8)}...<br>
-                    <strong>Produto:</strong> ${order.productTitle}<br>
-                    <strong>Comprador:</strong> ${order.userName}<br>
-                    <strong>Data Aprovação:</strong> ${new Date(order.approvalTimestamp.toDate()).toLocaleString()}
-                </span>
-                <div>
-                    <button style="background-color: #337ab7;" onclick="alert('Funcionalidade de reenvio ou visualização de produto aqui para ${order.productTitle}');">Ver Produto</button>
-                </div>
-            `;
-            adminApprovedOrdersList.appendChild(orderItem);
-        });
-    }
-
-    // --- NOVA FUNÇÃO: Aprovar Pedido ---
-    async function approveOrder(orderId, productId, userId, productTitle) {
-        if (!checkAdminStatus()) {
-            alert('Acesso negado.');
-            return;
-        }
-        if (confirm(`Tem certeza que deseja APROVAR o pedido ${orderId}?`)) {
+        async function updatePixKey() {
+            if (!checkAdminStatus()) {
+                alert('Acesso negado.');
+                return;
+            }
+            const newKey = newPixKeyInput.value;
+            if (!newKey) {
+                alert('A nova chave PIX não pode ser vazia.');
+                return;
+            }
             try {
-                // 1. Mover o pedido para a coleção de aprovados
-                await db.collection('approved_orders').doc(orderId).set({
-                    productId: productId,
-                    userId: userId,
-                    productTitle: productTitle, // Ou os dados completos do produto
-                    approvalTimestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    // Adicione aqui outros dados relevantes para o produto (link de download, chave, etc.)
-                    // Isso pode ser uma subcoleção 'products_delivered' do usuário, por exemplo.
+                await db.collection('pixKey').doc('mainPix').set({ key: newKey }, { merge: true });
+                alert('Chave PIX atualizada com sucesso!');
+                logAdminAction('Atualizar Chave PIX', `Admin ${getCurrentAdminUsername()} atualizou a chave PIX para: "${newKey}".`);
+                newPixKeyInput.value = '';
+            } catch (e) {
+                console.error("Erro ao atualizar chave PIX: ", e);
+                alert("Erro ao atualizar chave PIX. Verifique suas regras do Firestore e conexão.");
+            }
+        }
+
+        // --- Funções de Gerenciamento de Pagamentos (Admin Panel) ---
+
+        db.collection('comprovantes').where('status', '==', 'pendente').onSnapshot((snapshot) => {
+            const pendingPayments = [];
+            snapshot.forEach(doc => {
+                pendingPayments.push({ id: doc.id, ...doc.data() });
+            });
+            renderPendingPayments(pendingPayments);
+        }, (error) => {
+            console.error("Erro ao obter comprovantes pendentes: ", error);
+            pendingPaymentsList.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar pagamentos pendentes.</p>';
+        });
+
+        db.collection('comprovantes').where('status', 'in', ['confirmado', 'rejeitado']).orderBy('timestamp', 'desc').limit(10).onSnapshot((snapshot) => {
+            const processedPayments = [];
+            snapshot.forEach(doc => {
+                processedPayments.push({ id: doc.id, ...doc.data() });
+            });
+            renderProcessedPayments(processedPayments);
+        }, (error) => {
+            console.error("Erro ao obter comprovantes processados: ", error);
+            processedPaymentsList.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar histórico de pagamentos.</p>';
+        });
+
+
+        function renderPendingPayments(payments) {
+            if (!checkAdminStatus()) return;
+
+            pendingPaymentsList.innerHTML = '';
+            if (payments.length === 0) {
+                pendingPaymentsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum comprovante pendente no momento.</p>';
+                return;
+            }
+
+            payments.forEach(payment => {
+                const paymentItem = document.createElement('div');
+                paymentItem.className = 'admin-product-item';
+                paymentItem.style.backgroundColor = '#333';
+                paymentItem.style.border = '1px solid #e50914';
+
+                const timestampDate = payment.timestamp ? payment.timestamp.toDate().toLocaleString() : 'N/A';
+
+                paymentItem.innerHTML = `
+                    <span>
+                        <strong>Usuário:</strong> ${payment.userName} (ID: ${payment.userId.substring(0, 5)}...)<br>
+                        <strong>Comprovante:</strong> <a href="${payment.fileURL}" target="_blank" style="color: #007bff;">Ver Arquivo</a><br>
+                        <strong>Data:</strong> ${timestampDate}
+                    </span>
+                    <div>
+                        <button onclick="confirmPayment('${payment.id}')" style="background-color: #0f0;">Confirmar</button>
+                        <button onclick="rejectPayment('${payment.id}')" style="background-color: #cc0000;">Rejeitar</button>
+                    </div>
+                `;
+                pendingPaymentsList.appendChild(paymentItem);
+            });
+        }
+
+        function renderProcessedPayments(payments) {
+            if (!checkAdminStatus()) return;
+
+            processedPaymentsList.innerHTML = '';
+            if (payments.length === 0) {
+                processedPaymentsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum pagamento processado ainda.</p>';
+                return;
+            }
+
+            payments.forEach(payment => {
+                const paymentItem = document.createElement('div');
+                paymentItem.className = 'admin-product-item';
+                paymentItem.style.backgroundColor = payment.status === 'confirmado' ? '#224422' : '#442222';
+                paymentItem.style.border = payment.status === 'confirmado' ? '1px solid #0f0' : '1px solid #f00';
+
+                const timestampDate = payment.timestamp ? payment.timestamp.toDate().toLocaleString() : 'N/A';
+                const statusColor = payment.status === 'confirmado' ? '#0f0' : '#f00';
+
+                paymentItem.innerHTML = `
+                    <span>
+                        <strong>Usuário:</strong> ${payment.userName} (ID: ${payment.userId.substring(0, 5)}...)<br>
+                        <strong>Comprovante:</strong> <a href="${payment.fileURL}" target="_blank" style="color: #007bff;">Ver Arquivo</a><br>
+                        <strong>Data:</strong> ${timestampDate}<br>
+                        <strong>Status:</strong> <span style="color: ${statusColor}; font-weight: bold;">${payment.status.toUpperCase()}</span>
+                    </span>
+                `;
+                processedPaymentsList.appendChild(paymentItem);
+            });
+        }
+
+
+        async function confirmPayment(paymentId) {
+            if (!checkAdminStatus()) {
+                alert('Acesso negado.');
+                return;
+            }
+            if (confirm('Tem certeza que deseja confirmar este pagamento?')) {
+                try {
+                    await db.collection('comprovantes').doc(paymentId).update({ status: 'confirmado' });
+                    alert('Pagamento confirmado com sucesso!');
+                    logAdminAction('Confirmação de Pagamento', `Admin ${getCurrentAdminUsername()} confirmou o pagamento ${paymentId}.`);
+                } catch (e) {
+                    console.error("Erro ao confirmar pagamento: ", e);
+                    alert("Erro ao confirmar pagamento.");
+                }
+            }
+        }
+
+        async function rejectPayment(paymentId) {
+            if (!checkAdminStatus()) {
+                alert('Acesso negado.');
+                return;
+            }
+            if (confirm('Tem certeza que deseja rejeitar este pagamento?')) {
+                try {
+                    await db.collection('comprovantes').doc(paymentId).update({ status: 'rejeitado' });
+                    alert('Pagamento rejeitado com sucesso!');
+                    logAdminAction('Rejeição de Pagamento', `Admin ${getCurrentAdminUsername()} rejeitou o pagamento ${paymentId}.`);
+                } catch (e) {
+                    console.error("Erro ao rejeitar pagamento: ", e);
+                    alert("Erro ao rejeitar pagamento.");
+                }
+            }
+        }
+
+        // --- Sistema de Logs de Administradores ---
+
+        db.collection('logs').orderBy('timestamp', 'desc').limit(50).onSnapshot((snapshot) => {
+            const logs = [];
+            snapshot.forEach(doc => {
+                logs.push({ id: doc.id, ...doc.data() });
+            });
+            renderLogs(logs);
+        }, (error) => {
+            console.error("Erro ao obter logs: ", error);
+            logsList.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar logs.</p>';
+        });
+
+        function renderLogs(logs) {
+            if (!checkAdminStatus()) return;
+
+            logsList.innerHTML = '';
+            if (logs.length === 0) {
+                logsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum log de atividade ainda.</p>';
+                return;
+            }
+
+            logs.forEach(log => {
+                const logItem = document.createElement('div');
+                logItem.style.marginBottom = '8px';
+                logItem.style.paddingBottom = '8px';
+                logItem.style.borderBottom = '1px dotted #444';
+                logItem.style.fontSize = '14px';
+                logItem.style.color = '#bbb';
+
+                const timestampDate = log.timestamp ? log.timestamp.toDate().toLocaleString() : 'N/A';
+
+                logItem.innerHTML = `
+                    <span style="color: #0f0; font-weight: bold;">[${timestampDate}]</span>
+                    <span style="color: #eee;"> ${log.actionType}:</span>
+                    <span style="color: #aaa;"> ${log.description}</span>
+                `;
+                logsList.appendChild(logItem);
+            });
+        }
+
+        async function logAdminAction(actionType, description) {
+            if (!checkAdminStatus()) {
+                console.warn('Tentativa de log de ação de admin por não-admin.');
+                return;
+            }
+            const currentUser = localStorage.getItem(LS_LOGGED_USER_KEY);
+            const adminId = currentUser ? JSON.parse(currentUser).uid : 'unknown';
+            const adminUsername = currentUser ? JSON.parse(currentUser).username : 'Unknown Admin';
+
+            try {
+                await db.collection('logs').add({
+                    adminId: adminId,
+                    adminUsername: adminUsername,
+                    actionType: actionType,
+                    description: description,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                // 2. Apagar o pedido da coleção de pendentes
-                await db.collection('pending_orders').doc(orderId).delete();
-
-                alert('Pedido aprovado e produto liberado (conceitualmente)!');
-                console.log(`Pedido ${orderId} aprovado para o usuário ${userId}.`);
-
-                // Você pode adicionar mais lógica aqui, como:
-                // - Enviar um email para o usuário com o link do produto/chave (requer um backend/Cloud Function)
-                // - Atualizar o status do produto no Firestore para indicar que foi entregue
-                // - Adicionar o produto ao perfil do usuário no Firestore (ex: user.collection('my_products').add(...))
-
             } catch (e) {
-                console.error("Erro ao aprovar pedido: ", e);
-                alert("Erro ao aprovar pedido. Verifique suas regras do Firestore e conexão.");
+                console.error("Erro ao registrar log: ", e);
             }
         }
-    }
 
-    // --- NOVA FUNÇÃO: Rejeitar Pedido ---
-    async function rejectOrder(orderId) {
-        if (!checkAdminStatus()) {
-            alert('Acesso negado.');
-            return;
+        function getCurrentAdminUsername() {
+            const currentUser = localStorage.getItem(LS_LOGGED_USER_KEY);
+            return currentUser ? JSON.parse(currentUser).username : 'Admin Desconhecido';
         }
-        if (confirm(`Tem certeza que deseja REJEITAR o pedido ${orderId}? Isso o apagará da lista de pendentes.`)) {
-            try {
-                // Opcional: Você pode mover para uma coleção 'rejected_orders' em vez de apagar
-                await db.collection('pending_orders').doc(orderId).delete();
-                alert('Pedido rejeitado.');
-                console.log(`Pedido ${orderId} rejeitado.`);
-            } catch (e) {
-                console.error("Erro ao rejeitar pedido: ", e);
-                alert("Erro ao rejeitar pedido. Verifique suas regras do Firestore e conexão.");
+
+        // --- Funções de Abas do Painel de Administração ---
+        function openAdminTab(evt, tabName) {
+            const tabContent = document.querySelectorAll('.admin-tab-content');
+            tabContent.forEach(tab => tab.style.display = 'none');
+
+            const tabButtons = document.querySelectorAll('.admin-tab-button');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabName).style.display = 'block';
+            if (evt) {
+                evt.currentTarget.classList.add('active');
+            } else {
+                const defaultButton = document.querySelector(`.admin-tab-button[onclick*="${tabName}"]`);
+                if (defaultButton) defaultButton.classList.add('active');
             }
         }
-    }
 
-    // --- Funções de Abas do Painel de Administração ---
-    function openAdminTab(evt, tabName) {
-        const tabContent = document.querySelectorAll('.admin-tab-content');
-        tabContent.forEach(tab => tab.style.display = 'none');
-
-        const tabButtons = document.querySelectorAll('.admin-tab-button');
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-
-        document.getElementById(tabName).style.display = 'block';
-        if (evt) {
-            evt.currentTarget.classList.add('active');
-        } else {
-            const defaultButton = document.querySelector(`.admin-tab-button[onclick*="${tabName}"]`);
-            if (defaultButton) defaultButton.classList.add('active');
-        }
-    }
-
-  </script>
+    </script>
 </body>
 </html>
