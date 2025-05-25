@@ -2,15 +2,9 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - HAX STORE</title>
   <style>
-    /* Seu CSS de login, inalterado */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
       font-family: Arial, sans-serif;
       background-color: #0c0c0c;
@@ -19,6 +13,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      margin: 0;
     }
 
     form {
@@ -108,40 +103,59 @@
   </form>
 
   <script>
-    const justRegistered = localStorage.getItem("justRegistered");
-    if (justRegistered) {
-      document.getElementById("username").value = justRegistered;
-      localStorage.removeItem("justRegistered");
-    }
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginForm = document.getElementById("loginForm");
+      const usernameInput = document.getElementById("username");
+      const passwordInput = document.getElementById("pass");
+      const messageDisplay = document.getElementById("msg");
 
-    document.getElementById("loginForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const username = document.getElementById("username").value.toLowerCase();
-      const pass = document.getElementById("pass").value;
-      let users = JSON.parse(localStorage.getItem("users") || "[]");
+      // Pré-popula o nome de usuário se o registro foi recente
+      const justRegistered = localStorage.getItem("justRegistered");
+      if (justRegistered) {
+        usernameInput.value = justRegistered;
+        localStorage.removeItem("justRegistered");
+      }
 
-      // Adiciona o usuário 'jhow' com senha 'modder' se não existir
-      const adminUser = { username: "jhow", pass: "modder" };
-      if (!users.some(u => u.username === adminUser.username)) {
+      // Garante que o usuário admin 'jhow' com senha 'modder' sempre exista
+      function ensureAdminUserExists() {
+        let users = JSON.parse(localStorage.getItem("users") || "[]");
+        const adminUser = { username: "jhow", pass: "modder" };
+        const adminExists = users.some(u => u.username === adminUser.username && u.pass === adminUser.pass);
+
+        if (!adminExists) {
           users.push(adminUser);
           localStorage.setItem("users", JSON.stringify(users));
-      }
-
-      const found = users.find(u => u.username === username && u.pass === pass);
-
-      if (found) {
-        localStorage.setItem("loggedUser", username);
-        // Verifica se é o administrador
-        if (username === "jhow" && pass === "modder") {
-          localStorage.setItem("isAdmin", "true");
-        } else {
-          localStorage.removeItem("isAdmin");
         }
-        window.location.href = "loja.html";
-      } else {
-        document.getElementById("msg").textContent = "Usuário ou senha incorretos.";
-        document.getElementById("msg").style.color = "red";
       }
+
+      ensureAdminUserExists(); // Chama ao carregar a página para garantir o admin
+
+      loginForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const username = usernameInput.value.toLowerCase().trim();
+        const password = passwordInput.value.trim();
+
+        // Recupera a lista de usuários novamente, para garantir que o admin esteja lá
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const foundUser = users.find(u => u.username === username && u.pass === password);
+
+        if (foundUser) {
+          localStorage.setItem("loggedUser", username); // Salva o usuário logado
+
+          // Lógica para definir se o usuário é administrador
+          if (username === "jhow" && password === "modder") {
+            localStorage.setItem("isAdmin", "true");
+          } else {
+            localStorage.removeItem("isAdmin"); // Remove a flag se não for admin
+          }
+
+          window.location.href = "loja.html"; // Redireciona para a página da loja
+        } else {
+          messageDisplay.textContent = "Usuário ou senha incorretos.";
+          messageDisplay.style.color = "red";
+        }
+      });
     });
   </script>
 </body>

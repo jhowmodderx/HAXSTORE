@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HAX STORE</title>
   <style>
-    /* Seu CSS existente do site deve estar aqui */
+    /* Reset e base */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: Arial, sans-serif; background-color: #0c0c0c; color: #fff; }
+    body { font-family: Arial, sans-serif; background-color: #0c0c0c; color: #fff; line-height: 1.6; }
 
+    /* Header */
     header {
       display: flex;
       justify-content: space-between;
@@ -40,13 +41,15 @@
       color: white;
     }
 
+    /* Banner */
     .banner {
       height: 250px;
-      background: url('https://i.imgur.com/xklvTL7.png') no-repeat center center;
+      background: url('https://i.imgur.com/xklvTL7.png') no-repeat center center; /* Imagem do banner */
       background-size: cover;
       display: flex;
       align-items: center;
       justify-content: center;
+      text-align: center;
     }
 
     .banner h2 {
@@ -55,16 +58,18 @@
       color: #e50914;
       padding: 12px 24px;
       border-radius: 8px;
-      font-size: 20px;
+      font-size: 24px;
       font-weight: bold;
     }
 
+    /* Conteúdo principal */
     .content {
       padding: 30px 20px;
       max-width: 900px;
       margin: 0 auto;
     }
 
+    /* Tag de destaque */
     .tag {
       display: inline-block;
       background-color: #e50914;
@@ -76,24 +81,22 @@
       margin-bottom: 10px;
     }
 
+    /* Item de produto */
     .produto-item {
       background-color: #1a1a1a;
       border: 1px solid #222;
       padding: 20px;
       margin-bottom: 20px;
       border-radius: 8px;
-      position: relative; /* Para o botão de apagar */
+      position: relative;
     }
 
-    .produto-titulo { font-size: 28px; font-weight: bold; margin: 10px 0; }
-    .produto-desc { color: #ccc; margin-bottom: 15px; line-height: 1.6; }
+    .produto-titulo { font-size: 28px; font-weight: bold; margin: 10px 0; color: #e50914;}
+    .produto-desc { color: #ccc; margin-bottom: 15px; }
 
-    .precos {
-      margin-bottom: 15px;
-    }
-
-    .preco-antigo { text-decoration: line-through; color: #888; font-size: 16px; }
-    .preco-atual { color: #e50914; font-size: 28px; font-weight: bold; }
+    .precos { margin-bottom: 15px; }
+    .preco-antigo { text-decoration: line-through; color: #888; font-size: 16px; margin-right: 10px; }
+    .preco-atual { color: #0f0; font-size: 28px; font-weight: bold; } /* Preço atual em verde */
 
     .btn-comprar {
       background-color: #e50914;
@@ -110,6 +113,7 @@
       background-color: #b20710;
     }
 
+    /* Botões de Admin no produto (só aparecem para admin) */
     .btn-delete-produto {
       background-color: #cc0000;
       color: white;
@@ -121,11 +125,9 @@
       top: 10px;
       right: 10px;
       font-size: 12px;
+      transition: 0.2s;
     }
-
-    .btn-delete-produto:hover {
-        background-color: #990000;
-    }
+    .btn-delete-produto:hover { background-color: #990000; }
 
     .btn-edit-produto {
       background-color: #007bff;
@@ -136,15 +138,14 @@
       cursor: pointer;
       position: absolute;
       top: 10px;
-      right: 60px; /* Ajuste para não sobrepor o delete */
+      right: 70px; /* Ajuste para não sobrepor o delete */
       font-size: 12px;
-      margin-right: 5px;
+      transition: 0.2s;
     }
+    .btn-edit-produto:hover { background-color: #0056b3; }
 
-    .btn-edit-produto:hover {
-        background-color: #0056b3;
-    }
 
+    /* Footer */
     footer {
       background-color: #111;
       text-align: center;
@@ -154,9 +155,9 @@
       font-size: 14px;
     }
 
-    /* Modals */
+    /* Modals base */
     .modal {
-      display: none;
+      display: none; /* Escondido por padrão */
       position: fixed;
       z-index: 1000;
       left: 0; top: 0;
@@ -164,27 +165,30 @@
       background-color: rgba(0, 0, 0, 0.8);
       justify-content: center;
       align-items: center;
+      overflow: auto; /* Para modais altos em telas pequenas */
     }
 
     .modal-content {
       background-color: #111;
-      padding: 20px;
+      padding: 25px;
       border-radius: 10px;
       text-align: center;
       width: 90%;
-      max-width: 400px;
-      border: 2px solid #e50914;
-      position: relative; /* Para o botão de fechar */
+      max-width: 450px; /* Largura padrão */
+      border: 2px solid #e50914; /* Borda vermelha para modal de compra */
+      position: relative;
+      animation: fadeIn 0.3s ease-out;
     }
 
     .modal-content.admin-modal {
-        max-width: 600px; /* Mais largo para o painel de admin */
+        max-width: 700px; /* Mais largo para o painel de admin */
         border: 2px solid #0f0; /* Borda verde para o modal admin */
     }
 
     .modal-content h3 {
       color: #e50914;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+      font-size: 24px;
     }
     .modal-content.admin-modal h3 {
         color: #0f0; /* Título do modal admin verde */
@@ -192,11 +196,11 @@
 
     .pix-key {
       background-color: #222;
-      padding: 10px;
+      padding: 12px;
       border-radius: 6px;
-      font-size: 14px;
-      word-wrap: break-word;
-      margin-bottom: 15px;
+      font-size: 16px;
+      word-wrap: break-word; /* Quebra texto longo */
+      margin-bottom: 20px;
       border: 1px solid #e50914;
     }
 
@@ -204,15 +208,19 @@
       background-color: #e50914;
       border: none;
       color: white;
-      padding: 10px 20px;
+      padding: 12px 25px;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 16px;
+      transition: 0.3s;
     }
+    .btn-confirmar:hover { background-color: #b20710; }
 
     .mensagem-final {
-      margin-top: 20px;
+      margin-top: 25px;
       color: #0f0;
       font-weight: bold;
+      font-size: 18px;
       display: none;
     }
 
@@ -221,19 +229,25 @@
       top: 10px;
       right: 20px;
       color: #aaa;
-      font-size: 28px;
+      font-size: 30px;
       font-weight: bold;
       cursor: pointer;
+      transition: 0.2s;
     }
-
-    .close-button:hover,
-    .close-button:focus {
+    .close-button:hover, .close-button:focus {
       color: #fff;
-      text-decoration: none;
-      cursor: pointer;
     }
 
-    /* Estilos de Administração (dentro do modal agora) */
+    /* Estilos de Administração (dentro do modal) */
+    .admin-tab-content h4 {
+        color: #eee;
+        margin-top: 25px;
+        margin-bottom: 15px;
+        font-size: 20px;
+        border-bottom: 1px solid #333;
+        padding-bottom: 5px;
+    }
+
     .admin-section input[type="text"],
     .admin-section input[type="number"],
     .admin-section textarea {
@@ -244,6 +258,7 @@
       border: 1px solid #333;
       color: #fff;
       border-radius: 4px;
+      font-size: 15px;
     }
 
     .admin-section button {
@@ -254,39 +269,45 @@
       border-radius: 5px;
       cursor: pointer;
       margin-right: 10px;
+      transition: 0.3s;
+      font-size: 15px;
     }
 
     .admin-section button:hover {
       background-color: #00cc00;
     }
 
-    .admin-products-list {
+    .admin-products-list, .admin-warnings-list {
       margin-top: 20px;
-      max-height: 200px; /* Limita a altura para rolagem */
+      max-height: 250px; /* Limita a altura para rolagem */
       overflow-y: auto; /* Adiciona barra de rolagem se necessário */
       padding-right: 10px; /* Espaço para a barra de rolagem */
+      border-top: 1px solid #333;
+      padding-top: 15px;
     }
 
-    .admin-product-item {
+    .admin-product-item, .warning-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
       background-color: #222;
-      padding: 10px;
+      padding: 12px;
       border-radius: 5px;
       margin-bottom: 10px;
+      border: 1px solid #333;
     }
 
-    .admin-product-item span {
+    .admin-product-item span, .warning-item span {
       flex-grow: 1;
-      text-align: left; /* Alinha texto à esquerda */
+      text-align: left;
+      font-size: 15px;
     }
 
-    .admin-product-item button {
+    .admin-product-item button, .warning-item button {
       margin-left: 10px;
       padding: 5px 10px;
-      font-size: 14px;
-      flex-shrink: 0; /* Evita que os botões diminuam */
+      font-size: 13px;
+      flex-shrink: 0;
     }
 
     .admin-warning-message {
@@ -297,22 +318,7 @@
         margin-bottom: 20px;
         text-align: center;
         font-weight: bold;
-    }
-
-    .warning-item {
-        background-color: #333;
-        padding: 10px;
-        border-radius: 5px;
-        margin-bottom: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .admin-warnings-list {
-        max-height: 200px;
-        overflow-y: auto;
-        padding-right: 10px;
+        font-size: 16px;
     }
 
     /* Estilos para as abas de administração */
@@ -320,6 +326,7 @@
         display: flex;
         margin-bottom: 20px;
         border-bottom: 1px solid #0f0;
+        overflow-x: auto; /* Permite rolagem horizontal se muitas abas */
     }
 
     .admin-tab-button {
@@ -331,7 +338,8 @@
         border-top-left-radius: 8px;
         border-top-right-radius: 8px;
         margin-right: 5px;
-        transition: background-color 0.3s;
+        transition: background-color 0.3s, color 0.3s;
+        flex-shrink: 0; /* Evita que os botões encolham */
     }
 
     .admin-tab-button.active {
@@ -340,12 +348,19 @@
     }
 
     .admin-tab-content {
-        display: none; /* Esconde todas as abas por padrão */
-        text-align: left; /* Alinha o conteúdo da aba à esquerda */
+        display: none;
+        text-align: left;
+        padding-top: 15px; /* Espaço após as abas */
     }
 
     .admin-tab-content.active {
-        display: block; /* Mostra a aba ativa */
+        display: block;
+    }
+
+    /* Animação para modal */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
@@ -354,10 +369,14 @@
   <header>
     <div class="logo">HAX STORE</div>
     <div class="header-buttons">
-        <button class="discord-btn">Entrar no Discord</button>
+        <button class="discord-btn" onclick="window.open('https://discord.gg/SEU_CONVITE_DISCORD', '_blank')">Entrar no Discord</button>
         <button id="adminPanelBtn" class="admin-panel-btn" style="display: none;">Painel de Administração</button>
     </div>
   </header>
+
+  <div class="banner">
+    <h2>Bem-vindo à HAX STORE!</h2>
+  </div>
 
   <div class="content">
     <div id="warnings-container">
@@ -374,8 +393,9 @@
     <div class="modal-content">
       <span class="close-button" onclick="closePixModal()">&times;</span>
       <h3>Pagamento via PIX</h3>
-      <div class="pix-key" id="pixChave"></div> <button class="btn-confirmar" onclick="confirmarPagamento()">Confirmar pagamento</button>
-      <div class="mensagem-final" id="mensagemFinal">HAX STORE - ENVIE O COMPROVANTE NO TICKET</div>
+      <p>Escaneie o QR Code ou use a chave PIX abaixo:</p>
+      <div class="pix-key" id="pixChave"></div> <button class="btn-confirmar" onclick="confirmarPagamento()">Já realizei o pagamento</button>
+      <div class="mensagem-final" id="mensagemFinal">HAX STORE - ENVIE O COMPROVANTE NO TICKET DO DISCORD!</div>
     </div>
   </div>
 
@@ -390,7 +410,7 @@
             <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-pix')">Configurar PIX</button>
         </div>
 
-        <div id="manage-products" class="admin-tab-content active">
+        <div id="manage-products" class="admin-tab-content active admin-section">
             <h4>Adicionar/Editar Produto</h4>
             <input type="hidden" id="productIdToEdit">
             <input type="text" id="productTitle" placeholder="Título do Produto" required>
@@ -405,7 +425,7 @@
             </div>
         </div>
 
-        <div id="manage-warnings" class="admin-tab-content">
+        <div id="manage-warnings" class="admin-tab-content admin-section">
             <h4>Gerenciar Avisos</h4>
             <input type="text" id="warningMessage" placeholder="Nova mensagem de aviso">
             <button onclick="addWarning()">Adicionar Aviso</button>
@@ -413,7 +433,7 @@
             </div>
         </div>
 
-        <div id="manage-pix" class="admin-tab-content">
+        <div id="manage-pix" class="admin-tab-content admin-section">
             <h4>Chave PIX Atual</h4>
             <input type="text" id="currentPixKey" placeholder="Chave PIX atual" readonly>
             <h4>Nova Chave PIX</h4>
@@ -424,43 +444,46 @@
   </div>
 
   <script>
+    // Referências aos elementos DOM
     const productsContainer = document.getElementById('products-container');
-    const adminPanelBtn = document.getElementById('adminPanelBtn'); // Botão "Painel de Administração"
-    const adminModal = document.getElementById('adminModal'); // Modal de administração
+    const adminPanelBtn = document.getElementById('adminPanelBtn');
+    const adminModal = document.getElementById('adminModal');
     const adminProductsList = document.getElementById('admin-products-list');
     const warningsContainer = document.getElementById('warnings-container');
     const adminWarningsList = document.getElementById('admin-warnings-list');
-    const pixChaveDisplay = document.getElementById('pixChave'); // PIX no modal de compra
-    const newPixKeyInput = document.getElementById('newPixKey'); // PIX no painel admin
-    const currentPixKeyDisplay = document.getElementById('currentPixKey'); // PIX no painel admin
+    const pixChaveDisplay = document.getElementById('pixChave'); // No modal de compra
+    const newPixKeyInput = document.getElementById('newPixKey'); // No painel admin
+    const currentPixKeyDisplay = document.getElementById('currentPixKey'); // No painel admin
 
-    // --- Funções Iniciais e Verificação de Admin ---
+    // --- Funções de Inicialização e Verificação de Admin ---
     document.addEventListener('DOMContentLoaded', () => {
-        // Obtenha o valor de isAdmin do localStorage
         const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
-        // Log para depuração: verifique se isAdmin está sendo lido corretamente
-        console.log("isAdmin no loja.html:", isAdmin); 
+        // Log para depuração: verifica o status de admin
+        console.log("HAX STORE: Usuário logado é Admin?", isAdmin);
 
         if (isAdmin) {
             adminPanelBtn.style.display = 'block'; // Mostra o botão "Painel de Administração"
-            // As funções de carregamento de dados (produtos, avisos, PIX) para o admin
-            // não precisam ser chamadas aqui, pois serão chamadas ao abrir o modal
-            // ou quando as abas forem ativadas dentro do modal.
         } else {
-            // Se não for admin, garante que o botão esteja oculto
-            adminPanelBtn.style.display = 'none';
+            adminPanelBtn.style.display = 'none'; // Garante que o botão esteja oculto para não-admins
         }
 
-        renderProducts(); // Renderiza os produtos na loja (visível para todos)
-        renderWarnings(); // Renderiza os avisos na loja (visível para todos)
-        updatePixKeyDisplay(); // Atualiza a chave PIX no modal de compra para todos os usuários
+        renderProducts(); // Carrega e exibe os produtos na loja
+        renderWarnings(); // Carrega e exibe os avisos na loja
+        updatePixKeyDisplay(); // Atualiza a chave PIX no modal de compra
     });
 
-    // --- Funções do Modal PIX (compra) ---
+    // --- Funções de Modal de Compra (PIX) ---
     function abrirModal() {
+      // Verifica se há um usuário logado antes de abrir o modal
+      if (!localStorage.getItem('loggedUser')) {
+        alert('Você precisa estar logado para realizar uma compra.');
+        window.location.href = 'index.html'; // Redireciona para o login
+        return;
+      }
       updatePixKeyDisplay(); // Garante que a chave PIX no modal está atualizada
       document.getElementById('pixModal').style.display = 'flex';
+      document.getElementById('mensagemFinal').style.display = "none"; // Reseta a mensagem
     }
 
     function closePixModal() {
@@ -471,37 +494,36 @@
     function confirmarPagamento() {
       const mensagem = document.getElementById('mensagemFinal');
       mensagem.style.display = 'block';
+      // Poderia adicionar lógica aqui para fechar o modal automaticamente após X segundos, etc.
     }
 
     // --- Funções do Modal de Administração ---
     adminPanelBtn.addEventListener('click', () => {
         adminModal.style.display = 'flex';
-        // Garante que a primeira aba e os dados sejam carregados ao abrir o modal
-        openAdminTab(null, 'manage-products'); // Abre a aba de produtos por padrão
-        loadAdminProducts(); // Carrega os produtos na lista do admin
-        loadAdminWarnings(); // Carrega os avisos na lista do admin
-        loadPixKeyForAdmin(); // Carrega a chave PIX para o painel de admin
+        // Ao abrir o modal, garantimos que a aba de produtos esteja ativa e os dados carregados
+        openAdminTab(null, 'manage-products'); // Passa null para evt, ativa a primeira aba
+        loadAdminProducts();
+        loadAdminWarnings();
+        loadPixKeyForAdmin();
     });
 
     function closeAdminModal() {
       adminModal.style.display = 'none';
     }
 
-    // Fecha modais ao clicar fora (geral para ambos)
-    window.onclick = function(event) {
-      const pixModal = document.getElementById('pixModal');
-      const adminModal = document.getElementById('adminModal');
-
-      if (event.target == pixModal) {
+    // Fecha modais ao clicar fora (geral para ambos os modais)
+    window.addEventListener('click', function(event) {
+      if (event.target == document.getElementById('pixModal')) {
         closePixModal();
       }
-      if (event.target == adminModal) {
+      if (event.target == document.getElementById('adminModal')) {
         closeAdminModal();
       }
-    }
+    });
     
-    // --- Funções de Produtos ---
+    // --- Funções de Gerenciamento de Produtos ---
     function getProducts() {
+      // Retorna os produtos do localStorage, ou um array vazio se não houver
       return JSON.parse(localStorage.getItem('products') || '[]');
     }
 
@@ -509,13 +531,18 @@
       localStorage.setItem('products', JSON.stringify(products));
     }
 
+    // Renderiza produtos na parte principal da loja (visível para todos)
     function renderProducts() {
       const products = getProducts();
-      productsContainer.innerHTML = ''; // Limpa antes de renderizar
+      productsContainer.innerHTML = ''; // Limpa o container antes de renderizar
       const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
-      if (products.length === 0 && !isAdmin) {
-          productsContainer.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum produto disponível no momento.</p>';
+      if (products.length === 0) {
+          productsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 20px;">Nenhum produto disponível no momento.</p>';
+          // Se for admin e não houver produtos, exibe uma mensagem encorajando a adição
+          if (isAdmin) {
+              productsContainer.innerHTML += '<p style="text-align: center; color: #0f0;">Como administrador, você pode adicionar produtos através do "Painel de Administração".</p>';
+          }
           return;
       }
 
@@ -527,32 +554,26 @@
           <h1 class="produto-titulo">${product.title}</h1>
           <p class="produto-desc">${product.description}</p>
           <div class="precos">
-            ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${product.oldPrice.toFixed(2).replace('.', ',')}</span><br>` : ''}
+            ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${product.oldPrice.toFixed(2).replace('.', ',')}</span>` : ''}
             <span class="preco-atual">R$ ${product.newPrice.toFixed(2).replace('.', ',')}</span>
           </div>
-          <button class="btn-comprar" data-product-id="${index}">Comprar agora</button>
+          <button class="btn-comprar">Comprar agora</button>
         `;
         productsContainer.appendChild(productDiv);
       });
 
       // Adiciona event listeners para os botões de compra (após a renderização)
       document.querySelectorAll('.btn-comprar').forEach(button => {
-        button.addEventListener('click', (event) => {
-          if (!localStorage.getItem('loggedUser')) {
-            alert('Você precisa estar logado para comprar.');
-            window.location.href = 'index.html';
-          } else {
-            abrirModal();
-          }
-        });
+        button.addEventListener('click', abrirModal);
       });
     }
 
+    // Carrega produtos na lista dentro do painel de administração
     function loadAdminProducts() {
         const products = getProducts();
-        adminProductsList.innerHTML = '';
+        adminProductsList.innerHTML = ''; // Limpa a lista antes de carregar
         if (products.length === 0) {
-            adminProductsList.innerHTML = '<p style="color: #888;">Nenhum produto cadastrado.</p>';
+            adminProductsList.innerHTML = '<p style="color: #888;">Nenhum produto cadastrado. Adicione um novo acima!</p>';
             return;
         }
         products.forEach((product, index) => {
@@ -582,16 +603,14 @@
         }
 
         const products = getProducts();
-        if (idToEdit !== '') { // Verifica se há um ID para edição
-            // Editando produto existente
+        if (idToEdit !== '') { // Se productIdToEdit não estiver vazio, estamos editando
             products[idToEdit] = { title, description, oldPrice, newPrice };
-        } else {
-            // Adicionando novo produto
+        } else { // Caso contrário, estamos adicionando um novo
             products.push({ title, description, oldPrice, newPrice });
         }
         saveProducts(products);
-        clearProductForm();
-        renderProducts(); // Atualiza a exibição da loja
+        clearProductForm(); // Limpa o formulário após salvar
+        renderProducts(); // Atualiza a exibição da loja para os usuários
         loadAdminProducts(); // Atualiza a lista no painel admin
         alert('Produto salvo com sucesso!');
     }
@@ -599,7 +618,7 @@
     function editProduct(index) {
         const products = getProducts();
         const product = products[index];
-        document.getElementById('productIdToEdit').value = index;
+        document.getElementById('productIdToEdit').value = index; // Armazena o índice para edição
         document.getElementById('productTitle').value = product.title;
         document.getElementById('productDesc').value = product.description;
         document.getElementById('productOldPrice').value = product.oldPrice;
@@ -611,21 +630,21 @@
             const products = getProducts();
             products.splice(index, 1); // Remove o produto do array
             saveProducts(products);
-            renderProducts(); // Atualiza a exibição da loja
+            renderProducts(); // Atualiza a exibição da loja para os usuários
             loadAdminProducts(); // Atualiza a lista no painel admin
-            alert('Produto apagado!');
+            alert('Produto apagado com sucesso!');
         }
     }
 
     function clearProductForm() {
-        document.getElementById('productIdToEdit').value = '';
+        document.getElementById('productIdToEdit').value = ''; // Limpa o índice de edição
         document.getElementById('productTitle').value = '';
         document.getElementById('productDesc').value = '';
         document.getElementById('productOldPrice').value = '';
         document.getElementById('productNewPrice').value = '';
     }
 
-    // --- Funções de Avisos ---
+    // --- Funções de Gerenciamento de Avisos ---
     function getWarnings() {
       return JSON.parse(localStorage.getItem('warnings') || '[]');
     }
@@ -634,10 +653,11 @@
       localStorage.setItem('warnings', JSON.stringify(warnings));
     }
 
+    // Renderiza avisos na parte principal da loja (visível para todos)
     function renderWarnings() {
         const warnings = getWarnings();
         warningsContainer.innerHTML = '';
-        warnings.forEach((warning, index) => {
+        warnings.forEach((warning) => {
             const warningDiv = document.createElement('div');
             warningDiv.className = 'admin-warning-message';
             warningDiv.textContent = warning;
@@ -645,11 +665,12 @@
         });
     }
 
+    // Carrega avisos na lista dentro do painel de administração
     function loadAdminWarnings() {
         const warnings = getWarnings();
         adminWarningsList.innerHTML = '';
         if (warnings.length === 0) {
-            adminWarningsList.innerHTML = '<p style="color: #888;">Nenhum aviso cadastrado.</p>';
+            adminWarningsList.innerHTML = '<p style="color: #888;">Nenhum aviso cadastrado. Adicione um novo acima!</p>';
             return;
         }
         warnings.forEach((warning, index) => {
@@ -685,27 +706,27 @@
             saveWarnings(warnings);
             renderWarnings(); // Atualiza a exibição da loja
             loadAdminWarnings(); // Atualiza a lista no painel admin
-            alert('Aviso apagado!');
+            alert('Aviso apagado com sucesso!');
         }
     }
 
-    // --- Funções de PIX ---
+    // --- Funções de Configuração de PIX ---
     function getPixKey() {
-        // Retorna a chave PIX, ou uma padrão se não houver
-        return localStorage.getItem('pixKey') || '473d4931-6f15-4ab6-bf59-571f6c3a368d';
+        // Retorna a chave PIX, ou uma padrão se não houver (ex: uma chave genérica da loja)
+        return localStorage.getItem('pixKey') || '473d4931-6f15-4ab6-bf59-571f6c3a368d'; // Chave PIX padrão
     }
 
     function savePixKey(key) {
         localStorage.setItem('pixKey', key);
     }
 
+    // Atualiza a chave PIX exibida no modal de compra para o usuário final
     function updatePixKeyDisplay() {
-        // Atualiza a chave PIX exibida no modal de compra para o usuário
         pixChaveDisplay.textContent = getPixKey();
     }
 
+    // Carrega a chave PIX no campo de texto para o admin no modal de administração
     function loadPixKeyForAdmin() {
-        // Carrega a chave PIX no campo de texto para o admin no modal de admin
         currentPixKeyDisplay.value = getPixKey();
     }
 
@@ -716,29 +737,32 @@
             return;
         }
         savePixKey(newKey);
-        newPixKeyInput.value = '';
+        newPixKeyInput.value = ''; // Limpa o campo de nova chave
         currentPixKeyDisplay.value = newKey; // Atualiza o campo de visualização no admin
-        updatePixKeyDisplay(); // Atualiza a chave no modal de compra
+        updatePixKeyDisplay(); // Garante que a chave no modal de compra seja atualizada
         alert('Chave PIX atualizada com sucesso!');
     }
 
     // --- Funções de Abas do Painel de Administração ---
     function openAdminTab(evt, tabName) {
         let i, tabcontent, tablinks;
-        // As abas estão DENTRO do modal de admin, então procuramos por elas lá
+        // Oculta todas as abas de conteúdo
         tabcontent = adminModal.getElementsByClassName("admin-tab-content");
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].style.display = "none";
         }
+        // Remove a classe 'active' de todos os botões de aba
         tablinks = adminModal.getElementsByClassName("admin-tab-button");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
+        // Exibe o conteúdo da aba selecionada
         document.getElementById(tabName).style.display = "block";
-        if (evt) { // Se a função for chamada por um clique em um botão de aba
+        // Adiciona a classe 'active' ao botão da aba clicada
+        if (evt) { // Se a função foi chamada por um evento de clique
             evt.currentTarget.className += " active";
-        } else { // Se a função for chamada ao abrir o modal (sem evento de clique)
-            // Encontra o botão da aba padrão e o ativa
+        } else { // Se a função foi chamada programaticamente (ex: ao abrir o modal)
+            // Encontra o botão da aba padrão e o ativa manualmente
             const defaultButton = adminModal.querySelector(`.admin-tab-button[onclick*="'${tabName}'"]`);
             if (defaultButton) {
                 defaultButton.className += " active";

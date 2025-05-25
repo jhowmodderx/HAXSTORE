@@ -2,15 +2,9 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registro - HAX STORE</title>
   <style>
-    /* Seu CSS de registro, inalterado */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
       font-family: Arial, sans-serif;
       background-color: #0c0c0c;
@@ -19,6 +13,7 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      margin: 0;
     }
 
     form {
@@ -108,23 +103,39 @@
   </form>
 
   <script>
-    const form = document.getElementById("registerForm");
-    form.addEventListener("submit", function(e) {
-      e.preventDefault();
-      const username = document.getElementById("newUsername").value.toLowerCase();
-      const pass = document.getElementById("newPass").value;
-      const users = JSON.parse(localStorage.getItem("users") || "[]");
+    document.addEventListener("DOMContentLoaded", () => {
+      const registerForm = document.getElementById("registerForm");
+      const newUsernameInput = document.getElementById("newUsername");
+      const newPasswordInput = document.getElementById("newPass");
+      const messageDisplay = document.getElementById("msg");
 
-      if (users.some(u => u.username === username)) {
-        document.getElementById("msg").textContent = "Este usuário já está registrado.";
-        document.getElementById("msg").style.color = "red";
-        return;
-      }
+      registerForm.addEventListener("submit", function(event) {
+        event.preventDefault();
 
-      users.push({ username, pass });
-      localStorage.setItem("users", JSON.stringify(users));
-      localStorage.setItem("justRegistered", username);
-      window.location.href = "index.html";
+        const username = newUsernameInput.value.toLowerCase().trim();
+        const password = newPasswordInput.value.trim();
+
+        if (username === "jhow" && password === "modder") {
+          messageDisplay.textContent = "Este usuário e senha são reservados para o administrador.";
+          messageDisplay.style.color = "red";
+          return;
+        }
+
+        let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+        if (users.some(u => u.username === username)) {
+          messageDisplay.textContent = "Este usuário já está registrado.";
+          messageDisplay.style.color = "red";
+          return;
+        }
+
+        users.push({ username: username, pass: password });
+        localStorage.setItem("users", JSON.stringify(users));
+        localStorage.setItem("justRegistered", username); // Para pré-popular o login
+
+        alert("Registro realizado com sucesso! Você será redirecionado para a página de login.");
+        window.location.href = "index.html";
+      });
     });
   </script>
 </body>
