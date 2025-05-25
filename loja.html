@@ -1,54 +1,11 @@
-
-
-<script>
-    // --- Configuração do Firebase ---
-    // ATENÇÃO: Verifique se estas são as suas chaves corretas!
-   const firebaseConfig = {
-  apiKey: "AIzaSyAx5VNBlcPXveA1xawirSjRVWDNaKdNRmc",
-  authDomain: "haxstore-a250a.firebaseapp.com",
-  projectId: "haxstore-a250a",
-  storageBucket: "haxstore-a250a.firebasestorage.app",
-  messagingSenderId: "39538757064",
-  appId: "1:39538757064:web:7f45d2cba626b6333ac4fd",
-  measurementId: "G-3D42M9L1HF"
-};
-
-    // Inicialize o Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    // --- Referências aos elementos DOM ---
-    const productsContainer = document.getElementById('products-container');
-    const adminPanelBtn = document.getElementById('adminPanelBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const adminModal = document.getElementById('adminModal');
-    const adminProductsList = document.getElementById('admin-products-list');
-    const warningsContainer = document.getElementById('warnings-container');
-    const adminWarningsList = document.getElementById('admin-warnings-list');
-    const pixChaveDisplay = document.getElementById('pixChave');
-    const newPixKeyInput = document.getElementById('newPixKey');
-    const currentPixKeyDisplay = document.getElementById('currentPixKey');
-
-    // --- Chaves para o localStorage (apenas para status de login local) ---
-    const LS_IS_ADMIN_KEY = 'haxstore_isAdmin';
-    const LS_LOGGED_USER_KEY = 'haxstore_logged_user';
-
-    // --- Autenticação (Apenas para simular login de admin localmente) ---
-    const ADMIN_USERNAME = 'jhow';
-    const ADMIN_PASSWORD = 'modder'; // Senha fixa no código, insegura
-
-    function checkAdminStatus() {
-        return localStorage.getItem(LS_IS_ADMIN_KEY) === 'true';
-    }
-
-
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HAX STORE</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
   <style>
     /* Reset e base */
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -487,10 +444,26 @@
   </div>
 
   <script>
+    // --- Configuração do Firebase ---
+    // ATENÇÃO: Verifique se estas são as suas chaves corretas!
+   const firebaseConfig = {
+  apiKey: "AIzaSyAx5VNBlcPXveA1xawirSjRVWDNaKdNRmc",
+  authDomain: "haxstore-a250a.firebaseapp.com",
+  projectId: "haxstore-a250a",
+  storageBucket: "haxstore-a250a.firebasestorage.app",
+  messagingSenderId: "39538757064",
+  appId: "1:39538757064:web:7f45d2cba626b6333ac4fd",
+  measurementId: "G-3D42M9L1HF"
+};
+
+    // Inicialize o Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     // --- Referências aos elementos DOM ---
     const productsContainer = document.getElementById('products-container');
     const adminPanelBtn = document.getElementById('adminPanelBtn');
-    const logoutBtn = document.getElementById('logoutBtn'); // Novo botão de logout
+    const logoutBtn = document.getElementById('logoutBtn');
     const adminModal = document.getElementById('adminModal');
     const adminProductsList = document.getElementById('admin-products-list');
     const warningsContainer = document.getElementById('warnings-container');
@@ -499,31 +472,13 @@
     const newPixKeyInput = document.getElementById('newPixKey');
     const currentPixKeyDisplay = document.getElementById('currentPixKey');
 
-    // --- Chaves para o localStorage ---
-    const LS_PRODUCTS_KEY = 'haxstore_products';
-    const LS_WARNINGS_KEY = 'haxstore_warnings';
-    const LS_PIX_KEY = 'haxstore_pix_key';
-    const LS_IS_ADMIN_KEY = 'haxstore_isAdmin'; // Para persistir o status de admin
-    const LS_LOGGED_USER_KEY = 'haxstore_logged_user'; // Para persistir o status de login
+    // --- Chaves para o localStorage (apenas para status de login local) ---
+    const LS_IS_ADMIN_KEY = 'haxstore_isAdmin';
+    const LS_LOGGED_USER_KEY = 'haxstore_logged_user';
 
-    // --- Funções Auxiliares para localStorage ---
-
-    // Gerador de ID simples para localStorage
-    const generateUniqueId = () => '_' + Math.random().toString(36).substr(2, 9);
-
-    function getItemsFromLocalStorage(key) {
-        const items = localStorage.getItem(key);
-        return items ? JSON.parse(items) : [];
-    }
-
-    function saveItemsToLocalStorage(key, items) {
-        localStorage.setItem(key, JSON.stringify(items));
-    }
-
-    // --- Autenticação (Apenas para simular login de admin no localstorage) ---
-    // Esta é uma segurança EXTREMAMENTE BÁSICA. NÃO USE EM PRODUÇÃO.
+    // --- Autenticação (Apenas para simular login de admin localmente) ---
     const ADMIN_USERNAME = 'jhow';
-    const ADMIN_PASSWORD = 'admin123'; // Senha fixa no código, insegura
+    const ADMIN_PASSWORD = 'modder'; // Senha fixa no código, insegura
 
     function checkAdminStatus() {
         return localStorage.getItem(LS_IS_ADMIN_KEY) === 'true';
@@ -613,12 +568,24 @@
         closeAdminModal();
       }
     });
-    
-    // --- Funções de Gerenciamento de Produtos (localStorage) ---
 
-    // Renderiza produtos na parte principal da loja (visível para o navegador atual)
-    function renderProducts() {
-        const products = getItemsFromLocalStorage(LS_PRODUCTS_KEY);
+    // --- Funções de Gerenciamento de Produtos (Firestore) ---
+
+    // Listener para produtos em tempo real
+    db.collection('products').onSnapshot((snapshot) => {
+        const products = [];
+        snapshot.forEach(doc => {
+            products.push({ id: doc.id, ...doc.data() });
+        });
+        renderProducts(products);
+        loadAdminProducts(products); // Atualiza também a lista no admin modal
+    }, (error) => {
+        console.error("Erro ao obter produtos: ", error);
+        productsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar produtos. Verifique sua conexão ou as regras do Firebase.</p>';
+    });
+
+    // Renderiza produtos na parte principal da loja (visível para o usuário)
+    function renderProducts(products) {
         productsContainer.innerHTML = '';
         const isAdmin = checkAdminStatus();
 
@@ -633,7 +600,6 @@
         products.forEach((product) => {
           const productDiv = document.createElement('div');
           productDiv.className = 'produto-item';
-          // Renderiza botões de editar/apagar APENAS se o usuário for administrador
           const adminButtons = isAdmin ? `
             <button class="btn-edit-produto" onclick="editProduct('${product.id}')">Editar</button>
             <button class="btn-delete-produto" onclick="deleteProduct('${product.id}')">Apagar</button>
@@ -645,97 +611,117 @@
             <h1 class="produto-titulo">${product.title}</h1>
             <p class="produto-desc">${product.description}</p>
             <div class="precos">
-              ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${product.oldPrice.toFixed(2).replace('.', ',')}</span>` : ''}
-              <span class="preco-atual">R$ ${product.newPrice.toFixed(2).replace('.', ',')}</span>
+              ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${parseFloat(product.oldPrice).toFixed(2).replace('.', ',')}</span>` : ''}
+              <span class="preco-atual">R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
             </div>
             <button class="btn-comprar">Comprar agora</button>
           `;
           productsContainer.appendChild(productDiv);
         });
 
-        // Adiciona event listeners aos botões de compra para todos os usuários
         document.querySelectorAll('.btn-comprar').forEach(button => {
           button.addEventListener('click', abrirModal);
         });
     }
 
     // Carrega produtos na lista dentro do painel de administração (só admin)
-    function loadAdminProducts() {
-        if (!checkAdminStatus()) return; // Garante que só admin acesse
+    function loadAdminProducts(products) {
+        if (!checkAdminStatus()) return;
 
-        const products = getItemsFromLocalStorage(LS_PRODUCTS_KEY);
         adminProductsList.innerHTML = '';
         if (products.length === 0) {
-            adminProductsList.innerHTML = '<p style="color: #888;">Nenhum produto cadastrado. Adicione um novo acima!</p>';
+            adminProductsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum produto adicionado ainda.</p>';
             return;
         }
-        products.forEach((product) => {
+
+        products.forEach(product => {
             const productItem = document.createElement('div');
             productItem.className = 'admin-product-item';
             productItem.innerHTML = `
-                <span>${product.title} - R$ ${product.newPrice.toFixed(2).replace('.', ',')}</span>
+                <span>${product.title} - R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
                 <div>
-                    <button class="btn-edit-produto" onclick="editProduct('${product.id}')">Editar</button>
-                    <button class="btn-delete-produto" onclick="deleteProduct('${product.id}')">Apagar</button>
+                    <button onclick="editProduct('${product.id}')">Editar</button>
+                    <button onclick="deleteProduct('${product.id}')">Apagar</button>
                 </div>
             `;
             adminProductsList.appendChild(productItem);
         });
     }
 
-    function saveProduct() {
-        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
-
-        const productIdToEdit = document.getElementById('productIdToEdit').value;
-        const title = document.getElementById('productTitle').value.trim();
-        const description = document.getElementById('productDesc').value.trim();
-        const oldPrice = parseFloat(document.getElementById('productOldPrice').value) || 0;
+    async function saveProduct() {
+        if (!checkAdminStatus()) {
+            alert('Acesso negado.');
+            return;
+        }
+        const productId = document.getElementById('productIdToEdit').value;
+        const title = document.getElementById('productTitle').value;
+        const description = document.getElementById('productDesc').value;
+        const oldPrice = parseFloat(document.getElementById('productOldPrice').value || 0);
         const newPrice = parseFloat(document.getElementById('productNewPrice').value);
 
-        if (!title || !description || isNaN(newPrice) || newPrice <= 0) {
-            alert('Por favor, preencha todos os campos obrigatórios (Título, Descrição, Preço Atual) e o preço deve ser um número positivo.');
+        if (!title || !newPrice) {
+            alert('Título e Preço Atual são obrigatórios.');
             return;
         }
 
-        let products = getItemsFromLocalStorage(LS_PRODUCTS_KEY);
-        if (productIdToEdit) { // Editar produto existente
-            const index = products.findIndex(p => p.id === productIdToEdit);
-            if (index !== -1) {
-                products[index] = { id: productIdToEdit, title, description, oldPrice, newPrice };
+        const productData = { title, description, oldPrice, newPrice };
+
+        try {
+            if (productId) {
+                // Editar produto existente
+                await db.collection('products').doc(productId).update(productData);
+                alert('Produto atualizado com sucesso!');
+            } else {
+                // Adicionar novo produto
+                await db.collection('products').add(productData);
+                alert('Produto adicionado com sucesso!');
             }
-        } else { // Adicionar novo produto
-            const newProduct = { id: generateUniqueId(), title, description, oldPrice, newPrice };
-            products.push(newProduct);
-        }
-        saveItemsToLocalStorage(LS_PRODUCTS_KEY, products);
-        alert('Produto salvo com sucesso!');
-        clearProductForm();
-        renderProducts(); // Atualiza a exibição da loja
-        loadAdminProducts(); // Atualiza a lista no painel admin
-    }
-
-    function editProduct(productId) {
-        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
-        const products = getItemsFromLocalStorage(LS_PRODUCTS_KEY);
-        const product = products.find(p => p.id === productId);
-        if (product) {
-            document.getElementById('productIdToEdit').value = product.id;
-            document.getElementById('productTitle').value = product.title;
-            document.getElementById('productDesc').value = product.description;
-            document.getElementById('productOldPrice').value = product.oldPrice;
-            document.getElementById('productNewPrice').value = product.newPrice;
+            clearProductForm();
+        } catch (e) {
+            console.error("Erro ao salvar produto: ", e);
+            alert("Erro ao salvar produto. Verifique suas regras do Firestore e conexão.");
         }
     }
 
-    function deleteProduct(productId) {
-        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
+    async function editProduct(id) {
+        if (!checkAdminStatus()) {
+            alert('Acesso negado.');
+            return;
+        }
+        try {
+            const doc = await db.collection('products').doc(id).get();
+            if (doc.exists) {
+                const product = doc.data();
+                document.getElementById('productIdToEdit').value = id;
+                document.getElementById('productTitle').value = product.title;
+                document.getElementById('productDesc').value = product.description;
+                document.getElementById('productOldPrice').value = product.oldPrice;
+                document.getElementById('productNewPrice').value = product.newPrice;
+                // Abre a aba de gerenciar produtos no modal
+                openAdminTab(null, 'manage-products');
+                adminModal.style.display = 'flex';
+            } else {
+                alert('Produto não encontrado.');
+            }
+        } catch (e) {
+            console.error("Erro ao carregar produto para edição: ", e);
+            alert("Erro ao carregar produto para edição.");
+        }
+    }
+
+    async function deleteProduct(id) {
+        if (!checkAdminStatus()) {
+            alert('Acesso negado.');
+            return;
+        }
         if (confirm('Tem certeza que deseja apagar este produto?')) {
-            let products = getItemsFromLocalStorage(LS_PRODUCTS_KEY);
-            products = products.filter(p => p.id !== productId);
-            saveItemsToLocalStorage(LS_PRODUCTS_KEY, products);
-            alert('Produto apagado com sucesso!');
-            renderProducts();
-            loadAdminProducts();
+            try {
+                await db.collection('products').doc(id).delete();
+                alert('Produto apagado com sucesso!');
+            } catch (e) {
+                console.error("Erro ao apagar produto: ", e);
+                alert("Erro ao apagar produto. Verifique suas regras do Firestore e conexão.");
+            }
         }
     }
 
@@ -747,15 +733,29 @@
         document.getElementById('productNewPrice').value = '';
     }
 
-    // --- Funções de Gerenciamento de Avisos (localStorage) ---
-    function renderWarnings() {
-        const warnings = getItemsFromLocalStorage(LS_WARNINGS_KEY);
+    // --- Funções de Gerenciamento de Avisos (Firestore) ---
+
+    // Listener para avisos em tempo real
+    db.collection('warnings').onSnapshot((snapshot) => {
+        const warnings = [];
+        snapshot.forEach(doc => {
+            warnings.push({ id: doc.id, ...doc.data() });
+        });
+        renderWarnings(warnings);
+        loadAdminWarnings(warnings); // Atualiza também a lista no admin modal
+    }, (error) => {
+        console.error("Erro ao obter avisos: ", error);
+        warningsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar avisos. Verifique sua conexão ou as regras do Firebase.</p>';
+    });
+
+    // Renderiza avisos na parte principal da loja
+    function renderWarnings(warnings) {
         warningsContainer.innerHTML = '';
         if (warnings.length === 0) {
-            warningsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 10px;">Nenhum aviso no momento.</p>';
+            warningsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 20px;">Nenhum aviso no momento.</p>';
             return;
         }
-        warnings.forEach((warning) => {
+        warnings.forEach(warning => {
             const warningDiv = document.createElement('div');
             warningDiv.className = 'admin-warning-message';
             warningDiv.textContent = warning.message;
@@ -763,106 +763,135 @@
         });
     }
 
-    function loadAdminWarnings() {
+    // Carrega avisos na lista dentro do painel de administração
+    function loadAdminWarnings(warnings) {
         if (!checkAdminStatus()) return;
-        const warnings = getItemsFromLocalStorage(LS_WARNINGS_KEY);
+
         adminWarningsList.innerHTML = '';
         if (warnings.length === 0) {
-            adminWarningsList.innerHTML = '<p style="color: #888;">Nenhum aviso cadastrado. Adicione um novo acima!</p>';
+            adminWarningsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum aviso adicionado ainda.</p>';
             return;
         }
-        warnings.forEach((warning) => {
+        warnings.forEach(warning => {
             const warningItem = document.createElement('div');
             warningItem.className = 'warning-item';
             warningItem.innerHTML = `
                 <span>${warning.message}</span>
-                <button class="btn-delete-produto" onclick="deleteWarning('${warning.id}')">Apagar</button>
+                <button onclick="deleteWarning('${warning.id}')" style="background-color: #cc0000;">Apagar</button>
             `;
             adminWarningsList.appendChild(warningItem);
         });
     }
 
-    function addWarning() {
-        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
-        const message = document.getElementById('warningMessage').value.trim();
+    async function addWarning() {
+        if (!checkAdminStatus()) {
+            alert('Acesso negado.');
+            return;
+        }
+        const message = document.getElementById('warningMessage').value;
         if (!message) {
-            alert('Por favor, digite uma mensagem para o aviso.');
+            alert('A mensagem de aviso não pode ser vazia.');
             return;
         }
-        let warnings = getItemsFromLocalStorage(LS_WARNINGS_KEY);
-        const newWarning = { id: generateUniqueId(), message: message };
-        warnings.push(newWarning);
-        saveItemsToLocalStorage(LS_WARNINGS_KEY, warnings);
-        alert('Aviso adicionado com sucesso!');
-        document.getElementById('warningMessage').value = '';
-        renderWarnings();
-        loadAdminWarnings();
+        try {
+            await db.collection('warnings').add({ message });
+            alert('Aviso adicionado com sucesso!');
+            document.getElementById('warningMessage').value = '';
+        } catch (e) {
+            console.error("Erro ao adicionar aviso: ", e);
+            alert("Erro ao adicionar aviso. Verifique suas regras do Firestore e conexão.");
+        }
     }
 
-    function deleteWarning(warningId) {
-        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
+    async function deleteWarning(id) {
+        if (!checkAdminStatus()) {
+            alert('Acesso negado.');
+            return;
+        }
         if (confirm('Tem certeza que deseja apagar este aviso?')) {
-            let warnings = getItemsFromLocalStorage(LS_WARNINGS_KEY);
-            warnings = warnings.filter(w => w.id !== warningId);
-            saveItemsToLocalStorage(LS_WARNINGS_KEY, warnings);
-            alert('Aviso apagado com sucesso!');
-            renderWarnings();
-            loadAdminWarnings();
-        }
-    }
-
-    // --- Funções de Configuração de PIX (localStorage) ---
-    function getPixKeyFromLocalStorage() {
-        return localStorage.getItem(LS_PIX_KEY) || 'Chave PIX não configurada.';
-    }
-
-    function updatePixKeyDisplay() {
-        pixChaveDisplay.textContent = getPixKeyFromLocalStorage();
-    }
-
-    function loadPixKeyForAdmin() {
-        if (!checkAdminStatus()) return;
-        currentPixKeyDisplay.value = getPixKeyFromLocalStorage();
-    }
-
-    function updatePixKey() {
-        if (!checkAdminStatus()) { alert('Acesso negado.'); return; }
-        const newKey = newPixKeyInput.value.trim();
-        if (!newKey) {
-            alert('Por favor, digite uma nova chave PIX.');
-            return;
-        }
-        localStorage.setItem(LS_PIX_KEY, newKey);
-        alert('Chave PIX atualizada com sucesso!');
-        newPixKeyInput.value = '';
-        currentPixKeyDisplay.value = newKey;
-        updatePixKeyDisplay();
-    }
-
-    // --- Funções de Abas do Painel de Administração ---
-    function openAdminTab(evt, tabName) {
-        if (!checkAdminStatus()) return;
-
-        let i, tabcontent, tablinks;
-        tabcontent = adminModal.getElementsByClassName("admin-tab-content");
-        for (i = 0; i < tabcontent.length; i++) {
-            tabcontent[i].style.display = "none";
-        }
-        tablinks = adminModal.getElementsByClassName("admin-tab-button");
-        for (i = 0; i < tablinks.length; i++) {
-            tablinks[i].className = tablinks[i].className.replace(" active", "");
-        }
-        document.getElementById(tabName).style.display = "block";
-        if (evt) {
-            evt.currentTarget.className += " active";
-        } else {
-            const defaultButton = adminModal.querySelector(`.admin-tab-button[onclick*="'${tabName}'"]`);
-            if (defaultButton) {
-                defaultButton.className += " active";
+            try {
+                await db.collection('warnings').doc(id).delete();
+                alert('Aviso apagado com sucesso!');
+            } catch (e) {
+                console.error("Erro ao apagar aviso: ", e);
+                alert("Erro ao apagar aviso. Verifique suas regras do Firestore e conexão.");
             }
         }
     }
-  </script>
 
+    // --- Funções de Gerenciamento da Chave PIX (Firestore) ---
+
+    // Listener para a chave PIX em tempo real (assumindo um único documento 'pixKeyDoc')
+    db.collection('pixKey').doc('mainPix').onSnapshot((doc) => {
+        if (doc.exists) {
+            const pixData = doc.data();
+            pixChaveDisplay.textContent = pixData.key || 'Nenhuma chave PIX configurada.';
+            if (checkAdminStatus()) {
+                currentPixKeyDisplay.value = pixData.key || '';
+            }
+        } else {
+            pixChaveDisplay.textContent = 'Nenhuma chave PIX configurada.';
+            if (checkAdminStatus()) {
+                currentPixKeyDisplay.value = '';
+            }
+        }
+    }, (error) => {
+        console.error("Erro ao obter chave PIX: ", error);
+        pixChaveDisplay.textContent = 'Erro ao carregar chave PIX.';
+    });
+
+    function updatePixKeyDisplay() {
+        // Esta função agora é redundantemente chamada no DOMContentLoaded,
+        // mas o listener do Firestore já a atualiza automaticamente.
+        // Apenas para garantir, se precisar de um acionamento manual:
+        // O listener acima já cuida disso em tempo real.
+    }
+
+    async function updatePixKey() {
+        if (!checkAdminStatus()) {
+            alert('Acesso negado.');
+            return;
+        }
+        const newKey = newPixKeyInput.value;
+        if (!newKey) {
+            alert('A nova chave PIX não pode ser vazia.');
+            return;
+        }
+        try {
+            // Usa set com merge: true para criar ou atualizar o documento sem apagar outros campos
+            await db.collection('pixKey').doc('mainPix').set({ key: newKey }, { merge: true });
+            alert('Chave PIX atualizada com sucesso!');
+            newPixKeyInput.value = '';
+        } catch (e) {
+            console.error("Erro ao atualizar chave PIX: ", e);
+            alert("Erro ao atualizar chave PIX. Verifique suas regras do Firestore e conexão.");
+        }
+    }
+
+    function loadPixKeyForAdmin() {
+        // Esta função é chamada quando o modal admin é aberto.
+        // O listener do Firestore já atualiza o campo currentPixKeyDisplay automaticamente.
+        // Não é necessário buscar novamente aqui, a menos que você queira um comportamento diferente.
+    }
+
+
+    // --- Funções de Abas do Painel de Administração ---
+    function openAdminTab(evt, tabName) {
+        const tabContent = document.querySelectorAll('.admin-tab-content');
+        tabContent.forEach(tab => tab.style.display = 'none');
+
+        const tabButtons = document.querySelectorAll('.admin-tab-button');
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+
+        document.getElementById(tabName).style.display = 'block';
+        if (evt) {
+            evt.currentTarget.classList.add('active');
+        } else { // Se chamado sem evento (ex: ao abrir modal), ativa o botão manualmente
+            const defaultButton = document.querySelector(`.admin-tab-button[onclick*="${tabName}"]`);
+            if (defaultButton) defaultButton.classList.add('active');
+        }
+    }
+
+  </script>
 </body>
 </html>
