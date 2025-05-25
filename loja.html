@@ -6,7 +6,8 @@
     <title>HAX STORE</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script> <style>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
+    <style>
         /* Reset e base */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background-color: #0c0c0c; color: #fff; line-height: 1.6; }
@@ -114,6 +115,12 @@
         .btn-comprar:hover {
             background-color: #b20710;
         }
+
+        .btn-comprar:disabled {
+            background-color: #444;
+            cursor: not-allowed;
+        }
+
 
         /* Botões de Admin no produto (só aparecem para admin) */
         .btn-delete-produto {
@@ -264,6 +271,20 @@
             font-size: 15px;
         }
 
+        .admin-section .stock-links-input { /* Estilo específico para a textarea de links */
+            width: calc(100% - 20px);
+            min-height: 80px; /* Altura mínima */
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #222;
+            border: 1px solid #333;
+            color: #fff;
+            border-radius: 4px;
+            font-size: 15px;
+            resize: vertical; /* Permite redimensionar verticalmente */
+        }
+
+
         .admin-section button {
             background-color: #0f0; /* Botão verde */
             color: #111;
@@ -397,7 +418,7 @@
             <h3>Pagamento via PIX</h3>
             <p>Escaneie o QR Code ou use a chave PIX abaixo:</p>
             <div class="pix-key" id="pixChave"></div>
-            
+
             <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 15px;">
                 <h4>Anexar Comprovante</h4>
                 <input type="file" id="comprovanteFile" accept="image/*,application/pdf" style="margin-bottom: 10px; color: #fff;">
@@ -429,6 +450,7 @@
                 <textarea id="productDesc" placeholder="Descrição do Produto" rows="3"></textarea>
                 <input type="number" id="productOldPrice" placeholder="Preço Antigo (Ex: 30.00)" step="0.01">
                 <input type="number" id="productNewPrice" placeholder="Preço Atual (Ex: 10.00)" step="0.01" required>
+                <textarea id="productStockLinks" class="stock-links-input" placeholder="Links de Estoque (um por linha)"></textarea>
                 <button onclick="saveProduct()">Salvar Produto</button>
                 <button onclick="clearProductForm()">Limpar Formulário</button>
 
@@ -505,6 +527,10 @@
         const processedPaymentsList = document.getElementById('processed-payments-list');
         const logsList = document.getElementById('logs-list');
 
+        // Referência para o novo campo de estoque
+        const productStockLinksInput = document.getElementById('productStockLinks');
+
+
         // --- Chaves para o localStorage (CORRESPONDENDO AO INDEX.HTML) ---
         // Estas chaves devem ser as mesmas usadas no seu arquivo index.html
         const LS_IS_ADMIN_KEY = 'isAdmin';
@@ -536,21 +562,28 @@
 
         // --- Funções de Modal de Compra (PIX) ---
         // Função para abrir o modal de compra (renomeada para melhor clareza)
-        function comprarAgora() {
+        // Adicionamos o 'productId' para saber qual produto está sendo comprado
+        let currentBuyingProductId = null; // Variável global para armazenar o ID do produto em compra
+
+        function comprarAgora(productId) {
             if (!checkLoggedInStatus()) {
                 alert('Você precisa estar logado para realizar uma compra.');
                 window.location.href = 'index.html';
                 return;
             }
+
+            currentBuyingProductId = productId; // Armazena o ID do produto
+
             document.getElementById('pixModal').style.display = 'flex';
             document.getElementById('mensagemFinal').style.display = "none";
             // Limpa o input de arquivo caso o usuário abra e feche várias vezes
-            comprovanteFileInput.value = ''; 
+            comprovanteFileInput.value = '';
         }
 
         function closePixModal() {
             document.getElementById('pixModal').style.display = 'none';
             document.getElementById('mensagemFinal').style.display = "none";
+            currentBuyingProductId = null; // Limpa o ID do produto ao fechar o modal
         }
 
         function confirmarPagamento() {
@@ -567,6 +600,11 @@
                 return;
             }
 
+            if (!currentBuyingProductId) {
+                alert('Nenhum produto selecionado para compra. Por favor, tente novamente.');
+                return;
+            }
+
             const file = comprovanteFileInput.files[0];
             if (!file) {
                 alert('Por favor, selecione um arquivo de comprovante.');
@@ -576,7 +614,7 @@
             const currentUser = localStorage.getItem(LS_LOGGED_USER_KEY);
             const userId = currentUser ? JSON.parse(currentUser).uid : 'anonymous';
             const userName = currentUser ? JSON.parse(currentUser).username : 'Usuário Desconhecido';
-            
+
             const fileName = `${Date.now()}_${file.name}`;
             const storageRef = storage.ref(`comprovantes/${userId}/${fileName}`);
             const uploadTask = storageRef.put(file);
@@ -591,9 +629,11 @@
                 await uploadTask;
                 const downloadURL = await storageRef.getDownloadURL();
 
+                // Adiciona o productId à coleção de comprovantes
                 await db.collection('comprovantes').add({
                     userId: userId,
                     userName: userName,
+                    productId: currentBuyingProductId, // Adiciona o ID do produto
                     fileName: fileName,
                     fileURL: downloadURL,
                     status: 'pendente', // 'pendente', 'confirmado', 'rejeitado'
@@ -603,7 +643,7 @@
                 document.getElementById('uploadLoadingMessage').remove();
                 alert('Comprovante enviado com sucesso! Aguarde a confirmação do administrador.');
                 closePixModal();
-                logAdminAction('Upload de Comprovante', `Usuário ${userName} (UID: ${userId.substring(0, 5)}...) enviou comprovante para análise.`);
+                logAdminAction('Upload de Comprovante', `Usuário ${userName} (UID: ${userId.substring(0, 5)}...) enviou comprovante para análise do produto ${currentBuyingProductId}.`);
 
             } catch (error) {
                 console.error("Erro ao fazer upload do comprovante: ", error);
@@ -680,6 +720,11 @@
                     <button class="btn-delete-produto" onclick="deleteProduct('${product.id}')">Apagar</button>
                 ` : '';
 
+                // Verifica se há estoque disponível
+                const hasStock = product.stockLinks && product.stockLinks.length > 0;
+                const buttonText = hasStock ? 'Comprar agora' : 'Fora de estoque';
+                const buttonDisabled = hasStock ? '' : 'disabled'; // Desabilita o botão se não houver estoque
+
                 productDiv.innerHTML = `
                     ${adminButtons}
                     <span class="tag">Em destaque</span>
@@ -689,15 +734,10 @@
                         ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${parseFloat(product.oldPrice).toFixed(2).replace('.', ',')}</span>` : ''}
                         <span class="preco-atual">R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
                     </div>
-                    <button class="btn-comprar">Comprar agora</button>
+                    <button class="btn-comprar" ${buttonDisabled} onclick="comprarAgora('${product.id}')">${buttonText}</button>
+                    ${!hasStock ? '<p style="color: #f00; margin-top: 10px;">Produto fora de estoque.</p>' : ''}
                 `;
                 productsContainer.appendChild(productDiv);
-            });
-
-            // Atualiza para a nova função comprarAgora
-            document.querySelectorAll('.btn-comprar').forEach(button => {
-                button.removeEventListener('click', comprarAgora); // Remove ouvintes antigos se houver
-                button.addEventListener('click', comprarAgora);
             });
         }
 
@@ -713,8 +753,10 @@
             products.forEach(product => {
                 const productItem = document.createElement('div');
                 productItem.className = 'admin-product-item';
+                // Adiciona a contagem de estoque
+                const stockCount = (product.stockLinks && Array.isArray(product.stockLinks)) ? product.stockLinks.length : 0;
                 productItem.innerHTML = `
-                    <span>${product.title} - R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
+                    <span>${product.title} - R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')} (Estoque: ${stockCount})</span>
                     <div>
                         <button onclick="editProduct('${product.id}')">Editar</button>
                         <button onclick="deleteProduct('${product.id}')">Apagar</button>
@@ -734,13 +776,17 @@
             const description = document.getElementById('productDesc').value;
             const oldPrice = parseFloat(document.getElementById('productOldPrice').value || 0);
             const newPrice = parseFloat(document.getElementById('productNewPrice').value);
+            // Captura os links de estoque e os divide por linha, removendo espaços vazios
+            const stockLinksRaw = productStockLinksInput.value;
+            const stockLinks = stockLinksRaw.split('\n').map(link => link.trim()).filter(link => link !== '');
+
 
             if (!title || isNaN(newPrice)) {
                 alert('Título e Preço Atual são obrigatórios e o preço deve ser um número.');
                 return;
             }
 
-            const productData = { title, description, oldPrice, newPrice };
+            const productData = { title, description, oldPrice, newPrice, stockLinks }; // Inclui os links de estoque
 
             try {
                 if (productId) {
@@ -773,6 +819,9 @@
                     document.getElementById('productDesc').value = product.description;
                     document.getElementById('productOldPrice').value = product.oldPrice;
                     document.getElementById('productNewPrice').value = product.newPrice;
+                    // Preenche o campo de links de estoque
+                    productStockLinksInput.value = product.stockLinks ? product.stockLinks.join('\n') : '';
+
                     openAdminTab(null, 'manage-products'); // Garante que a aba de produtos esteja ativa
                     adminModal.style.display = 'flex'; // Abre o modal
                 } else {
@@ -789,7 +838,7 @@
                 alert('Acesso negado.');
                 return;
             }
-            if (confirm('Tem certeza que deseja apagar este produto?')) {
+            if (confirm('Tem certeza que deseja apagar este produto? Isso removerá também o estoque associado.')) {
                 try {
                     const productDoc = await db.collection('products').doc(id).get();
                     const productName = productDoc.exists ? productDoc.data().title : 'Produto Desconhecido';
@@ -809,6 +858,7 @@
             document.getElementById('productDesc').value = '';
             document.getElementById('productOldPrice').value = '';
             document.getElementById('productNewPrice').value = '';
+            productStockLinksInput.value = ''; // Limpa os links de estoque
         }
 
         // --- Funções de Gerenciamento de Avisos (Firestore) ---
@@ -984,11 +1034,11 @@
                 paymentItem.innerHTML = `
                     <span>
                         <strong>Usuário:</strong> ${payment.userName} (ID: ${payment.userId.substring(0, 5)}...)<br>
-                        <strong>Comprovante:</strong> <a href="${payment.fileURL}" target="_blank" style="color: #007bff;">Ver Arquivo</a><br>
+                        <strong>Produto:</strong> ${payment.productId || 'N/A'} <br> <strong>Comprovante:</strong> <a href="${payment.fileURL}" target="_blank" style="color: #007bff;">Ver Arquivo</a><br>
                         <strong>Data:</strong> ${timestampDate}
                     </span>
                     <div>
-                        <button onclick="confirmPayment('${payment.id}')" style="background-color: #0f0;">Confirmar</button>
+                        <button onclick="confirmPayment('${payment.id}', '${payment.productId}')" style="background-color: #0f0;">Confirmar</button>
                         <button onclick="rejectPayment('${payment.id}')" style="background-color: #cc0000;">Rejeitar</button>
                     </div>
                 `;
@@ -1017,6 +1067,7 @@
                 paymentItem.innerHTML = `
                     <span>
                         <strong>Usuário:</strong> ${payment.userName} (ID: ${payment.userId.substring(0, 5)}...)<br>
+                        <strong>Produto:</strong> ${payment.productId || 'N/A'} <br>
                         <strong>Comprovante:</strong> <a href="${payment.fileURL}" target="_blank" style="color: #007bff;">Ver Arquivo</a><br>
                         <strong>Data:</strong> ${timestampDate}<br>
                         <strong>Status:</strong> <span style="color: ${statusColor}; font-weight: bold;">${payment.status.toUpperCase()}</span>
@@ -1027,19 +1078,47 @@
         }
 
 
-        async function confirmPayment(paymentId) {
+        async function confirmPayment(paymentId, productId) {
             if (!checkAdminStatus()) {
                 alert('Acesso negado.');
                 return;
             }
-            if (confirm('Tem certeza que deseja confirmar este pagamento?')) {
+            if (confirm('Tem certeza que deseja confirmar este pagamento? Isso consumirá 1 item do estoque.')) {
                 try {
+                    // 1. Atualiza o status do pagamento
                     await db.collection('comprovantes').doc(paymentId).update({ status: 'confirmado' });
-                    alert('Pagamento confirmado com sucesso!');
-                    logAdminAction('Confirmação de Pagamento', `Admin ${getCurrentAdminUsername()} confirmou o pagamento ${paymentId}.`);
+
+                    // 2. Consome 1 item do estoque do produto
+                    const productRef = db.collection('products').doc(productId);
+                    await db.runTransaction(async (transaction) => {
+                        const productDoc = await transaction.get(productRef);
+                        if (!productDoc.exists) {
+                            throw "Produto não existe!";
+                        }
+
+                        const currentStockLinks = productDoc.data().stockLinks || [];
+                        if (currentStockLinks.length === 0) {
+                            throw "Estoque esgotado para este produto!";
+                        }
+
+                        // Remove o primeiro link do array (simulando a entrega de 1 item)
+                        const [deliveredLink] = currentStockLinks.splice(0, 1);
+                        await transaction.update(productRef, { stockLinks: currentStockLinks });
+
+                        // Opcional: Salvar o link entregue em algum lugar (ex: na coleção de comprovantes, ou em uma nova coleção 'entregas')
+                        // Para fins de demonstração, podemos adicionar ao log ou alertar.
+                        console.log(`Link entregue ao usuário para o produto ${productId}: ${deliveredLink}`);
+                        logAdminAction('Estoque Consumido', `Admin ${getCurrentAdminUsername()} consumiu um item do estoque do produto ${productId}. Link entregue: ${deliveredLink}`);
+
+                        alert('Pagamento confirmado e estoque atualizado com sucesso!');
+                        logAdminAction('Confirmação de Pagamento', `Admin ${getCurrentAdminUsername()} confirmou o pagamento ${paymentId} para o produto ${productId}.`);
+                    });
+
                 } catch (e) {
-                    console.error("Erro ao confirmar pagamento: ", e);
-                    alert("Erro ao confirmar pagamento.");
+                    console.error("Erro ao confirmar pagamento ou atualizar estoque: ", e);
+                    alert("Erro ao confirmar pagamento ou atualizar estoque. Verifique o console para detalhes.");
+                    // Reverter o status do pagamento se o estoque falhar pode ser complexo,
+                    // uma solução mais robusta usaria Cloud Functions.
                 }
             }
         }
