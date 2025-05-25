@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Registro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <form id="registerForm">
+    <h2>Registro</h2>
+    <input type="text" id="newUser" placeholder="Novo usuário" required>
+    <input type="password" id="newPass" placeholder="Nova senha" required>
+    <button type="submit">Registrar</button>
+    <p id="msg"></p>
+    <a href="index.html">Já tem conta? Entrar</a>
+  </form>
+
+  <script>
+    document.getElementById("registerForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const newUser = document.getElementById("newUser").value;
+      const newPass = document.getElementById("newPass").value;
+      const db = JSON.parse(localStorage.getItem("users") || "[]");
+      if (db.find(u => u.user === newUser)) {
+        document.getElementById("msg").textContent = "Usuário já existe.";
+        return;
+      }
+      db.push({ user: newUser, pass: newPass });
+      localStorage.setItem("users", JSON.stringify(db));
+      document.getElementById("msg").style.color = "green";
+      document.getElementById("msg").textContent = "Registrado com sucesso!";
+    });
+  </script>
+</body>
+</html>

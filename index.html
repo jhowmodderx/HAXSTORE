@@ -2,98 +2,33 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login</title>
-  <style>
-    body {
-      background-color: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .login-container {
-      background-color: #001f3f;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 15px #0074D9;
-      width: 300px;
-    }
-
-    .login-container h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: none;
-      border-radius: 5px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #0074D9;
-      border: none;
-      border-radius: 5px;
-      color: white;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #005fa3;
-    }
-
-    .message {
-      margin-top: 10px;
-      text-align: center;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <div class="login-container">
+  <form id="loginForm">
     <h2>Login</h2>
-    <form id="loginForm">
-      <input type="text" id="username" placeholder="Usuário" required>
-      <input type="password" id="password" placeholder="Senha" required>
-      <button type="submit">Entrar</button>
-    </form>
-    <div class="message" id="message"></div>
-  </div>
+    <input type="text" id="user" placeholder="Usuário" required>
+    <input type="password" id="pass" placeholder="Senha" required>
+    <button type="submit">Entrar</button>
+    <p id="msg"></p>
+    <a href="register.html">Criar conta</a>
+  </form>
 
   <script>
-    const form = document.getElementById('loginForm');
-    const message = document.getElementById('message');
-
-    const userValido = "admin";
-    const senhaValida = "1234";
-
-    form.addEventListener('submit', function (e) {
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-
-      if (username === userValido && password === senhaValida) {
-        message.style.color = "lightgreen";
-        message.textContent = "Login bem-sucedido!";
-        setTimeout(() => {
-          window.location.href = "loja.html";
-        }, 1000);
+      const user = document.getElementById("user").value;
+      const pass = document.getElementById("pass").value;
+      const db = JSON.parse(localStorage.getItem("users") || "[]");
+      const match = db.find(u => u.user === user && u.pass === pass);
+      if (match) {
+        localStorage.setItem("logged", user);
+        window.location.href = "loja.html";
       } else {
-        message.style.color = "red";
-        message.textContent = "Usuário ou senha incorretos.";
+        document.getElementById("msg").textContent = "Usuário ou senha inválidos";
       }
     });
   </script>
-
 </body>
 </html>
