@@ -1,471 +1,411 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
+<cabeça>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="largura=largura-do-dispositivo, escala-inicial=1.0"/>
     <title>LOJA HAX</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script> <style>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script> <estilo>
         /* Redefinir e base */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background-color: #0c0c0c; color: #fff; line-height: 1.6; }
+        * { margem: 0; preenchimento: 0; tamanho da caixa: caixa de borda; }
+        corpo { família da fonte: Arial, sem serifa; cor de fundo: #0c0c0c; cor: #fff; altura da linha: 1,6; }
 
         /* Cabeçalho */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #111;
-            padding: 15px 20px;
-            border-bottom: 2px solid #e50914;
+        cabeçalho {
+            exibição: flexível;
+            justificar-conteúdo: espaço-entre;
+            alinhar-itens: centro;
+            cor de fundo: #111;
+            preenchimento: 15px 20px;
+            borda inferior: 2px sólido #e50914;
         }
 
-        .logo { color: #e50914; font-size: 22px; font-weight: bold; }
+        .logo { cor: #e50914; tamanho da fonte: 22px; espessura da fonte: negrito; }
 
-        .header-buttons {
-            display: flex;
-            gap: 10px; /* Espaçamento entre os botões */
+        .botões de cabeçalho {
+            exibição: flexível;
+            lacuna: 10px; /* Espaçamento entre os botões */
         }
 
-        .discord-btn, .admin-panel-btn, .logout-btn {
-            background: transparent;
-            border: 2px solid #e50914;
-            color: #e50914;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.3s;
+        .botão-discord, .botão-painel-admin, .botão-logout {
+            fundo: transparente;
+            borda: 2px sólido #e50914;
+            cor: #e50914;
+            preenchimento: 8px 16px;
+            raio da borda: 6px;
+            cursor: ponteiro;
+            transição: 0,3s;
         }
 
-        .discord-btn:hover, .admin-panel-btn:hover, .logout-btn:hover {
-            background-color: #e50914;
-            color: white;
+        .botão-discord:hover, .botão-do-painel-admin:hover, .botão-logout:hover {
+            cor de fundo: #e50914;
+            cor: branco;
         }
 
-        /* Banner */
+        /* Bandeira */
         .banner {
-            height: 250px;
-            background: url('IMG-20250525-WA0019.jpg') center no-repeat center; /* Imagem do banner */
-            background-size: cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+            altura: 250px;
+            background: url('') centro sem repetição centro; /* Imagem do banner */
+            tamanho-de-fundo: capa;
+            exibição: flexível;
+            alinhar-itens: centro;
+            justificar-conteúdo: centro;
+            alinhamento de texto: centro;
         }
 
         .banner h2 {
-            background-color: rgba(0, 0, 0, 0.6);
-            border: 2px solid #e50914;
-            color: #e50914;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 24px;
-            font-weight: bold;
+            cor de fundo: rgba(0, 0, 0, 0.6);
+            borda: 2px sólido #e50914;
+            cor: #e50914;
+            preenchimento: 12px 24px;
+            raio da borda: 8px;
+            tamanho da fonte: 24px;
+            espessura da fonte: negrito;
         }
 
         /* Conteúdo principal */
-        .content {
-            padding: 30px 20px;
-            max-width: 900px;
-            margin: 0 auto;
+        .contente {
+            preenchimento: 30px 20px;
+            largura máxima: 900px;
+            margem: 0 auto;
         }
 
-        /* Tag de destaque */
-        .tag {
-            display: inline-block;
-            background-color: #e50914;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            text-transform: uppercase;
-            margin-bottom: 10px;
+        /* Marca de destaque */
+        .marcação {
+            exibição: bloco embutido;
+            cor de fundo: #e50914;
+            cor: branco;
+            preenchimento: 4px 10px;
+            raio da borda: 4px;
+            tamanho da fonte: 12px;
+            text-transform: maiúsculas;
+            margem inferior: 10px;
         }
 
         /* Item do produto */
-        .product-item {
-            background-color: #1a1a1a;
-            border: 1px solid #222;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            position: relative;
+        .produto-item {
+            cor de fundo: #1a1a1a;
+            borda: 1px sólido #222;
+            preenchimento: 20px;
+            margem inferior: 20px;
+            raio da borda: 8px;
+            posição: relativa;
         }
 
-        .product-title { font-size: 28px; font-weight: bold; margin: 10px 0; color: #e50914;}
-        .product-desc { color: #ccc; margin-bottom: 15px; }
+        .produto-titulo { tamanho da fonte: 28px; espessura da fonte: negrito; margem: 10px 0; cor: #e50914;}
+        .produto-desc { cor: #ccc; margem inferior: 15px; }
 
-        .prices { margin-bottom: 15px; }
-        .old-price { text-decoration: line-through; color: #888; font-size: 16px; margin-right: 10px; }
-        .current-price { color: #0f0; font-size: 28px; font-weight: bold; } /* Preço atual em verde */
-        .stock-info {
-            font-size: 14px;
-            color: #aaa;
-            margin-top: 5px;
-            font-weight: bold;
-        }
-        .stock-info.low {
-            color: orange;
-        }
-        .stock-info.out {
-            color: red;
-        }
+        .precos { margem inferior: 15px; }
+        .preco-antigo { decoração-de-texto: linha-através; cor: #888; tamanho-da-fonte: 16px; margem-direita: 10px; }
+        .preco-atual { cor: #0f0; tamanho da fonte: 28px; peso da fonte: negrito; } /* Preço atual em verde */
 
-        .btn-buy {
-            background-color: #e50914;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: 0.3s;
+        .btn-comprar {
+            cor de fundo: #e50914;
+            cor: branco;
+            borda: nenhuma;
+            preenchimento: 12px 24px;
+            tamanho da fonte: 16px;
+            raio da borda: 6px;
+            cursor: ponteiro;
+            transição: 0,3s;
         }
 
-        .btn-buy:hover {
-            background-color: #b20710;
-        }
-        .btn-buy:disabled {
-            background-color: #555;
-            cursor: not-allowed;
+        .btn-comprar:hover {
+            cor de fundo: #b20710;
         }
 
         /* Botões de Admin no produto (só aparecem para admin) */
-        .btn-delete-product {
-            background-color: #cc0000;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 12px;
-            transition: 0.2s;
+        .btn-delete-produto {
+            cor de fundo: #cc0000;
+            cor: branco;
+            borda: nenhuma;
+            preenchimento: 5px 10px;
+            raio da borda: 4px;
+            cursor: ponteiro;
+            posição: absoluta;
+            topo: 10px;
+            direita: 10px;
+            tamanho da fonte: 12px;
+            transição: 0,2s;
         }
-        .btn-delete-product:hover { background-color: #990000; }
+        .btn-delete-produto:hover { cor de fundo: #990000; }
 
-        .btn-edit-product {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            position: absolute;
-            top: 10px;
-            right: 70px; /* Ajuste para não sobrepor o delete */
-            font-size: 12px;
-            transition: 0.2s;
+        .btn-edit-produto {
+            cor de fundo: #007bff;
+            cor: branco;
+            borda: nenhuma;
+            preenchimento: 5px 10px;
+            raio da borda: 4px;
+            cursor: ponteiro;
+            posição: absoluta;
+            topo: 10px;
+            direita: 70px; /* Ajuste para não sobrepor ou excluir */
+            tamanho da fonte: 12px;
+            transição: 0,2s;
         }
-        .btn-edit-product:hover { background-color: #0056b3; }
+        .btn-edit-produto:hover { cor de fundo: #0056b3; }
 
 
         /* Rodapé */
-        footer {
-            background-color: #111;
-            text-align: center;
-            padding: 15px;
-            color: #777;
-            margin-top: 40px;
-            font-size: 14px;
+        rodapé {
+            cor de fundo: #111;
+            alinhamento de texto: centro;
+            preenchimento: 15px;
+            cor: #777;
+            margem superior: 40px;
+            tamanho da fonte: 14px;
         }
 
         /* Base de modais */
         .modal {
-            display: none; /* Escondido por padrão */
-            position: fixed;
-            z-index: 1000;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-            overflow: auto; /* Para modais altos em telas pequenas */
+            exibição: nenhum; /* Escondido por padrão */
+            posição: fixa;
+            índice z: 1000;
+            esquerda: 0; topo: 0;
+            largura: 100%; altura: 100%;
+            cor de fundo: rgba(0, 0, 0, 0.8);
+            justificar-conteúdo: centro;
+            alinhar-itens: centro;
+            estouro: automático; /* Para modais altos em telas pequenas */
         }
 
-        .modal-content {
-            background-color: #111;
-            padding: 25px;
-            border-radius: 10px;
-            text-align: center;
-            width: 90%;
-            max-width: 450px; /* Largura padrão */
-            border: 2px solid #e50914; /* Borda vermelha para modal de compra */
-            position: relative;
-            animation: fadeIn 0.3s ease-out;
+        .modal-conteúdo {
+            cor de fundo: #111;
+            preenchimento: 25px;
+            raio da borda: 10px;
+            alinhamento de texto: centro;
+            largura: 90%;
+            largura máxima: 450px; /* Largura padrão */
+            borda: 2px sólido #e50914; /* Borda vermelha para modal de compra */
+            posição: relativa;
+            animação: fadeIn 0,3s de suavização;
         }
 
         .modal-content.admin-modal {
-            max-width: 800px; /* Mais largo para o painel de administração */
-            border: 2px solid #0f0; /* Borda verde para o modal admin */
+            largura máxima: 700px; /* Mais largo para o painel de administração */
+            borda: 2px sólido #0f0; /* Borda verde para o modal admin */
         }
 
         .modal-content h3 {
-            color: #e50914;
-            margin-bottom: 20px;
-            font-size: 24px;
+            cor: #e50914;
+            margem inferior: 20px;
+            tamanho da fonte: 24px;
         }
         .modal-content.admin-modal h3 {
-            color: #0f0; /* Título do modal admin verde */
+            cor: #0f0; /* Título do modal admin verde */
         }
 
-        .pix-key {
-            background-color: #222;
-            padding: 12px;
-            border-radius: 6px;
-            font-size: 16px;
-            word-break: break-word; /* Quebra texto longo */
-            margin-bottom: 20px;
-            border: 1px solid #e50914;
+        .pix-chave {
+            cor de fundo: #222;
+            preenchimento: 12px;
+            raio da borda: 6px;
+            tamanho da fonte: 16px;
+            quebra de linha: quebra de palavra; /* Quebra texto longo */
+            margem inferior: 20px;
+            borda: 1px sólido #e50914;
         }
 
-        .btn-confirm {
-            background-color: #e50914;
-            border: none;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: 0.3s;
-            margin-top: 10px; /* Margem adicionada para o botão de upload */
+        .btn-confirmar {
+            cor de fundo: #e50914;
+            borda: nenhuma;
+            cor: branco;
+            preenchimento: 12px 25px;
+            raio da borda: 6px;
+            cursor: ponteiro;
+            tamanho da fonte: 16px;
+            transição: 0,3s;
+            margem superior: 10px; /* Margem adicionada para o botão de upload */
         }
-        .btn-confirm:hover { background-color: #b20710; }
+        .btn-confirmar:hover { cor de fundo: #b20710; }
 
-        .final-message {
-            margin-top: 25px;
-            color: #0f0;
-            font-weight: bold;
-            font-size: 18px;
-            display: none;
+        .mensagem-final {
+            margem superior: 25px;
+            cor: #0f0;
+            espessura da fonte: negrito;
+            tamanho da fonte: 18px;
+            exibição: nenhuma;
         }
 
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            color: #aaa;
-            font-size: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
+        .botão de fechar {
+            posição: absoluta;
+            topo: 10px;
+            direita: 20px;
+            cor: #aaa;
+            tamanho da fonte: 30px;
+            espessura da fonte: negrito;
+            cursor: ponteiro;
+            transição: 0,2s;
         }
-        .close-button:hover, .close-button:focus {
-            color: #fff;
+        .botão-fechar:passar o mouse, .botão-fechar:foco {
+            cor: #fff;
         }
 
         /* Estilos de Administração (dentro do modal) */
         .admin-tab-content h4 {
-            color: #eee;
-            margin-top: 25px;
-            margin-bottom: 15px;
-            font-size: 20px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
+            cor: #eee;
+            margem superior: 25px;
+            margem inferior: 15px;
+            tamanho da fonte: 20px;
+            borda inferior: 1px sólido #333;
+            preenchimento inferior: 5px;
         }
 
-        .admin-section input[type="text"],
-        .admin-section input[type="number"],
+        .admin-section entrada[tipo="texto"],
+        .admin-section entrada[tipo="número"],
         .admin-section textarea {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #222;
-            border: 1px solid #333;
-            color: #fff;
-            border-radius: 4px;
-            font-size: 15px;
+            largura: calc(100% - 20px);
+            preenchimento: 10px;
+            margem inferior: 10px;
+            cor de fundo: #222;
+            borda: 1px sólido #333;
+            cor: #fff;
+            raio da borda: 4px;
+            tamanho da fonte: 15px;
         }
 
-        .admin-section button {
-            background-color: #0f0; /* Botão verde */
-            color: #111;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-right: 10px;
-            transition: 0.3s;
-            font-size: 15px;
+        botão .admin-section {
+            cor de fundo: #0f0; /* Botão verde */
+            cor: #111;
+            borda: nenhuma;
+            preenchimento: 10px 20px;
+            raio da borda: 5px;
+            cursor: ponteiro;
+            margem direita: 10px;
+            transição: 0,3s;
+            tamanho da fonte: 15px;
         }
 
-        .admin-section button:hover {
-            background-color: #00cc00;
+        .botão de seção de administração: passe o mouse {
+            cor de fundo: #00cc00;
         }
 
-        .admin-products-list, .admin-warnings-list, #pending-payments-list, #processed-payments-list, #logs-list {
-            margin-top: 20px;
-            max-height: 250px; /* Limite de altura para rolagem */
-            overflow-y: auto; /* Adiciona barra de rolagem se necessário */
-            padding-right: 10px; /* Espaço para a barra de rolagem */
-            border-top: 1px solid #333;
-            padding-top: 15px;
+        .lista-de-produtos-do-admin, .lista-de-avisos-do-admin, #lista-de-pagamentos-pendentes, #lista-de-pagamentos-processados, #lista-de-logs {
+            margem superior: 20px;
+            altura máxima: 250px; /* Limite de altura para rolagem */
+            estouro-y: automático; /* Adiciona barra de rolagem se necessário */
+            preenchimento à direita: 10px; /* Espaço para a barra de rolagem */
+            borda superior: 1px sólido #333;
+            preenchimento superior: 15px;
         }
 
-        .admin-product-item, .warning-item, .payment-item, .log-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #222;
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            border: 1px solid #333;
-            flex-wrap: wrap; /* Permite que os itens quebrem linha em telas menores */
+        .admin-produto-item, .aviso-item {
+            exibição: flexível;
+            justificar-conteúdo: espaço-entre;
+            alinhar-itens: centro;
+            cor de fundo: #222;
+            preenchimento: 12px;
+            raio da borda: 5px;
+            margem inferior: 10px;
+            borda: 1px sólido #333;
         }
-        .payment-item div {
-            flex-basis: 100%; /* Faz o texto do pagamento ocupar 100% */
-            margin-bottom: 10px;
-        }
-        .payment-item .payment-actions {
-            flex-basis: 100%; /* Faz os botões ficarem em uma nova linha */
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-        .payment-item .payment-actions button {
-            margin-right: 0; /* Remove margem extra dos botões de ação */
-        }
-        .payment-item .payment-details {
-            text-align: left;
+
+        .admin-produto-item span, .warning-item span {
             flex-grow: 1;
-        }
-        .payment-item .payment-details p {
-            margin: 3px 0;
-            color: #ddd;
-        }
-        .payment-item .payment-details .status-pending { color: orange; font-weight: bold; }
-        .payment-item .payment-details .status-confirmed { color: #0f0; font-weight: bold; }
-        .payment-item .payment-details .status-rejected { color: red; font-weight: bold; }
-
-
-        .admin-product-item span, .warning-item span, .log-item span {
-            flex-grow: 1;
-            text-align: left;
-            font-size: 15px;
+            alinhamento de texto: esquerda;
+            tamanho da fonte: 15px;
         }
 
-        .admin-product-item button, .warning-item button, .payment-item button, .log-item button {
-            margin-left: 10px;
-            padding: 5px 10px;
-            font-size: 13px;
-            flex-shrink: 0;
+        .botão admin-product-item, .botão warning-item {
+            margem esquerda: 10px;
+            preenchimento: 5px 10px;
+            tamanho da fonte: 13px;
+            flex-encolhimento: 0;
         }
-        .payment-item button.accept { background-color: #0f0; }
-        .payment-item button.reject { background-color: #e50914; }
-        .payment-item button.view-file { background-color: #007bff; }
 
-        .admin-warning-message {
-            background-color: #e50914;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 16px;
+        .mensagem-de-aviso-do-admin {
+            cor de fundo: #e50914;
+            cor: branco;
+            preenchimento: 10px;
+            raio da borda: 5px;
+            margem inferior: 20px;
+            alinhamento de texto: centro;
+            espessura da fonte: negrito;
+            tamanho da fonte: 16px;
         }
 
         /* Estilos para as abas de administração */
-        .admin-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #0f0;
-            overflow-x: auto; /* Permite rolagem horizontal se muitas abas */
+        .admin-guias {
+            exibição: flexível;
+            margem inferior: 20px;
+            borda inferior: 1px sólido #0f0;
+            estouro-x: automático; /* Permite rolagem horizontal se muitas abas */
         }
 
-        .admin-tab-button {
-            background-color: #333;
-            color: #0f0;
-            padding: 10px 15px;
-            border: none;
-            cursor: pointer;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            margin-right: 5px;
-            transition: background-color 0.3s, color 0.3s;
-            flex-shrink: 0; /* Evita que os botões encolham */
+        .botão-tabulação-admin {
+            cor de fundo: #333;
+            cor: #0f0;
+            preenchimento: 10px 15px;
+            borda: nenhuma;
+            cursor: ponteiro;
+            raio-superior-esquerdo-da-borda: 8px;
+            raio-superior-direito-da-borda: 8px;
+            margem direita: 5px;
+            transição: cor de fundo 0,3s, cor 0,3s;
+            flex-encolher: 0; /* Evita que os botões encolham */
         }
 
-        .admin-tab-button.active {
-            background-color: #0f0;
-            color: #111;
+        .admin-tab-button.ativo {
+            cor de fundo: #0f0;
+            cor: #111;
         }
 
         .admin-tab-content {
-            display: none;
-            text-align: left;
-            padding-top: 15px; /* Espaço após as abas */
+            exibição: nenhuma;
+            alinhamento de texto: esquerda;
+            preenchimento superior: 15px; /* Espaço após as abas */
         }
 
-        .admin-tab-content.active {
-            display: block;
-        }
-
-        /* Campo para links de estoque */
-        #productLinks {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 10px;
-            background-color: #222;
-            border: 1px solid #333;
-            color: #fff;
-            border-radius: 4px;
-            font-size: 15px;
-            min-height: 80px; /* Altura mínima para textarea */
-            vertical-align: top;
+        .admin-tab-content.ativo {
+            exibir: bloco;
         }
 
         /* Animação para modal */
         @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+            de { opacidade: 0; transformação: escala(0,9); }
+            para { opacidade: 1; transformar: escala(1); }
         }
-    </style>
-</head>
-<body>
+    </estilo>
+</cabeçalho>
+<corpo>
 
-    <header>
+    <cabeçalho>
         <div class="logo">LOJA HAX</div>
-        <div class="header-buttons">
+        <div class="botões-de-cabeçalho">
             <button class="discord-btn" onclick="window.open('https://discord.gg/gJ79TUn6Bb', '_blank')">Entrar no Discord</button>
             <button id="adminPanelBtn" class="admin-panel-btn" style="display: none;">Painel de Administração</button>
             <button id="logoutBtn" class="logout-btn" style="display: none;">Sair</button>
         </div>
-    </header>
+    </cabeçalho>
 
     <div class="banner">
         <h2>Bem-vindo à HAX STORE!</h2>
     </div>
 
     <div class="content">
-        <div id="warnings-container"></div>
-        <div id="products-container"></div>
+        <div id="contêiner-de-avisos"></div>
+        <div id="produtos-container"></div>
     </div>
 
-    <footer>
-        &copy; LOJA HAX 2025. Todos os direitos reservados.
-    </footer>
+    <rodapé>
+        &cópia; LOJA HAX 2025. Todos os direitos reservados.
+    </rodapé>
 
     <div class="modal" id="pixModal">
         <div class="modal-content" id="pixModalContent">
             <span class="close-button" onclick="closePixModal()">×</span>
             <h3>Pagamento via PIX</h3>
             <p>Escaneie o QR Code ou use a chave PIX abaixo:</p>
-            <div class="pix-key" id="pixChave">Carregando chave PIX...</div>
+            <div class="pix-key" id="pixChave"></div>
             
-            <div style="margin-top: 20px; border-top: 1px solid #333; padding-top: 15px;">
+            <div style="margem superior: 20px; borda superior: 1px sólido #333; preenchimento superior: 15px;">
                 <h4>Anexar Comprovante</h4>
                 <input type="file" id="comprovanteFile" accept="image/*,application/pdf" style="margin-bottom: 10px; color: #fff;">
-                <button class="btn-confirm" onclick="uploadComprovante()">Enviar Comprovante</button>
+                <button class="btn-confirmar" onclick="uploadComprovante()">Enviar Comprovante</button>
             </div>
 
-            <button class="btn-confirm" onclick="confirmarPagamento()">Já realizei o pagamento (apenas para avisar)</button>
-            <div class="final-message" id="mensagemFinal">HAX STORE - ENVIE O COMPROVANTE NO TICKET DO DISCORD!</div>
+            <button class="btn-confirmar" onclick="confirmarPagamento()">Já realizei o pagamento (apenas para avisar)</button>
+            <div class="mensagem-final" id="mensagemFinal">HAX STORE - ENVIE O COMPROVANTE NO TICKET DO DISCORD!</div>
         </div>
     </div>
 
@@ -474,7 +414,7 @@
             <span class="close-button" onclick="closeAdminModal()">×</span>
             <h3>Painel de Administração</h3>
 
-            <div class="admin-tabs">
+            <div class="tabs-admin">
                 <button class="admin-tab-button active" onclick="openAdminTab(event, 'manage-products')">Gerenciar Produtos</button>
                 <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-warnings')">Gerenciar Avisos</button>
                 <button class="admin-tab-button" onclick="openAdminTab(event, 'manage-pix')">Configurar PIX</button>
@@ -482,826 +422,730 @@
                 <button class="admin-tab-button" onclick="openAdminTab(event, 'admin-logs')">Registros de Atividade</button>
             </div>
 
-            <div id="manage-products" class="admin-tab-content admin-section active">
+            <div id="manage-products" class="admin-tab-content seção de administração ativa">
                 <h4>Adicionar/Editar Produto</h4>
-                <input type="hidden" id="productIdToEdit">
+                <tipo de entrada="oculto" id="productIdToEdit">
                 <input type="text" id="productTitle" placeholder="Título do Produto" required>
                 <textarea id="productDesc" placeholder="Descrição do Produto" rows="3"></textarea>
                 <input type="number" id="productOldPrice" placeholder="Preço Antigo (Ex: 30.00)" step="0.01">
-                <input type="number" id="productNewPrice" placeholder="Preço Atual (Ex: 10.00)" step="0.01" required>
-                <textarea id="productLinks" placeholder="Links do Produto (um por linha para estoque)" rows="5"></textarea>
+                <input type="number" id="productNewPrice" placeholder="Preço Atual (Ex: 10,00)" step="0,01" obrigatório>
                 <button onclick="saveProduct()">Salvar Produto</button>
                 <button onclick="clearProductForm()">Limpar Formulário</button>
 
                 <h4>Produtos Existentes</h4>
-                <div id="admin-products-list"></div>
+                <div id="lista-de-produtos-do-admin"></div>
             </div>
 
-            <div id="manage-warnings" class="admin-tab-content admin-section">
+            <div id="gerenciar-avisos" class="conteúdo-da-guia-administrador seção-administradora">
                 <h4>Gerenciar Avisos</h4>
                 <input type="text" id="warningMessage" placeholder="Nova mensagem de aviso">
                 <button onclick="addWarning()">Adicionar Aviso</button>
-                <div id="admin-warnings-list"></div>
+                <div id="lista-de-avisos-do-admin"></div>
             </div>
 
             <div id="manage-pix" class="admin-tab-content admin-section">
                 <h4>Chave PIX Atual</h4>
-                <input type="text" id="currentPixKey" placeholder="Chave PIX atual" readonly>
+                <input type="text" id="currentPixKey" placeholder="Chave PIX atual" somente leitura>
                 <h4>Nova Chave PIX</h4>
                 <input type="text" id="newPixKey" placeholder="Nova Chave PIX">
                 <button onclick="updatePixKey()">Salvar Chave PIX</button>
             </div>
 
-            <div id="manage-payments" class="admin-tab-content admin-section">
+            <div id="gerenciar-pagamentos" class="admin-tab-content admin-section">
                 <h4>Solicitações de Pagamento Pendentes</h4>
-                <div id="pending-payments-list"></div>
-                <h4>Histórico de Pagamentos Processados</h4>
-                <div id="processed-payments-list" style="max-height: 200px; overflow-y: auto;"></div>
+                <div id="lista-de-pagamentos-pendentes">
+                    </div>
+                <h4>Histórico de Pagamentos Confirmados/Rejeitados</h4>
+                <div id="lista-de-pagamentos-processados" style="altura-máx.: 200px; overflow-y: auto;">
+                    </div>
             </div>
 
             <div id="admin-logs" class="admin-tab-content admin-section">
                 <h4>Registros Recentes</h4>
-                <div id="logs-list" style="max-height: 400px; overflow-y: auto; text-align: left;"></div>
+                <div id="logs-list" style="altura-máx.: 400px; overflow-y: auto; alinhamento-de-texto: esquerda;">
+                    </div>
             </div>
         </div>
     </div>
 
     <script>
         // --- Configuração do Firebase ---
-        // ATENÇÃO: SUBSTITUA ESTES VALORES PELOS DO SEU PROJETO FIREBASE!
+        // ATENÇÃO: Verifique se estas são suas chaves corretas!
+        // As chaves abaixo são exemplos e DEVEM ser excelentes pelo seu projeto Firebase.
         const firebaseConfig = {
             apiKey: "AIzaSyAx5VNBlcPXveA1xawirSjRVWDNaKdNRmc", // Substitua sua API Key do Firebase
-            authDomain: "haxstore-a250a.firebaseapp.com", // Substitua pelo seu Auth Domain
-            projectId: "haxstore-a250a", // Substitua pelo seu ID do projeto
-            storageBucket: "haxstore-a250a.appspot.com", // Substitua pelo seu Storage Bucket
-            messagingSenderId: "39538757064", // Substitua pelo seu Messaging Sender ID
-            appId: "1:39538757064:web:7f45d2cba626b6333ac4fd", // Substitua pelo seu ID do aplicativo
-            measurementId: "G-3D42M9L1HF" // Substitua pelo seu ID de medição (se você estiver usando o Analytics)
+            authDomain: "haxstore-a250a.firebaseapp.com", // Substituição pelo seu Auth Domain
+            projectId: "haxstore-a250a", // Substitui pelo seu ID do projeto
+            storageBucket: "haxstore-a250a.appspot.com", // Substituição pelo seu Storage Bucket
+            messingSenderId: "39538757064", // Substitua pelo seu Messaging Sender ID
+            appId: "1:39538757064:web:7f45d2cba626b6333ac4fd", // Substitui pelo seu ID do aplicativo
+            mediçãoId: "G-3D42M9L1HF" // Substitui pelo seu ID de medição (se você estiver usando o Analytics)
         };
 
         // Inicializar o Firebase
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); // Cria uma referência ao seu banco de dados Firestore
-        const storage = firebase.storage(); // Cria uma referência ao seu Firebase Storage
-        const auth = firebase.auth(); // Adiciona autenticação
+        const banco de dados = firebase.firestore(); // Cria uma referência ao seu banco de dados Firestore
+        armazenamento const = firebase.storage(); // Crie uma referência ao seu Firebase Storage
 
         // --- Referências aos elementos DOM ---
-        const productsContainer = document.getElementById('products-container');
+        const productsContainer = document.getElementById('produtos-container');
         const adminPanelBtn = document.getElementById('adminPanelBtn');
         const logoutBtn = document.getElementById('logoutBtn');
         const adminModal = document.getElementById('adminModal');
         const adminProductsList = document.getElementById('admin-products-list');
         const warningsContainer = document.getElementById('warnings-container');
-        const adminWarningsList = document.getElementById('admin-warnings-list');
+        const adminWarningsList = document.getElementById('lista-de-avisos-de-admin');
         const pixChaveDisplay = document.getElementById('pixChave');
         const newPixKeyInput = document.getElementById('newPixKey');
         const currentPixKeyDisplay = document.getElementById('currentPixKey');
 
-        // Novas referências DOM para o sistema de pagamentos e estoque
+        // Novas referências DOM
         const comprovanteFileInput = document.getElementById('comprovanteFile');
-        const pendingPaymentsList = document.getElementById('pending-payments-list');
-        const processedPaymentsList = document.getElementById('processed-payments-list');
-        const logsList = document.getElementById('logs-list');
-        const productLinksInput = document.getElementById('productLinks'); // Campo para links de estoque
-
-        let selectedProductIdForPurchase = null; // Variável para armazenar o ID do produto sendo comprado
+        const pendingPaymentsList = document.getElementById('lista-de-pagamentos-pendentes');
+        const processedPaymentsList = document.getElementById('lista-de-pagamentos-processados');
+        const logsList = document.getElementById('lista de logs');
 
         // --- Chaves para o localStorage (CORRESPONDENDO AO INDEX.HTML) ---
         // Estas chaves devem ser as mesmas usadas no seu arquivo index.html
-        const LS_IS_ADMIN_KEY = 'isAdmin';
-        const LS_LOGGED_USER_KEY = 'loggedInUser';
+        const LS_IS_ADMIN_KEY = 'éAdmin';
+        const LS_LOGGED_USER_KEY = 'usuário conectado';
 
-        function checkAdminStatus() {
-            return localStorage.getItem(LS_IS_ADMIN_KEY) === 'true';
+        função checkAdminStatus() {
+            retornar localStorage.getItem(LS_IS_ADMIN_KEY) === 'verdadeiro';
         }
 
-        function checkLoggedInStatus() {
-            return localStorage.getItem(LS_LOGGED_USER_KEY) !== null;
-        }
-
-        function getCurrentAdminUsername() {
-            const user = JSON.parse(localStorage.getItem(LS_LOGGED_USER_KEY));
-            return user ? user.username : 'Desconhecido';
-        }
-
-        // --- Funções de Logs de Atividade do Admin ---
-        async function logAdminAction(actionType, description) {
-            if (!checkAdminStatus()) return; // Apenas admins podem logar ações
-            const currentUser = JSON.parse(localStorage.getItem(LS_LOGGED_USER_KEY));
-            const userId = currentUser ? currentUser.uid : 'anon';
-            const username = currentUser ? currentUser.username : 'Anônimo';
-
-            try {
-                await db.collection('logs').add({
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    userId: userId,
-                    username: username,
-                    actionType: actionType,
-                    description: description
-                });
-                console.log(`Log registrado: ${actionType} - ${description}`);
-            } catch (error) {
-                console.error("Erro ao registrar log: ", error);
-            }
+        função checkLoggedInStatus() {
+            retornar localStorage.getItem(LS_LOGGED_USER_KEY) !== nulo;
         }
 
         // --- Funções de Inicialização ---
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!checkLoggedInStatus()) {
+        documento.addEventListener('DOMContentLoaded', () => {
+            se (!checkLoggedInStatus()) {
                 window.location.href = 'index.html'; // Redireciona para o login se não estiver logado
-                return;
+                retornar;
             }
 
             const isAdmin = checkAdminStatus();
-            if (isAdmin) {
-                adminPanelBtn.style.display = 'block';
-            } else {
-                adminPanelBtn.style.display = 'none';
+            se (éAdmin) {
+                adminPanelBtn.style.display = 'bloco';
+            } outro {
+                adminPanelBtn.style.display = 'nenhum';
             }
-            logoutBtn.style.display = 'block';
-
-            // Carrega os dados iniciais
-            loadPixKey();
-            loadAdminProducts();
-            loadWarnings();
+            logoutBtn.style.display = 'bloco';
         });
 
         // --- Funções de Modal de Compra (PIX) ---
         // Função para abrir o modal de compra (renomeada para melhor esclarecer)
-        async function buyNow(productId) {
-            if (!checkLoggedInStatus()) {
+        função comprarAgora() {
+            se (!checkLoggedInStatus()) {
                 alert('Você precisa estar logado para realizar uma compra.');
-                window.location.href = 'index.html';
-                return;
+                janela.localização.href = 'index.html';
+                retornar;
             }
-
-            selectedProductIdForPurchase = productId; // Armazena o ID do produto para uso posterior
-
-            // Verifica o estoque antes de abrir o modal
-            try {
-                const productDoc = await db.collection('products').doc(productId).get();
-                if (productDoc.exists) {
-                    const productData = productDoc.data();
-                    const links = productData.links || [];
-                    if (links.length === 0) {
-                        alert('Desculpe, este produto está fora de estoque no momento.');
-                        return;
-                    }
-                } else {
-                    alert('Produto não encontrado.');
-                    return;
-                }
-            } catch (error) {
-                console.error('Erro ao verificar estoque:', error);
-                alert('Erro ao verificar estoque. Tente novamente mais tarde.');
-                return;
-            }
-
-
             document.getElementById('pixModal').style.display = 'flex';
-            document.getElementById('mensagemFinal').style.display = "none";
+            document.getElementById('mensagemFinal').style.display = "nenhum";
             // Limpa a entrada do arquivo caso o usuário abra e feche várias vezes
             comprovanteFileInput.value = '';
         }
 
-        function closePixModal() {
-            document.getElementById('pixModal').style.display = 'none';
-            document.getElementById('mensagemFinal').style.display = "none";
-            selectedProductIdForPurchase = null; // Limpa o ID do produto
+        função closePixModal() {
+            document.getElementById('pixModal').style.display = 'nenhum';
+            document.getElementById('mensagemFinal').style.display = "nenhum";
         }
 
-        function confirmarPagamento() {
+        função confirmarPagamento() {
             const mensagem = document.getElementById('mensagemFinal');
-            mensagem.style.display = 'block';
+            mensagem.style.display = 'bloco';
             // Esta função agora serve apenas como um aviso adicional ao usuário
             // o comprovante de fato é enviado pela função `uploadComprovante`
         }
 
         // --- Funções de Upload de Comprovante ---
-        async function uploadComprovante() {
-            if (!checkLoggedInStatus()) {
+        função assíncrona uploadComprovante() {
+            se (!checkLoggedInStatus()) {
                 alert('Você precisa estar logado para enviar um comprovante.');
-                return;
-            }
-            if (!selectedProductIdForPurchase) {
-                alert('Nenhum produto selecionado para compra. Por favor, tente novamente.');
-                return;
+                retornar;
             }
 
             const file = comprovanteFileInput.files[0];
-            if (!file) {
+            se (!arquivo) {
                 alert('Por favor, selecione um arquivo de comprovante.');
-                return;
+                retornar;
             }
 
-            const currentUser = JSON.parse(localStorage.getItem(LS_LOGGED_USER_KEY));
-            const userId = currentUser ? currentUser.uid : 'anonymous';
-            const userName = currentUser ? currentUser.username : 'Unknown User';
+            const currentUser = localStorage.getItem(LS_LOGGED_USER_KEY);
+            const userId = currentUser ? JSON.parse(currentUser).uid : 'anônimo';
+            const nome_do_usuário = usuárioatual? JSON.parse(currentUser).username : 'Usuário Desconhecido';
             
             const fileName = `${Date.now()}_${file.name}`;
             const storageRef = storage.ref(`comprovantes/${userId}/${fileName}`);
-            const uploadTask = storageRef.put(file);
+            const uploadTask = storageRef.put(arquivo);
 
-            try {
+            tentar {
                 const loadingMessage = document.createElement('p');
-                loadingMessage.textContent = 'Enviando comprovante...';
-                loadingMessage.style.color = '#e50914';
+                loadingMessage.textContent = 'Enviando confirmação...';
+                carregandoMensagem.estilo.cor = '#e50914';
                 loadingMessage.id = 'uploadLoadingMessage';
                 document.getElementById('pixModalContent').appendChild(loadingMessage);
 
-                await uploadTask;
+                aguardar uploadTask;
                 const downloadURL = await storageRef.getDownloadURL();
 
-                // Adiciona o pagamento à coleção 'payments'
-                await db.collection('payments').add({
-                    userId: userId,
-                    userName: userName,
-                    productId: selectedProductIdForPurchase, // ID do produto associado ao pagamento
-                    fileName: fileName,
-                    fileURL: downloadURL,
-                    status: 'pending', // 'pending', 'confirmed', 'rejected'
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                aguarde db.collection('comprovantes').add({
+                    ID do usuário: ID do usuário,
+                    nome de usuário: nome de usuário,
+                    nomedoarquivo: nomedoarquivo,
+                    fileURL: URL de download,
+                    status: 'pendente', // 'pendente', 'confirmado', 'rejeitado'
+                    carimbo de data/hora: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
                 document.getElementById('uploadLoadingMessage').remove();
                 alert('Comprovante enviado com sucesso! Aguarde a confirmação do administrador.');
                 closePixModal();
-                logAdminAction('Upload de Comprovante', `Usuário ${userName} (UID: ${userId.substring(0, 5)}...) enviou comprovante para análise do produto ${selectedProductIdForPurchase}.`);
+                logAdminAction('Upload de Comprovante', `Usuário ${userName} (UID: ${userId.substring(0, 5)}...) invejoso comprovante para análise.`);
 
-            } catch (error) {
-                console.error("Erro ao fazer upload do comprovante: ", error);
+            } pegar (erro) {
+                console.error("Erro ao fazer upload do comprovante: ", erro);
                 alert('Erro ao enviar comprovante. Verifique o console para mais detalhes.');
                 const loadingMessage = document.getElementById('uploadLoadingMessage');
-                if (loadingMessage) loadingMessage.remove();
+                se (carregandoMensagem) carregandoMensagem.remover();
             }
         }
 
         // --- Funções do Modal de Administração ---
-        adminPanelBtn.addEventListener('click', () => {
-            if (checkAdminStatus()) {
+        adminPanelBtn.addEventListener('clique', () => {
+            se (checkAdminStatus()) {
                 adminModal.style.display = 'flex';
-                openAdminTab(null, 'manage-products'); // Abre a primeira aba por padrão
-                loadPendingPayments(); // Carrega pagamentos pendentes
-                loadProcessedPayments(); // Carrega pagamentos processados
-                loadAdminLogs(); // Carrega logs do admin
-            } else {
+                openAdminTab(null, 'gerenciar produtos'); // Abre a primeira aba por padrão
+            } outro {
                 alert('Acesso negado. Você não tem permissões de administrador.');
             }
         });
 
-        function closeAdminModal() {
-            adminModal.style.display = 'none';
+        função closeAdminModal() {
+            adminModal.style.display = 'nenhum';
         }
 
         // Botão de Logout
-        logoutBtn.addEventListener('click', () => {
+        logoutBtn.addEventListener('clique', () => {
             if (confirm('Tem certeza que deseja sair?')) {
                 localStorage.removeItem(LS_IS_ADMIN_KEY);
                 localStorage.removeItem(LS_LOGGED_USER_KEY);
                 alert('Sessão encerrada. Redirecionando para o login.');
-                window.location.href = 'index.html';
+                janela.localização.href = 'index.html';
             }
         });
 
-        window.addEventListener('click', function(event) {
-            if (event.target == document.getElementById('pixModal')) {
+        window.addEventListener('clique', função(evento) {
+            se (evento.alvo == document.getElementById('pixModal')) {
                 closePixModal();
             }
-            if (event.target == document.getElementById('adminModal')) {
+            se (evento.target == document.getElementById('adminModal')) {
                 closeAdminModal();
             }
         });
 
         // --- Funções de Gerenciamento de Produtos (Firestore) ---
 
-        // Listener em tempo real para produtos
-        db.collection('products').onSnapshot((snapshot) => {
-            const products = [];
-            snapshot.forEach(doc => {
-                products.push({ id: doc.id, ...doc.data() });
+        db.collection('produtos').onSnapshot((instantâneo) => {
+            const produtos = [];
+            instantâneo.forEach(doc => {
+                produtos.push({ id: doc.id, ...doc.data() });
             });
-            renderProducts(products);
-            // Só carregue no painel admin se o modal estiver aberto, para evitar re-render desnecessário
-            if (adminModal.style.display === 'flex' && document.getElementById('manage-products').classList.contains('active')) {
-                loadAdminProducts(products);
-            }
-        }, (error) => {
-            console.error("Erro ao obter produtos: ", error);
+            renderProducts(produtos);
+            loadAdminProducts(produtos);
+        }, (erro) => {
+            console.error("Erro ao obter produtos: ", erro);
             productsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar produtos. Verifique sua conexão ou as regras do Firebase.</p>';
         });
 
-        function renderProducts(products) {
-            productsContainer.innerHTML = '';
+        função renderProducts(produtos) {
+            produtosContainer.innerHTML = '';
             const isAdmin = checkAdminStatus();
 
-            if (products.length === 0) {
+            se (produtos.comprimento === 0) {
                 productsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 20px;">Nenhum produto disponível no momento.</p>';
-                if (isAdmin) {
+                se (éAdmin) {
                     productsContainer.innerHTML += '<p style="text-align: center; color: #0f0;">Como administrador, você pode adicionar produtos através do "Painel de Administração".</p>';
                 }
-                return;
+                retornar;
             }
 
-            products.forEach((product) => {
+            produtos.paraCada((produto) => {
                 const productDiv = document.createElement('div');
-                productDiv.className = 'product-item';
+                productDiv.className = 'produto-item';
                 const adminButtons = isAdmin ? `
-                    <button class="btn-edit-product" onclick="editProduct('${product.id}')">Editar</button>
-                    <button class="btn-delete-product" onclick="deleteProduct('${product.id}')">Apagar</button>
+                    <button class="btn-edit-produto" onclick="editProduct('${product.id}')">Editar</button>
+                    <button class="btn-delete-produto" onclick="deleteProduct('${product.id}')">Apagar</button>
                 ` : '';
-
-                const stockCount = product.links ? product.links.length : 0;
-                let stockMessage = '';
-                let stockClass = '';
-                let buyButtonDisabled = '';
-
-                if (stockCount === 0) {
-                    stockMessage = 'FORA DE ESTOQUE';
-                    stockClass = 'out';
-                    buyButtonDisabled = 'disabled';
-                } else if (stockCount <= 5) {
-                    stockMessage = `ÚLTIMAS ${stockCount} UNIDADES!`;
-                    stockClass = 'low';
-                } else {
-                    stockMessage = `Em estoque (${stockCount} unidades)`;
-                }
-
 
                 productDiv.innerHTML = `
                     ${adminButtons}
                     <span class="tag">Em destaque</span>
-                    <h1 class="product-title">${product.title}</h1>
-                    <p class="product-desc">${product.description}</p>
-                    <div class="prices">
-                        ${product.oldPrice && product.oldPrice > 0 ? `<span class="old-price">R$ ${parseFloat(product.oldPrice).toFixed(2).replace('.', ',')}</span>` : ''}
-                        <span class="current-price">R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
+                    <h1 class="produto-titulo">${product.title}</h1>
+                    <p class="produto-desc">${product.description}</p>
+                    <div class="precos">
+                        ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${parseFloat(product.oldPrice).toFixed(2).replace('.', ',')}</span>` : ''}
+                        <span class="preco-atual">R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
                     </div>
-                    <p class="stock-info ${stockClass}">${stockMessage}</p>
-                    <button class="btn-buy" ${buyButtonDisabled} onclick="buyNow('${product.id}')">Comprar agora</button>
+                    <button class="btn-comprar">Comprar agora</button>
                 `;
-                productsContainer.appendChild(productDiv);
+                produtosContainer.appendChild(produtoDiv);
+            });
+
+            // Atualizar para a nova função comprarAgora
+            document.querySelectorAll('.btn-comprar').forEach(button => {
+                button.removeEventListener('click', comprarAgora); //Remover ouvintes antigos se houver
+                button.addEventListener('click', comprarAgora);
             });
         }
 
-        function loadAdminProducts(productsFromSnapshot = []) {
-            if (!checkAdminStatus()) return;
+        função loadAdminProducts(produtos) {
+            if (!checkAdminStatus()) retornar;
 
             adminProductsList.innerHTML = '';
-            const products = productsFromSnapshot.length > 0 ? productsFromSnapshot : []; // Usa o snapshot se disponível
-
-            if (products.length === 0) {
+            se (produtos.comprimento === 0) {
                 adminProductsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum produto adicionado ainda.</p>';
-                return;
+                retornar;
             }
 
-            products.forEach(product => {
+            produtos.paraCada(produto => {
                 const productItem = document.createElement('div');
                 productItem.className = 'admin-product-item';
-                const stockCount = product.links ? product.links.length : 0;
                 productItem.innerHTML = `
-                    <span>${product.title} - R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')} (Estoque: ${stockCount})</span>
+                    <span>${product.title} - R$ ${parseFloat(product.newPrice).toFixed(2).replace('.', ',')}</span>
                     <div>
                         <button onclick="editProduct('${product.id}')">Editar</button>
                         <button onclick="deleteProduct('${product.id}')">Apagar</button>
                     </div>
                 `;
-                adminProductsList.appendChild(productItem);
+                adminProductsList.appendChild(produtoItem);
             });
         }
 
-        async function saveProduct() {
-            if (!checkAdminStatus()) {
+        função assíncrona saveProduct() {
+            se (!checkAdminStatus()) {
                 alert('Acesso negado.');
-                return;
+                retornar;
             }
             const productId = document.getElementById('productIdToEdit').value;
-            const title = document.getElementById('productTitle').value;
-            const description = document.getElementById('productDesc').value;
+            const título = document.getElementById('productTitle').value;
+            const descrição = document.getElementById('productDesc').value;
             const oldPrice = parseFloat(document.getElementById('productOldPrice').value || 0);
-            const newPrice = parseFloat(document.getElementById('productNewPrice').value);
-            const linksInput = productLinksInput.value.trim(); // Pega os links do textarea
+            const novoPrice = parseFloat(document.getElementById('productNewPrice').value);
 
             if (!title || isNaN(newPrice)) {
                 alert('Título e Preço Atual são obrigatórios e o preço deve ser um número.');
-                return;
+                retornar;
             }
 
-            // Divide os links por linha e filtra linhas vazias
-            const links = linksInput.split('\n').map(link => link.trim()).filter(link => link !== '');
+            const productData = { título, descrição, preçoantigo, preçonovo };
 
-            const productData = { title, description, oldPrice, newPrice, links }; // Inclui os links
-
-            try {
-                if (productId) {
-                    // Se estiver editando, primeiro pega o produto existente para manter os links não gastos
-                    const existingProductDoc = await db.collection('products').doc(productId).get();
-                    if (existingProductDoc.exists) {
-                        const existingLinks = existingProductDoc.data().links || [];
-                        // Para simplificar, ao editar, sobrescrevemos os links.
-                        // Uma abordagem mais complexa envolveria mesclar, mas para 'stock', sobrescrever é mais comum.
-                    }
-                    await db.collection('products').doc(productId).update(productData);
+            tentar {
+                se (IDdoproduto) {
+                    aguarde db.collection('produtos').doc(productId).update(productData);
                     alert('Produto atualizado com sucesso!');
                     logAdminAction('Atualizar Produto', `Admin ${getCurrentAdminUsername()} atualizou o produto "${title}".`);
-                } else {
-                    await db.collection('products').add(productData);
+                } outro {
+                    aguarde db.collection('produtos').add(productData);
                     alert('Produto adicionado com sucesso!');
                     logAdminAction('Criar Produto', `Admin ${getCurrentAdminUsername()} criou o produto "${title}".`);
                 }
                 clearProductForm();
-            } catch (e) {
+            } pegar (e) {
                 console.error("Erro ao salvar produto: ", e);
                 alert("Erro ao salvar o produto. Verifique suas regras do Firestore e conexão.");
             }
         }
 
-        async function editProduct(id) {
-            if (!checkAdminStatus()) {
+        função assíncrona editProduct(id) {
+            se (!checkAdminStatus()) {
                 alert('Acesso negado.');
-                return;
+                retornar;
             }
-            try {
-                const doc = await db.collection('products').doc(id).get();
-                if (doc.exists) {
-                    const product = doc.data();
-                    document.getElementById('productIdToEdit').value = id;
-                    document.getElementById('productTitle').value = product.title;
-                    document.getElementById('productDesc').value = product.description;
-                    document.getElementById('productOldPrice').value = product.oldPrice;
-                    document.getElementById('productNewPrice').value = product.newPrice;
-                    productLinksInput.value = (product.links || []).join('\n'); // Preenche o textarea com os links
-                } else {
-                    alert("Produto não encontrado.");
+            tentar {
+                const doc = await db.collection('produtos').doc(id).get();
+                se (doc.existe) {
+                    const produto = doc.data();
+                    documento.getElementById('productIdToEdit').valor = id;
+                    document.getElementById('productTitle').value = produto.título;
+                    document.getElementById('productDesc').value = produto.descrição;
+                    document.getElementById('productOldPrice').value = produto.oldPrice;
+                    document.getElementById('productNewPrice').value = produto.newPrice;
+                    openAdminTab(null, 'gerenciar produtos'); // Garantir que a aba de produtos esteja ativa
+                    adminModal.style.display = 'flex'; // Abre o modal
+                } outro {
+                    alert('Produto não encontrado.');
                 }
-            } catch (e) {
+            } pegar (e) {
                 console.error("Erro ao carregar produto para edição: ", e);
                 alert("Erro ao carregar produto para edição.");
             }
         }
 
-        async function deleteProduct(id) {
-            if (!checkAdminStatus()) {
+        função assíncrona deleteProduct(id) {
+            se (!checkAdminStatus()) {
                 alert('Acesso negado.');
-                return;
+                retornar;
             }
-            if (confirm('Tem certeza que deseja apagar este produto?')) {
-                try {
-                    // Pega o título do produto antes de deletar para o log
-                    const productDoc = await db.collection('products').doc(id).get();
-                    const productName = productDoc.exists ? productDoc.data().title : 'Desconhecido';
-
-                    await db.collection('products').doc(id).delete();
-                    alert('Produto apagado com sucesso!');
-                    logAdminAction('Deletar Produto', `Admin ${getCurrentAdminUsername()} apagou o produto "${productName}".`);
-                } catch (e) {
-                    console.error("Erro ao apagar produto: ", e);
-                    alert("Erro ao apagar o produto. Verifique suas regras do Firestore.");
+            if (confirm('Tem certeza que deseja excluir este produto?')) {
+                tentar {
+                    const productDoc = await db.collection('produtos').doc(id).get();
+                    const productName = productDoc.exists? productDoc.data().title : 'Produto Desconhecido';
+                    aguarde db.collection('produtos').doc(id).delete();
+                    alert('Produto desativado com sucesso!');
+                    logAdminAction('Excluir Produto', `Admin ${getCurrentAdminUsername()} pagou o produto "${productName}".`);
+                } pegar (e) {
+                    console.error("Erro ao desligar produto: ", e);
+                    alert("Erro ao desligar o produto. Verifique suas regras do Firestore e conexão.");
                 }
             }
         }
 
-        function clearProductForm() {
-            document.getElementById('productIdToEdit').value = '';
-            document.getElementById('productTitle').value = '';
-            document.getElementById('productDesc').value = '';
-            document.getElementById('productOldPrice').value = '';
-            document.getElementById('productNewPrice').value = '';
-            productLinksInput.value = ''; // Limpa o campo de links
+        função clearProductForm() {
+            documento.getElementById('productIdToEdit').valor = '';
+            documento.getElementById('productTitle').valor = '';
+            documento.getElementById('productDesc').valor = '';
+            document.getElementById('produtoPreçoAntigo').valor = '';
+            documento.getElementById('produtoNovoPreço').valor = '';
         }
 
         // --- Funções de Gerenciamento de Avisos (Firestore) ---
-        db.collection('warnings').onSnapshot((snapshot) => {
-            const warnings = [];
-            snapshot.forEach(doc => {
-                warnings.push({ id: doc.id, ...doc.data() });
+
+        db.collection('avisos').onSnapshot((instantâneo) => {
+            avisos constantes = [];
+            instantâneo.forEach(doc => {
+                avisos.push({ id: doc.id, ...doc.data() });
             });
-            renderWarnings(warnings);
-            if (adminModal.style.display === 'flex' && document.getElementById('manage-warnings').classList.contains('active')) {
-                loadAdminWarnings(warnings);
-            }
-        }, (error) => {
-            console.error("Erro ao obter avisos: ", error);
-            warningsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar avisos.</p>';
+            renderWarnings(avisos);
+            loadAdminWarnings(avisos);
+        }, (erro) => {
+            console.error("Erro ao obter avisos: ", erro);
+            warningsContainer.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao enviar avisos. Verifique sua conexão ou as regras do Firebase.</p>';
         });
 
-        function renderWarnings(warnings) {
-            warningsContainer.innerHTML = '';
-            if (warnings.length > 0) {
-                warnings.forEach(warning => {
-                    const warningDiv = document.createElement('div');
-                    warningDiv.className = 'admin-warning-message';
-                    warningDiv.textContent = warning.message;
-                    warningsContainer.appendChild(warningDiv);
-                });
+        função renderWarnings(avisos) {
+            avisosContainer.innerHTML = '';
+            se (avisos.comprimento === 0) {
+                avisosContainer.innerHTML = ''; // Não exibe mensagem se não houver avisos
+                retornar;
             }
+            avisos.paraCada(aviso => ​​{
+                const warningDiv = document.createElement('div');
+                warningDiv.className = 'mensagem de aviso do administrador';
+                warningDiv.textContent = aviso.message;
+                avisosContainer.appendChild(warningDiv);
+            });
         }
 
-        function loadAdminWarnings(warningsFromSnapshot = []) {
-            if (!checkAdminStatus()) return;
+        função loadAdminWarnings(avisos) {
+            if (!checkAdminStatus()) retornar;
 
             adminWarningsList.innerHTML = '';
-            const warnings = warningsFromSnapshot.length > 0 ? warningsFromSnapshot : [];
-
-            if (warnings.length === 0) {
+            se (avisos.comprimento === 0) {
                 adminWarningsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum aviso adicionado ainda.</p>';
-                return;
+                retornar;
             }
-
-            warnings.forEach(warning => {
+            avisos.paraCada(aviso => ​​{
                 const warningItem = document.createElement('div');
-                warningItem.className = 'warning-item';
+                warningItem.className = 'item de aviso';
                 warningItem.innerHTML = `
                     <span>${warning.message}</span>
-                    <button onclick="deleteWarning('${warning.id}')">Apagar</button>
+                    <button onclick="deleteWarning('${warning.id}')" style="background-color: #cc0000;">Apagar</button>
                 `;
-                adminWarningsList.appendChild(warningItem);
+                adminWarningsList.appendChild(item de aviso);
             });
         }
 
-        async function addWarning() {
-            if (!checkAdminStatus()) {
+        função assíncrona addWarning() {
+            se (!checkAdminStatus()) {
                 alert('Acesso negado.');
-                return;
+                retornar;
             }
-            const message = document.getElementById('warningMessage').value.trim();
-            if (message) {
-                try {
-                    await db.collection('warnings').add({ message: message });
-                    alert('Aviso adicionado com sucesso!');
-                    logAdminAction('Adicionar Aviso', `Admin ${getCurrentAdminUsername()} adicionou o aviso: "${message}".`);
-                    document.getElementById('warningMessage').value = '';
-                } catch (e) {
-                    console.error("Erro ao adicionar aviso: ", e);
-                    alert("Erro ao adicionar aviso.");
-                }
-            } else {
-                alert('A mensagem do aviso não pode estar vazia.');
+            const mensagem = document.getElementById('warningMessage').value;
+            se (!mensagem) {
+                alert('A mensagem de aviso não pode ser vazia.');
+                retornar;
+            }
+            tentar {
+                aguarde db.collection('warnings').add({ mensagem });
+                alert('Aviso adicionado com sucesso!');
+                logAdminAction('Adicionar Aviso', `Admin ${getCurrentAdminUsername()} adicionou o aviso: "${message.substring(0, 50)}...".`);
+                documento.getElementById('warningMessage').valor = '';
+            } pegar (e) {
+                console.error("Erro ao adicionar aviso: ", e);
+                alert("Erro ao adicionar aviso. Verifique suas regras do Firestore e conexão.");
             }
         }
 
-        async function deleteWarning(id) {
-            if (!checkAdminStatus()) {
+        função assíncrona deleteWarning(id) {
+            se (!checkAdminStatus()) {
                 alert('Acesso negado.');
-                return;
+                retornar;
             }
             if (confirm('Tem certeza que deseja apagar este aviso?')) {
-                try {
+                tentar {
                     const warningDoc = await db.collection('warnings').doc(id).get();
-                    const warningMessage = warningDoc.exists ? warningDoc.data().message : 'Desconhecido';
-                    await db.collection('warnings').doc(id).delete();
+                    const warningMessage = warningDoc.exists ? warningDoc.data().message : 'Aviso Desconhecido';
+                    aguarde db.collection('warnings').doc(id).delete();
                     alert('Aviso apagado com sucesso!');
-                    logAdminAction('Deletar Aviso', `Admin ${getCurrentAdminUsername()} apagou o aviso: "${warningMessage}".`);
-                } catch (e) {
+                    logAdminAction('Deletar Aviso', `Admin ${getCurrentAdminUsername()} pagou o aviso: "${warningMessage.substring(0, 50)}...".`);
+                } pegar (e) {
                     console.error("Erro ao apagar aviso: ", e);
-                    alert("Erro ao apagar aviso.");
+                    alert("Erro ao desligar aviso. Verifique suas regras do Firestore e conexão.");
                 }
             }
         }
 
-        // --- Funções de Gerenciamento de Chave PIX ---
-        async function loadPixKey() {
-            try {
-                const doc = await db.collection('pixKey').doc('main').get();
-                if (doc.exists) {
-                    pixChaveDisplay.textContent = doc.data().key;
-                    currentPixKeyDisplay.value = doc.data().key;
-                } else {
-                    pixChaveDisplay.textContent = 'Chave PIX não configurada.';
-                    currentPixKeyDisplay.value = 'Não configurada';
+        // --- Funções de Gerenciamento da Chave PIX (Firestore) ---
+
+        db.collection('pixKey').doc('mainPix').onSnapshot((doc) => {
+            se (doc.existe) {
+                const pixData = doc.data();
+                pixChaveDisplay.textContent = pixData.key || 'Nenhuma chave PIX configurada.';
+                if (checkAdminStatus()) { // Atualiza o campo no painel de admin apenas se for admin
+                    currentPixKeyDisplay.valor = pixData.chave || '';
                 }
-            } catch (e) {
-                console.error("Erro ao carregar chave PIX: ", e);
-                pixChaveDisplay.textContent = 'Erro ao carregar chave PIX.';
-            }
-        }
-
-        async function updatePixKey() {
-            if (!checkAdminStatus()) {
-                alert('Acesso negado.');
-                return;
-            }
-            const newKey = newPixKeyInput.value.trim();
-            if (newKey) {
-                try {
-                    await db.collection('pixKey').doc('main').set({ key: newKey }, { merge: true });
-                    alert('Chave PIX atualizada com sucesso!');
-                    logAdminAction('Atualizar Chave PIX', `Admin ${getCurrentAdminUsername()} atualizou a chave PIX.`);
-                    newPixKeyInput.value = '';
-                    loadPixKey(); // Recarrega para atualizar a interface
-                } catch (e) {
-                    console.error("Erro ao atualizar chave PIX: ", e);
-                    alert("Erro ao atualizar chave PIX. Verifique suas regras do Firestore.");
+            } outro {
+                pixChaveDisplay.textContent = 'Nenhuma chave PIX configurada.';
+                se (checkAdminStatus()) {
+                    currentPixKeyDisplay.valor = '';
                 }
-            } else {
-                alert('A nova chave PIX não pode estar vazia.');
             }
-        }
-
-        // --- Funções de Gerenciamento de Pagamentos (NOVO) ---
-
-        // Listener em tempo real para pagamentos pendentes
-        db.collection('payments').where('status', '==', 'pending').orderBy('timestamp', 'asc').onSnapshot((snapshot) => {
-            loadPendingPayments(snapshot.docs);
-        }, (error) => {
-            console.error("Erro ao obter pagamentos pendentes: ", error);
-            pendingPaymentsList.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar pagamentos pendentes.</p>';
+        }, (erro) => {
+            console.error("Erro ao obter chave PIX: ", erro);
+            pixChaveDisplay.textContent = 'Erro ao carregar chave PIX.';
         });
 
-        // Listener em tempo real para pagamentos processados (confirmados/rejeitados)
-        db.collection('payments').where('status', 'in', ['confirmed', 'rejected']).orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
-            loadProcessedPayments(snapshot.docs);
-        }, (error) => {
-            console.error("Erro ao obter pagamentos processados: ", error);
+        função assíncrona updatePixKey() {
+            se (!checkAdminStatus()) {
+                alert('Acesso negado.');
+                retornar;
+            }
+            const novaChave = novoPixKeyInput.valor;
+            se (!novaChave) {
+                alert('A nova chave PIX não pode ser vazia.');
+                retornar;
+            }
+            tentar {
+                aguarde db.collection('pixKey').doc('mainPix').set({ chave: newKey }, { mesclar: true });
+                alert('Chave PIX atualizada com sucesso!');
+                logAdminAction('Atualizar Chave PIX', `Admin ${getCurrentAdminUsername()} atualizou a chave PIX para: "${newKey}".`);
+                newPixKeyInput.valor = '';
+            } pegar (e) {
+                console.error("Erro ao atualizar chave PIX: ", e);
+                alert("Erro ao atualizar chave PIX. Verifique suas regras do Firestore e conexão.");
+            }
+        }
+
+        // --- Funções de Gerenciamento de Pagamentos (Painel Administrativo) ---
+
+        db.collection('comprovantes').where('status', '==', 'pendente').onSnapshot((snapshot) => {
+            const pendingPayments = [];
+            instantâneo.forEach(doc => {
+                pendingPayments.push({ id: doc.id, ...doc.data() });
+            });
+            renderPendingPayments(pagamentos pendentes);
+        }, (erro) => {
+            console.error("Erro ao obter comprovantes pendentes: ", error);
+            pendentePaymentsList.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar pagamentos pendentes.</p>';
+        });
+
+        db.collection('comprovantes').where('status', 'in', ['confirmado', 'rejeitado']).orderBy('timestamp', 'desc').limit(10).onSnapshot((snapshot) => {
+            const ProcessosPagamentos = [];
+            instantâneo.forEach(doc => {
+                processedPayments.push({ id: doc.id, ...doc.data() });
+            });
+            renderProcessedPayments(processadosPagamentos);
+        }, (erro) => {
+            console.error("Erro ao obter comprovantes processados: ", erro);
             processedPaymentsList.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar histórico de pagamentos.</p>';
         });
 
 
-        function loadPendingPayments(paymentDocs = []) {
-            if (!checkAdminStatus()) return;
+        função renderPendingPayments(pagamentos) {
+            if (!checkAdminStatus()) retornar;
+
             pendingPaymentsList.innerHTML = '';
-
-            if (paymentDocs.length === 0) {
-                pendingPaymentsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhuma solicitação de pagamento pendente.</p>';
-                return;
+            se (pagamentos.length === 0) {
+                pendentePaymentsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum comprovante pendente no momento.</p>';
+                retornar;
             }
 
-            paymentDocs.forEach(doc => {
-                const payment = doc.data();
+            pagamentos.forEach(pagamento => {
                 const paymentItem = document.createElement('div');
-                paymentItem.className = 'payment-item';
+                paymentItem.className = 'admin-product-item';
+                paymentItem.style.backgroundColor = '#333';
+                paymentItem.style.border = '1px sólido #e50914';
+
+                const timestampDate = pagamento.timestamp ? pagamento.timestamp.toDate().toLocaleString() : 'N/D';
+
                 paymentItem.innerHTML = `
-                    <div class="payment-details">
-                        <p><strong>Usuário:</strong> ${payment.userName || payment.userId}</p>
-                        <p><strong>Produto ID:</strong> ${payment.productId}</p>
-                        <p><strong>Status:</strong> <span class="status-pending">${payment.status.toUpperCase()}</span></p>
-                        <p><strong>Data/Hora:</strong> ${payment.timestamp ? new Date(payment.timestamp.toDate()).toLocaleString() : 'N/A'}</p>
-                    </div>
-                    <div class="payment-actions">
-                        <button class="view-file" onclick="window.open('${payment.fileURL}', '_blank')">Ver Comprovante</button>
-                        <button class="accept" onclick="processPayment('${doc.id}', 'confirmed', '${payment.productId}', '${payment.userName || payment.userId}')">Aceitar</button>
-                        <button class="reject" onclick="processPayment('${doc.id}', 'rejected', '${payment.productId}', '${payment.userName || payment.userId}')">Recusar</button>
+                    <período>
+                        <strong>Usuário:</strong> ${payment.userName} (ID: ${payment.userId.substring(0, 5)}...)<br>
+                        <strong>Comprovante:</strong> <a href="${payment.fileURL}" target="_blank" style="color: #007bff;">Ver Arquivo</a><br>
+                        <strong>Dados:</strong> ${timestampDate}
+                    </span>
+                    <div>
+                        <button onclick="confirmPayment('${payment.id}')" style="background-color: #0f0;">Confirmar</button>
+                        <button onclick="rejectPayment('${payment.id}')" style="background-color: #cc0000;">Rejeitar</button>
                     </div>
                 `;
-                pendingPaymentsList.appendChild(paymentItem);
+                pendingPaymentsList.appendChild(item de pagamento);
             });
         }
 
-        function loadProcessedPayments(paymentDocs = []) {
-            if (!checkAdminStatus()) return;
+        função renderProcessedPayments(pagamentos) {
+            if (!checkAdminStatus()) retornar;
+
             processedPaymentsList.innerHTML = '';
-
-            if (paymentDocs.length === 0) {
-                processedPaymentsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum pagamento processado ainda.</p>';
-                return;
+            se (pagamentos.length === 0) {
+                processadoPaymentsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum pagamento processado ainda.</p>';
+                retornar;
             }
 
-            paymentDocs.forEach(doc => {
-                const payment = doc.data();
+            pagamentos.forEach(pagamento => {
                 const paymentItem = document.createElement('div');
-                paymentItem.className = 'payment-item';
-                const statusClass = payment.status === 'confirmed' ? 'status-confirmed' : 'status-rejected';
+                paymentItem.className = 'admin-product-item';
+                paymentItem.style.backgroundColor = payment.status === 'confirmado' ? '#224422' : '#442222';
+                paymentItem.style.border = payment.status === 'confirmado' ? '1px solid #0f0' : '1px solid #f00';
+
+                const timestampDate = pagamento.timestamp ? pagamento.timestamp.toDate().toLocaleString() : 'N/D';
+                const statusColor = payment.status === 'confirmado' ? '#0f0' : '#f00';
+
                 paymentItem.innerHTML = `
-                    <div class="payment-details">
-                        <p><strong>Usuário:</strong> ${payment.userName || payment.userId}</p>
-                        <p><strong>Produto ID:</strong> ${payment.productId}</p>
-                        <p><strong>Status:</strong> <span class="${statusClass}">${payment.status.toUpperCase()}</span></p>
-                        <p><strong>Data/Hora:</strong> ${payment.timestamp ? new Date(payment.timestamp.toDate()).toLocaleString() : 'N/A'}</p>
-                    </div>
-                    <div class="payment-actions">
-                        <button class="view-file" onclick="window.open('${payment.fileURL}', '_blank')">Ver Comprovante</button>
-                    </div>
+                    <período>
+                        <strong>Usuário:</strong> ${payment.userName} (ID: ${payment.userId.substring(0, 5)}...)<br>
+                        <strong>Comprovante:</strong> <a href="${payment.fileURL}" target="_blank" style="color: #007bff;">Ver Arquivo</a><br>
+                        <strong>Dados:</strong> ${timestampDate}<br>
+                        <strong>Status:</strong> <span style="color: ${statusColor}; font-weight: bold;">${payment.status.toUpperCase()}</span>
+                    </span>
                 `;
-                processedPaymentsList.appendChild(paymentItem);
+                processedPaymentsList.appendChild(item de pagamento);
             });
         }
 
-        async function processPayment(paymentId, status, productId, userName) {
-            if (!checkAdminStatus()) {
+
+        função assíncrona confirmPayment(paymentId) {
+            se (!checkAdminStatus()) {
                 alert('Acesso negado.');
-                return;
+                retornar;
             }
-
-            if (!confirm(`Tem certeza que deseja ${status === 'confirmed' ? 'ACEITAR' : 'RECUSAR'} este pagamento?`)) {
-                return;
-            }
-
-            try {
-                await db.collection('payments').doc(paymentId).update({ status: status });
-
-                let logMessage = '';
-                if (status === 'confirmed') {
-                    // Se o pagamento for confirmado, entregar um link do estoque e associá-lo ao usuário
-                    const productRef = db.collection('products').doc(productId);
-                    await db.runTransaction(async (transaction) => {
-                        const productDoc = await transaction.get(productRef);
-                        if (!productDoc.exists) {
-                            throw "Produto não existe!";
-                        }
-
-                        const currentLinks = productDoc.data().links || [];
-                        if (currentLinks.length === 0) {
-                            throw "Produto fora de estoque! Não é possível entregar.";
-                        }
-
-                        const deliveredLink = currentLinks.shift(); // Pega o primeiro link
-                        const updatedLinks = currentLinks;
-
-                        transaction.update(productRef, { links: updatedLinks });
-
-                        // Adiciona o link entregue à subcoleção 'downloads' do usuário
-                        const userDownloadsRef = db.collection('users').doc(payment.userId).collection('downloads');
-                        transaction.set(userDownloadsRef.doc(), {
-                            productId: productId,
-                            productTitle: productDoc.data().title,
-                            downloadLink: deliveredLink,
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                            paymentId: paymentId
-                        });
-                    });
-                    alert(`Pagamento de ${userName} ACEITO! Link do produto entregue ao usuário.`);
-                    logMessage = `Admin ${getCurrentAdminUsername()} ACEITOU o pagamento de ${userName} (ID: ${paymentId.substring(0, 5)}...) para o produto ${productId} e entregou um link.`;
-
-                } else if (status === 'rejected') {
-                    alert(`Pagamento de ${userName} RECUSADO.`);
-                    logMessage = `Admin ${getCurrentAdminUsername()} RECUSOU o pagamento de ${userName} (ID: ${paymentId.substring(0, 5)}...) para o produto ${productId}.`;
+            if (confirm('Tem certeza que deseja confirmar este pagamento?')) {
+                tentar {
+                    aguarde db.collection('comprovantes').doc(paymentId).update({ status: 'confirmado' });
+                    alert('Pagamento confirmado com sucesso!');
+                    logAdminAction('Confirmação de Pagamento', `Admin ${getCurrentAdminUsername()} confirmado o pagamento ${paymentId}.`);
+                } pegar (e) {
+                    console.error("Erro ao confirmar pagamento: ", e);
+                    alert("Erro ao confirmar pagamento.");
                 }
-                logAdminAction('Processar Pagamento', logMessage);
-
-            } catch (error) {
-                console.error("Erro ao processar pagamento ou atualizar estoque: ", error);
-                alert(`Erro ao processar o pagamento: ${error.message || error}. Verifique as regras do Firestore e o estoque.`);
             }
         }
 
-        // --- Funções de Gerenciamento de Logs de Atividade do Admin ---
-        db.collection('logs').orderBy('timestamp', 'desc').limit(50).onSnapshot((snapshot) => {
-            loadAdminLogs(snapshot.docs);
-        }, (error) => {
-            console.error("Erro ao obter logs: ", error);
+        função assíncrona rejectPayment(paymentId) {
+            se (!checkAdminStatus()) {
+                alert('Acesso negado.');
+                retornar;
+            }
+            if (confirm('Tem certeza que deseja rejeitar este pagamento?')) {
+                tentar {
+                    await db.collection('comprovantes').doc(paymentId).update({ status: 'rejeitado' });
+                    alert('Pagamento rejeitado com sucesso!');
+                    logAdminAction('Rejeição de Pagamento', `Admin ${getCurrentAdminUsername()} rejeitou o pagamento ${paymentId}.`);
+                } pegar (e) {
+                    console.error("Erro ao rejeitar pagamento: ", e);
+                    alert("Erro ao rejeitar pagamento.");
+                }
+            }
+        }
+
+        // --- Sistema de Logs de Administradores ---
+
+        db.collection('logs').orderBy('timestamp', 'desc').limit(50).onSnapshot((instantâneo) => {
+            constantes logs = [];
+            instantâneo.forEach(doc => {
+                logs.push({ id: doc.id, ...doc.data() });
+            });
+            renderLogs(registros);
+        }, (erro) => {
+            console.error("Erro ao obter logs: ", erro);
             logsList.innerHTML = '<p style="text-align: center; color: #f00;">Erro ao carregar logs.</p>';
         });
 
-        function loadAdminLogs(logDocs = []) {
-            if (!checkAdminStatus()) return;
-            logsList.innerHTML = '';
+        função renderLogs(logs) {
+            if (!checkAdminStatus()) retornar;
 
-            if (logDocs.length === 0) {
-                logsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum registro de atividade ainda.</p>';
-                return;
+            logsList.innerHTML = '';
+            se (logs.length === 0) {
+                logsList.innerHTML = '<p style="text-align: center; color: #ccc;">Nenhum log de atividade ainda.</p>';
+                retornar;
             }
 
-            logDocs.forEach(doc => {
-                const log = doc.data();
+            logs.forEach(log => {
                 const logItem = document.createElement('div');
-                logItem.className = 'log-item';
-                const timestamp = log.timestamp ? new Date(log.timestamp.toDate()).toLocaleString() : 'N/A';
+                logItem.style.marginBottom = '8px';
+                logItem.style.paddingBottom = '8px';
+                logItem.style.borderBottom = '1px pontilhado #444';
+                logItem.style.fontSize = '14px';
+                logItem.style.color = '#bbb';
+
+                const timestampDate = log.timestamp ? log.timestamp.toDate().toLocaleString() : 'N/D';
+
                 logItem.innerHTML = `
-                    <span>[${timestamp}] <strong>${log.username}</strong> (${log.actionType}): ${log.description}</span>
+                    <span style="color: #0f0; font-weight: bold;">[${timestampDate}]</span>
+                    <span style="color: #eee;"> ${log.actionType}:</span>
+                    <span style="color: #aaa;"> ${log.description}</span>
                 `;
                 logsList.appendChild(logItem);
             });
         }
 
-        // --- Funções de Aba de Administração ---
-        function openAdminTab(evt, tabName) {
-            let i, tabcontent, tablinks;
-            tabcontent = document.getElementsByClassName("admin-tab-content");
-            for (i = 0; i < tabcontent.length; i++) {
-                tabcontent[i].style.display = "none";
-                tabcontent[i].classList.remove('active');
+        função assíncrona logAdminAction(actionType, descrição) {
+            se (!checkAdminStatus()) {
+                console.warn('Tentativa de log de ação de admin por não-admin.');
+                retornar;
             }
-            tablinks = document.getElementsByClassName("admin-tab-button");
-            for (i = 0; i < tablinks.length; i++) {
-                tablinks[i].classList.remove("active");
-            }
-            document.getElementById(tabName).style.display = "block";
-            document.getElementById(tabName).classList.add('active');
-            if (evt) {
-                evt.currentTarget.classList.add("active");
-            }
+            const currentUser = localStorage.getItem(LS_LOGGED_USER_KEY);
+            const adminId = currentUser ? JSON.parse(currentUser).uid : 'desconhecido';
+            const adminUsername = currentUser ? JSON.parse(currentUser).username : 'Administrador desconhecido';
 
-            // Ações específicas para cada aba quando aberta
-            if (tabName === 'manage-products') {
-                db.collection('products').get().then(snapshot => {
-                    const products = [];
-                    snapshot.forEach(doc => products.push({ id: doc.id, ...doc.data() }));
-                    loadAdminProducts(products);
+            tentar {
+                aguarde db.collection('logs').add({
+                    ID do administrador: ID do administrador,
+                    Nome de usuário do administrador: Nome de usuário do administrador,
+                    Tipo de ação: Tipo de ação,
+                    descrição: descrição,
+                    carimbo de data/hora: firebase.firestore.FieldValue.serverTimestamp()
                 });
-            } else if (tabName === 'manage-warnings') {
-                db.collection('warnings').get().then(snapshot => {
-                    const warnings = [];
-                    snapshot.forEach(doc => warnings.push({ id: doc.id, ...doc.data() }));
-                    loadAdminWarnings(warnings);
-                });
-            } else if (tabName === 'manage-pix') {
-                loadPixKey(); // Garante que a chave PIX atual seja carregada
-            } else if (tabName === 'manage-payments') {
-                loadPendingPayments();
-                loadProcessedPayments();
-            } else if (tabName === 'admin-logs') {
-                loadAdminLogs();
+            } pegar (e) {
+                console.error("Erro ao log do registrador: ", e);
             }
         }
+
+        função getCurrentAdminUsername() {
+            const currentUser = localStorage.getItem(LS_LOGGED_USER_KEY);
+            retornar usuário atual? JSON.parse(currentUser).username : 'Admin Desconhecido';
+        }
+
+        // --- Funções de Abas do Painel de Administração ---
+        função openAdminTab(evt, tabName) {
+            const tabContent = document.querySelectorAll('.admin-tab-content');
+            tabContent.forEach(tab => tab.style.display = 'nenhum');
+
+            const tabButtons = document.querySelectorAll('.admin-tab-button');
+            tabButtons.forEach(btn => btn.classList.remove('ativo'));
+
+            document.getElementById(tabName).style.display = 'bloco';
+            se (evt) {
+                evt.currentTarget.classList.add('ativo');
+            } outro {
+                const defaultButton = document.querySelector(`.admin-tab-button[onclick*="${tabName}"]`);
+                se (defaultButton) defaultButton.classList.add('ativo');
+            }
+        }
+
     </script>
-</body>
+</corpo>
 </html>
