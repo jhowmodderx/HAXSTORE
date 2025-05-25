@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HAX STORE</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: #0c0c0c; color: #fff; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #111;
+      padding: 15px 20px;
+      border-bottom: 2px solid #e50914;
+    }
+
+    .logo { color: #e50914; font-size: 22px; font-weight: bold; }
+
+    .discord-btn {
+      background: transparent;
+      border: 2px solid #e50914;
+      color: #e50914;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .discord-btn:hover {
+      background-color: #e50914;
+      color: white;
+    }
+
+    .banner {
+      height: 250px;
+      background: url('https://i.imgur.com/xklvTL7.png') no-repeat center center;
+      background-size: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .banner h2 {
+      background-color: rgba(0, 0, 0, 0.6);
+      border: 2px solid #e50914;
+      color: #e50914;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .content {
+      padding: 30px 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .tag {
+      display: inline-block;
+      background-color: #e50914;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .produto-titulo { font-size: 28px; font-weight: bold; margin: 10px 0; }
+    .produto-desc { color: #ccc; margin-bottom: 15px; line-height: 1.6; }
+
+    .precos {
+      margin-bottom: 15px;
+    }
+
+    .preco-antigo { text-decoration: line-through; color: #888; font-size: 16px; }
+    .preco-atual { color: #e50914; font-size: 28px; font-weight: bold; }
+
+    .btn-comprar {
+      background-color: #e50914;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn-comprar:hover {
+      background-color: #b20710;
+    }
+
+    footer {
+      background-color: #111;
+      text-align: center;
+      padding: 15px;
+      color: #777;
+      margin-top: 40px;
+      font-size: 14px;
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background-color: #111;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      border: 2px solid #e50914;
+    }
+
+    .modal-content h3 {
+      color: #e50914;
+      margin-bottom: 15px;
+    }
+
+    .pix-key {
+      background-color: #222;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      word-wrap: break-word;
+      margin-bottom: 15px;
+      border: 1px solid #e50914;
+    }
+
+    .btn-confirmar {
+      background-color: #e50914;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .mensagem-final {
+      margin-top: 20px;
+      color: #0f0;
+      font-weight: bold;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">HAX STORE</div>
+    <button class="discord-btn">Entrar no Discord</button>
+  </header>
+
+  <div class="content">
+    <span class="tag">Em destaque</span>
+    <h1 class="produto-titulo">Script Rio Rise 30 Dias</h1>
+    <p class="produto-desc">
+      Script Lua para Rio Rise com diversas funcoes apelativas e farm!
+    </p>
+    <div class="precos">
+      <span class="preco-antigo">R$ 30,00</span><br>
+      <span class="preco-atual">R$ 10,00</span>
+    </div>
+    <button class="btn-comprar" onclick="abrirModal()">Comprar agora</button>
+  </div>
+
+  <footer>
+    &copy; 2025 HAX STORE. Todos os direitos reservados.
+  </footer>
+
+  <!-- Modal PIX -->
+  <div class="modal" id="pixModal">
+    <div class="modal-content">
+      <h3>Pagamento via PIX</h3>
+      <div class="pix-key" id="pixChave">473d4931-6f15-4ab6-bf59-571f6c3a368d</div>
+      <button class="btn-confirmar" onclick="confirmarPagamento()">Confirmar pagamento</button>
+      <div class="mensagem-final" id="mensagemFinal">HAX STORE - ENVIE O COMPROVANTE NO TICKET</div>
+    </div>
+  </div>
+
+  <script>
+    function abrirModal() {
+      document.getElementById('pixModal').style.display = 'flex';
+    }
+
+    function confirmarPagamento() {
+      const mensagem = document.getElementById('mensagemFinal');
+      mensagem.style.display = 'block';
+    }
+
+    // Fecha modal ao clicar fora
+    window.onclick = function(event) {
+      const modal = document.getElementById('pixModal');
+      if (event.target == modal) {
+        modal.style.display = "none";
+        document.getElementById('mensagemFinal').style.display = "none";
+      }
+    }
+  </script>
+
+</body>
+</html>
