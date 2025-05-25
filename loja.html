@@ -26,7 +26,7 @@
         gap: 10px; /* Espaçamento entre os botões */
     }
 
-    .discord-btn, .admin-panel-btn {
+    .discord-btn, .admin-panel-btn, .logout-btn {
       background: transparent;
       border: 2px solid #e50914;
       color: #e50914;
@@ -36,7 +36,7 @@
       transition: 0.3s;
     }
 
-    .discord-btn:hover, .admin-panel-btn:hover {
+    .discord-btn:hover, .admin-panel-btn:hover, .logout-btn:hover {
       background-color: #e50914;
       color: white;
     }
@@ -371,6 +371,7 @@
     <div class="header-buttons">
         <button class="discord-btn" onclick="window.open('https://discord.gg/SEU_CONVITE_DISCORD', '_blank')">Entrar no Discord</button>
         <button id="adminPanelBtn" class="admin-panel-btn" style="display: none;">Painel de Administração</button>
+        <button id="logoutBtn" class="logout-btn" style="display: none;">Sair</button>
     </div>
   </header>
 
@@ -444,6 +445,7 @@
     // --- Referências aos elementos DOM ---
     const productsContainer = document.getElementById('products-container');
     const adminPanelBtn = document.getElementById('adminPanelBtn');
+    const logoutBtn = document.getElementById('logoutBtn'); // Novo botão de logout
     const adminModal = document.getElementById('adminModal');
     const adminProductsList = document.getElementById('admin-products-list');
     const warningsContainer = document.getElementById('warnings-container');
@@ -479,21 +481,31 @@
     const ADMIN_PASSWORD = 'admin123'; // Senha fixa no código, insegura
 
     function checkAdminStatus() {
-        // Verifica se o status de admin está no localStorage
         return localStorage.getItem(LS_IS_ADMIN_KEY) === 'true';
+    }
+
+    function checkLoggedInStatus() {
+        return localStorage.getItem(LS_LOGGED_USER_KEY) === 'true';
     }
 
     // --- Funções de Inicialização ---
     document.addEventListener('DOMContentLoaded', () => {
-        // Verifica se o usuário já está logado como admin na sessão anterior
-        const isAdmin = checkAdminStatus();
+        // Se o usuário não está logado, redireciona para a página de login
+        if (!checkLoggedInStatus()) {
+            window.location.href = 'index.html';
+            return; // Interrompe a execução para evitar que o resto do script tente carregar dados
+        }
 
+        // Se está logado, verifica status de admin e exibe botões
+        const isAdmin = checkAdminStatus();
         if (isAdmin) {
             adminPanelBtn.style.display = 'block';
         } else {
             adminPanelBtn.style.display = 'none';
         }
+        logoutBtn.style.display = 'block'; // O botão de sair aparece para qualquer usuário logado
 
+        // Carrega e renderiza o conteúdo da loja
         renderProducts();
         renderWarnings();
         updatePixKeyDisplay();
@@ -501,11 +513,9 @@
 
     // --- Funções de Modal de Compra (PIX) ---
     function abrirModal() {
-        // No modo sem backend, `loggedUser` é só um marcador local
-        if (!localStorage.getItem(LS_LOGGED_USER_KEY)) {
+        if (!checkLoggedInStatus()) {
             alert('Você precisa estar logado para realizar uma compra.');
-            // Redireciona para a página de login, onde o "admin" pode fazer o "login"
-            window.location.href = 'index.html'; 
+            window.location.href = 'index.html'; // Redireciona para o login
             return;
         }
         updatePixKeyDisplay();
@@ -539,6 +549,16 @@
     function closeAdminModal() {
       adminModal.style.display = 'none';
     }
+
+    // Botão de Logout
+    logoutBtn.addEventListener('click', () => {
+        if (confirm('Tem certeza que deseja sair?')) {
+            localStorage.removeItem(LS_IS_ADMIN_KEY);
+            localStorage.removeItem(LS_LOGGED_USER_KEY);
+            alert('Sessão encerrada. Redirecionando para o login.');
+            window.location.href = 'index.html';
+        }
+    });
 
     window.addEventListener('click', function(event) {
       if (event.target == document.getElementById('pixModal')) {
@@ -797,33 +817,6 @@
             }
         }
     }
-
-    // --- Lógica de Login/Logout para Administrador (na página index.html) ---
-    // Esta parte assume que você tem uma página 'index.html' para o login.
-    // O login faria a verificação da senha e setaria `localStorage.setItem(LS_IS_ADMIN_KEY, 'true');`
-    // e `localStorage.setItem(LS_LOGGED_USER_KEY, 'true');`
-
-    // Exemplo de como seu index.html pode setar isso (apenas para referência)
-    /*
-    // Em index.html, após um login bem-sucedido
-    function performLogin(username, password) {
-        if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-            localStorage.setItem(LS_IS_ADMIN_KEY, 'true');
-            localStorage.setItem(LS_LOGGED_USER_KEY, 'true');
-            alert('Login de administrador bem-sucedido! Redirecionando para a loja.');
-            window.location.href = 'loja.html';
-        } else {
-            alert('Usuário ou senha incorretos.');
-            // Para usuários comuns, apenas logar sem ser admin
-            localStorage.setItem(LS_IS_ADMIN_KEY, 'false');
-            localStorage.setItem(LS_LOGGED_USER_KEY, 'true');
-            window.location.href = 'loja.html';
-        }
-    }
-    */
-    // Para logout, basta remover as chaves do localStorage:
-    // localStorage.removeItem(LS_IS_ADMIN_KEY);
-    // localStorage.removeItem(LS_LOGGED_USER_KEY);
   </script>
 
 </body>
