@@ -379,10 +379,8 @@
   </div>
 
   <div class="content">
-    <div id="warnings-container">
-      </div>
-    <div id="products-container">
-      </div>
+    <div id="warnings-container"></div>
+    <div id="products-container"></div>
   </div>
 
   <footer>
@@ -394,7 +392,8 @@
       <span class="close-button" onclick="closePixModal()">&times;</span>
       <h3>Pagamento via PIX</h3>
       <p>Escaneie o QR Code ou use a chave PIX abaixo:</p>
-      <div class="pix-key" id="pixChave"></div> <button class="btn-confirmar" onclick="confirmarPagamento()">Já realizei o pagamento</button>
+      <div class="pix-key" id="pixChave"></div>
+      <button class="btn-confirmar" onclick="confirmarPagamento()">Já realizei o pagamento</button>
       <div class="mensagem-final" id="mensagemFinal">HAX STORE - ENVIE O COMPROVANTE NO TICKET DO DISCORD!</div>
     </div>
   </div>
@@ -421,16 +420,14 @@
             <button onclick="clearProductForm()">Limpar Formulário</button>
 
             <h4>Produtos Existentes</h4>
-            <div id="admin-products-list">
-            </div>
+            <div id="admin-products-list"></div>
         </div>
 
         <div id="manage-warnings" class="admin-tab-content admin-section">
             <h4>Gerenciar Avisos</h4>
             <input type="text" id="warningMessage" placeholder="Nova mensagem de aviso">
             <button onclick="addWarning()">Adicionar Aviso</button>
-            <div id="admin-warnings-list">
-            </div>
+            <div id="admin-warnings-list"></div>
         </div>
 
         <div id="manage-pix" class="admin-tab-content admin-section">
@@ -444,6 +441,9 @@
   </div>
 
   <script>
+    // --- IMPORTANTE: SUBSTITUA ESTA URL PELA URL REAL DO SEU BACKEND ---
+    const BASE_API_URL = 'https://sua-api.com'; // Ex: 'https://meu-backend-haxstore.herokuapp.com'
+
     // Referências aos elementos DOM
     const productsContainer = document.getElementById('products-container');
     const adminPanelBtn = document.getElementById('adminPanelBtn');
@@ -451,60 +451,97 @@
     const adminProductsList = document.getElementById('admin-products-list');
     const warningsContainer = document.getElementById('warnings-container');
     const adminWarningsList = document.getElementById('admin-warnings-list');
-    const pixChaveDisplay = document.getElementById('pixChave'); // No modal de compra
-    const newPixKeyInput = document.getElementById('newPixKey'); // No painel admin
-    const currentPixKeyDisplay = document.getElementById('currentPixKey'); // No painel admin
+    const pixChaveDisplay = document.getElementById('pixChave');
+    const newPixKeyInput = document.getElementById('newPixKey');
+    const currentPixKeyDisplay = document.getElementById('currentPixKey');
+
+    // --- Autenticação (Será necessária para todas as chamadas de Admin) ---
+    // Você precisará de um token de autenticação (JWT é comum) após o login
+    // O seu backend deve gerar este token após um login bem-sucedido de 'jhow'
+    function getAuthToken() {
+        return localStorage.getItem('authToken'); // Armazenar o token aqui após o login
+    }
+
+    // Função auxiliar para fazer requisições à API
+    async function apiRequest(endpoint, method = 'GET', body = null, requiresAuth = false) {
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+        if (requiresAuth) {
+            const token = getAuthToken();
+            if (!token) {
+                alert('Sessão de administrador expirada ou inválida. Faça login novamente.');
+                // Opcional: Redirecionar para a página de login
+                // window.location.href = 'index.html';
+                throw new Error('Não autorizado: Token não encontrado.');
+            }
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const options = { method, headers };
+        if (body) {
+            options.body = JSON.stringify(body);
+        }
+
+        try {
+            const response = await fetch(`${BASE_API_URL}${endpoint}`, options);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Erro de rede: ${response.status} ${response.statusText}`);
+            }
+            return response.json(); // Retorna o JSON da resposta
+        } catch (error) {
+            console.error(`Erro na requisição ${method} ${endpoint}:`, error);
+            throw error; // Propaga o erro para o chamador lidar
+        }
+    }
+
 
     // --- Funções de Inicialização e Verificação de Admin ---
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
         const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
-        // Log para depuração: verifica o status de admin
         console.log("HAX STORE: Usuário logado é Admin?", isAdmin);
 
         if (isAdmin) {
-            adminPanelBtn.style.display = 'block'; // Mostra o botão "Painel de Administração"
+            adminPanelBtn.style.display = 'block';
         } else {
-            adminPanelBtn.style.display = 'none'; // Garante que o botão esteja oculto para não-admins
+            adminPanelBtn.style.display = 'none';
         }
 
-        // *** ESSAS FUNÇÕES SÃO SEMPRE CHAMADAS AO CARREGAR A PÁGINA PARA EXIBIR O CONTEÚDO ***
-        renderProducts(); // Carrega e exibe os produtos na loja para TODOS os usuários
-        renderWarnings(); // Carrega e exibe os avisos na loja para TODOS os usuários
-        updatePixKeyDisplay(); // Atualiza a chave PIX no modal de compra
+        // Carrega produtos e avisos do backend para TODOS os usuários
+        await renderProducts();
+        await renderWarnings();
+        await updatePixKeyDisplay(); // Busca a chave PIX do backend
     });
 
     // --- Funções de Modal de Compra (PIX) ---
     function abrirModal() {
-      // Verifica se há um usuário logado antes de abrir o modal
-      if (!localStorage.getItem('loggedUser')) {
-        alert('Você precisa estar logado para realizar uma compra.');
-        window.location.href = 'index.html'; // Redireciona para o login
-        return;
-      }
-      updatePixKeyDisplay(); // Garante que a chave PIX no modal está atualizada
-      document.getElementById('pixModal').style.display = 'flex';
-      document.getElementById('mensagemFinal').style.display = "none"; // Reseta a mensagem
+        if (!localStorage.getItem('loggedUser')) {
+            alert('Você precisa estar logado para realizar uma compra.');
+            window.location.href = 'index.html';
+            return;
+        }
+        updatePixKeyDisplay();
+        document.getElementById('pixModal').style.display = 'flex';
+        document.getElementById('mensagemFinal').style.display = "none";
     }
 
     function closePixModal() {
-      document.getElementById('pixModal').style.display = 'none';
-      document.getElementById('mensagemFinal').style.display = "none";
+        document.getElementById('pixModal').style.display = 'none';
+        document.getElementById('mensagemFinal').style.display = "none";
     }
 
     function confirmarPagamento() {
-      const mensagem = document.getElementById('mensagemFinal');
-      mensagem.style.display = 'block';
-      // Poderia adicionar lógica aqui para fechar o modal automaticamente após X segundos, etc.
+        const mensagem = document.getElementById('mensagemFinal');
+        mensagem.style.display = 'block';
     }
 
     // --- Funções do Modal de Administração ---
     adminPanelBtn.addEventListener('click', () => {
-        // Apenas abre o modal se o usuário for realmente admin (segurança extra)
         if (localStorage.getItem('isAdmin') === 'true') {
             adminModal.style.display = 'flex';
-            // Ao abrir o modal, garantimos que a aba de produtos esteja ativa e os dados carregados
-            openAdminTab(null, 'manage-products'); // Passa null para evt, ativa a primeira aba
+            openAdminTab(null, 'manage-products');
             loadAdminProducts();
             loadAdminWarnings();
             loadPixKeyForAdmin();
@@ -517,7 +554,6 @@
       adminModal.style.display = 'none';
     }
 
-    // Fecha modais ao clicar fora (geral para ambos os modais)
     window.addEventListener('click', function(event) {
       if (event.target == document.getElementById('pixModal')) {
         closePixModal();
@@ -527,82 +563,92 @@
       }
     });
     
-    // --- Funções de Gerenciamento de Produtos ---
-    function getProducts() {
-      // Retorna os produtos do localStorage, ou um array vazio se não houver
-      return JSON.parse(localStorage.getItem('products') || '[]');
-    }
-
-    function saveProducts(products) {
-      localStorage.setItem('products', JSON.stringify(products));
-    }
+    // --- Funções de Gerenciamento de Produtos (AGORA COM API) ---
 
     // Renderiza produtos na parte principal da loja (visível para todos)
-    function renderProducts() {
-      const products = getProducts();
-      productsContainer.innerHTML = ''; // Limpa o container antes de renderizar
-      const isAdmin = localStorage.getItem('isAdmin') === 'true';
+    async function renderProducts() {
+        let products = [];
+        try {
+            products = await apiRequest('/products'); // GET para /products
+        } catch (error) {
+            // O erro já foi logado na apiRequest. Apenas exibe uma mensagem amigável.
+            productsContainer.innerHTML = '<p style="text-align: center; color: #e50914; padding: 20px;">Não foi possível carregar os produtos no momento.</p>';
+            return;
+        }
 
-      if (products.length === 0) {
-          productsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 20px;">Nenhum produto disponível no momento.</p>';
-          // Mensagem extra para admin quando não há produtos
-          if (isAdmin) {
-              productsContainer.innerHTML += '<p style="text-align: center; color: #0f0;">Como administrador, você pode adicionar produtos através do "Painel de Administração".</p>';
-          }
-          return; // Sai da função se não houver produtos para evitar processamento desnecessário
-      }
+        productsContainer.innerHTML = '';
+        const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
-      // Se há produtos, renderiza-os
-      products.forEach((product, index) => {
-        const productDiv = document.createElement('div');
-        productDiv.className = 'produto-item';
-        productDiv.innerHTML = `
-          <span class="tag">Em destaque</span>
-          <h1 class="produto-titulo">${product.title}</h1>
-          <p class="produto-desc">${product.description}</p>
-          <div class="precos">
-            ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${product.oldPrice.toFixed(2).replace('.', ',')}</span>` : ''}
-            <span class="preco-atual">R$ ${product.newPrice.toFixed(2).replace('.', ',')}</span>
-          </div>
-          <button class="btn-comprar">Comprar agora</button>
-        `;
-        productsContainer.appendChild(productDiv);
-      });
+        if (products.length === 0) {
+            productsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 20px;">Nenhum produto disponível no momento.</p>';
+            if (isAdmin) {
+                productsContainer.innerHTML += '<p style="text-align: center; color: #0f0;">Como administrador, você pode adicionar produtos através do "Painel de Administração".</p>';
+            }
+            return;
+        }
 
-      // Adiciona event listeners para os botões de compra (após a renderização)
-      document.querySelectorAll('.btn-comprar').forEach(button => {
-        button.addEventListener('click', abrirModal);
-      });
+        products.forEach((product) => {
+          const productDiv = document.createElement('div');
+          productDiv.className = 'produto-item';
+          const adminButtons = isAdmin ? `
+            <button class="btn-edit-produto" onclick="editProduct('${product.id}')">Editar</button>
+            <button class="btn-delete-produto" onclick="deleteProduct('${product.id}')">Apagar</button>
+          ` : '';
+
+          productDiv.innerHTML = `
+            ${adminButtons}
+            <span class="tag">Em destaque</span>
+            <h1 class="produto-titulo">${product.title}</h1>
+            <p class="produto-desc">${product.description}</p>
+            <div class="precos">
+              ${product.oldPrice && product.oldPrice > 0 ? `<span class="preco-antigo">R$ ${product.oldPrice.toFixed(2).replace('.', ',')}</span>` : ''}
+              <span class="preco-atual">R$ ${product.newPrice.toFixed(2).replace('.', ',')}</span>
+            </div>
+            <button class="btn-comprar">Comprar agora</button>
+          `;
+          productsContainer.appendChild(productDiv);
+        });
+
+        document.querySelectorAll('.btn-comprar').forEach(button => {
+          button.addEventListener('click', abrirModal);
+        });
     }
 
     // Carrega produtos na lista dentro do painel de administração (só admin)
-    function loadAdminProducts() {
-        if (localStorage.getItem('isAdmin') !== 'true') return; // Segurança extra
+    async function loadAdminProducts() {
+        if (localStorage.getItem('isAdmin') !== 'true') return;
 
-        const products = getProducts();
-        adminProductsList.innerHTML = ''; // Limpa a lista antes de carregar
+        let products = [];
+        try {
+            products = await apiRequest('/products', 'GET', null, true); // GET para /products, requer autenticação
+        } catch (error) {
+            adminProductsList.innerHTML = '<p style="color: #e50914;">Erro ao carregar produtos do admin. Verifique o servidor.</p>';
+            return;
+        }
+
+        adminProductsList.innerHTML = '';
         if (products.length === 0) {
             adminProductsList.innerHTML = '<p style="color: #888;">Nenhum produto cadastrado. Adicione um novo acima!</p>';
             return;
         }
-        products.forEach((product, index) => {
+        products.forEach((product) => {
             const productItem = document.createElement('div');
             productItem.className = 'admin-product-item';
             productItem.innerHTML = `
                 <span>${product.title} - R$ ${product.newPrice.toFixed(2).replace('.', ',')}</span>
                 <div>
-                    <button class="btn-edit-produto" onclick="editProduct(${index})">Editar</button>
-                    <button class="btn-delete-produto" onclick="deleteProduct(${index})">Apagar</button>
+                    <button class="btn-edit-produto" onclick="editProduct('${product.id}')">Editar</button>
+                    <button class="btn-delete-produto" onclick="deleteProduct('${product.id}')">Apagar</button>
                 </div>
             `;
             adminProductsList.appendChild(productItem);
         });
     }
 
-    function saveProduct() {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
+    async function saveProduct() {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
 
-        const idToEdit = document.getElementById('productIdToEdit').value;
+        const productIdToEdit = document.getElementById('productIdToEdit').value;
         const title = document.getElementById('productTitle').value.trim();
         const description = document.getElementById('productDesc').value.trim();
         const oldPrice = parseFloat(document.getElementById('productOldPrice').value) || 0;
@@ -613,62 +659,74 @@
             return;
         }
 
-        const products = getProducts();
-        if (idToEdit !== '') { // Se productIdToEdit não estiver vazio, estamos editando
-            products[idToEdit] = { title, description, oldPrice, newPrice };
-        } else { // Caso contrário, estamos adicionando um novo
-            products.push({ title, description, oldPrice, newPrice });
+        const productData = { title, description, oldPrice, newPrice };
+
+        try {
+            if (productIdToEdit) { // Editar produto existente
+                await apiRequest(`/products/${productIdToEdit}`, 'PUT', productData, true); // PUT/PATCH para /products/:id
+            } else { // Adicionar novo produto
+                await apiRequest('/products', 'POST', productData, true); // POST para /products
+            }
+
+            alert('Produto salvo com sucesso!');
+            clearProductForm();
+            await renderProducts(); // Atualiza a exibição da loja
+            await loadAdminProducts(); // Atualiza a lista no painel admin
+        } catch (error) {
+            console.error("Erro ao salvar produto:", error);
+            alert(`Erro ao salvar produto: ${error.message}. Verifique a autenticação ou se o servidor está online.`);
         }
-        saveProducts(products);
-        clearProductForm(); // Limpa o formulário após salvar
-        renderProducts(); // Atualiza a exibição da loja para os usuários
-        loadAdminProducts(); // Atualiza a lista no painel admin
-        alert('Produto salvo com sucesso!');
     }
 
-    function editProduct(index) {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
-        const products = getProducts();
-        const product = products[index];
-        document.getElementById('productIdToEdit').value = index; // Armazena o índice para edição
-        document.getElementById('productTitle').value = product.title;
-        document.getElementById('productDesc').value = product.description;
-        document.getElementById('productOldPrice').value = product.oldPrice;
-        document.getElementById('productNewPrice').value = product.newPrice;
+    async function editProduct(productId) {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
+        
+        try {
+            const product = await apiRequest(`/products/${productId}`, 'GET', null, true); // GET para /products/:id
+            document.getElementById('productIdToEdit').value = product.id;
+            document.getElementById('productTitle').value = product.title;
+            document.getElementById('productDesc').value = product.description;
+            document.getElementById('productOldPrice').value = product.oldPrice;
+            document.getElementById('productNewPrice').value = product.newPrice;
+        } catch (error) {
+            console.error("Erro ao carregar produto para edição:", error);
+            alert("Erro ao carregar produto para edição. Tente novamente.");
+        }
     }
 
-    function deleteProduct(index) {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
+    async function deleteProduct(productId) {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
         if (confirm('Tem certeza que deseja apagar este produto?')) {
-            const products = getProducts();
-            products.splice(index, 1); // Remove o produto do array
-            saveProducts(products);
-            renderProducts(); // Atualiza a exibição da loja para os usuários
-            loadAdminProducts(); // Atualiza a lista no painel admin
-            alert('Produto apagado com sucesso!');
+            try {
+                await apiRequest(`/products/${productId}`, 'DELETE', null, true); // DELETE para /products/:id
+                alert('Produto apagado com sucesso!');
+                await renderProducts();
+                await loadAdminProducts();
+            } catch (error) {
+                console.error("Erro ao apagar produto:", error);
+                alert(`Erro ao apagar produto: ${error.message}`);
+            }
         }
     }
 
     function clearProductForm() {
-        document.getElementById('productIdToEdit').value = ''; // Limpa o índice de edição
+        document.getElementById('productIdToEdit').value = '';
         document.getElementById('productTitle').value = '';
         document.getElementById('productDesc').value = '';
         document.getElementById('productOldPrice').value = '';
         document.getElementById('productNewPrice').value = '';
     }
 
-    // --- Funções de Gerenciamento de Avisos ---
-    function getWarnings() {
-      return JSON.parse(localStorage.getItem('warnings') || '[]');
-    }
+    // --- Funções de Gerenciamento de Avisos (AGORA COM API) ---
+    async function renderWarnings() {
+        let warnings = [];
+        try {
+            warnings = await apiRequest('/warnings'); // GET para /warnings
+        } catch (error) {
+            warningsContainer.innerHTML = '<p style="text-align: center; color: #e50914; padding: 10px;">Não foi possível carregar os avisos no momento.</p>';
+            return;
+        }
 
-    function saveWarnings(warnings) {
-      localStorage.setItem('warnings', JSON.stringify(warnings));
-    }
-
-    // Renderiza avisos na parte principal da loja (visível para todos)
-    function renderWarnings() {
-        const warnings = getWarnings();
         warningsContainer.innerHTML = '';
         if (warnings.length === 0) {
             warningsContainer.innerHTML = '<p style="text-align: center; color: #ccc; padding: 10px;">Nenhum aviso no momento.</p>';
@@ -677,120 +735,133 @@
         warnings.forEach((warning) => {
             const warningDiv = document.createElement('div');
             warningDiv.className = 'admin-warning-message';
-            warningDiv.textContent = warning;
+            warningDiv.textContent = warning.message; // Supondo que seu aviso tem um campo 'message'
             warningsContainer.appendChild(warningDiv);
         });
     }
 
-    // Carrega avisos na lista dentro do painel de administração (só admin)
-    function loadAdminWarnings() {
-        if (localStorage.getItem('isAdmin') !== 'true') return; // Segurança extra
+    async function loadAdminWarnings() {
+        if (localStorage.getItem('isAdmin') !== 'true') return;
 
-        const warnings = getWarnings();
+        let warnings = [];
+        try {
+            warnings = await apiRequest('/warnings', 'GET', null, true); // GET para /warnings, requer autenticação
+        } catch (error) {
+            adminWarningsList.innerHTML = '<p style="color: #e50914;">Erro ao carregar avisos do admin. Verifique o servidor.</p>';
+            return;
+        }
+
         adminWarningsList.innerHTML = '';
         if (warnings.length === 0) {
             adminWarningsList.innerHTML = '<p style="color: #888;">Nenhum aviso cadastrado. Adicione um novo acima!</p>';
             return;
         }
-        warnings.forEach((warning, index) => {
+        warnings.forEach((warning) => {
             const warningItem = document.createElement('div');
             warningItem.className = 'warning-item';
             warningItem.innerHTML = `
-                <span>${warning}</span>
-                <button class="btn-delete-produto" onclick="deleteWarning(${index})">Apagar</button>
+                <span>${warning.message}</span>
+                <button class="btn-delete-produto" onclick="deleteWarning('${warning.id}')">Apagar</button>
             `;
             adminWarningsList.appendChild(warningItem);
         });
     }
 
-    function addWarning() {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
+    async function addWarning() {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
 
         const message = document.getElementById('warningMessage').value.trim();
         if (!message) {
             alert('Por favor, digite uma mensagem para o aviso.');
             return;
         }
-        const warnings = getWarnings();
-        warnings.push(message);
-        saveWarnings(warnings);
-        document.getElementById('warningMessage').value = '';
-        renderWarnings(); // Atualiza a exibição da loja
-        loadAdminWarnings(); // Atualiza a lista no painel admin
-        alert('Aviso adicionado com sucesso!');
-    }
-
-    function deleteWarning(index) {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
-
-        if (confirm('Tem certeza que deseja apagar este aviso?')) {
-            const warnings = getWarnings();
-            warnings.splice(index, 1);
-            saveWarnings(warnings);
-            renderWarnings(); // Atualiza a exibição da loja
-            loadAdminWarnings(); // Atualiza a lista no painel admin
-            alert('Aviso apagado com sucesso!');
+        try {
+            await apiRequest('/warnings', 'POST', { message: message }, true); // POST para /warnings
+            alert('Aviso adicionado com sucesso!');
+            document.getElementById('warningMessage').value = '';
+            await renderWarnings();
+            await loadAdminWarnings();
+        } catch (error) {
+            console.error("Erro ao adicionar aviso:", error);
+            alert(`Erro ao adicionar aviso: ${error.message}`);
         }
     }
 
-    // --- Funções de Configuração de PIX ---
-    function getPixKey() {
-        // Retorna a chave PIX, ou uma padrão se não houver (ex: uma chave genérica da loja)
-        return localStorage.getItem('pixKey') || '473d4931-6f15-4ab6-bf59-571f6c3a368d'; // Chave PIX padrão
+    async function deleteWarning(warningId) {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
+
+        if (confirm('Tem certeza que deseja apagar este aviso?')) {
+            try {
+                await apiRequest(`/warnings/${warningId}`, 'DELETE', null, true); // DELETE para /warnings/:id
+                alert('Aviso apagado com sucesso!');
+                await renderWarnings();
+                await loadAdminWarnings();
+            } catch (error) {
+                console.error("Erro ao apagar aviso:", error);
+                alert(`Erro ao apagar aviso: ${error.message}`);
+            }
+        }
     }
 
-    function savePixKey(key) {
-        localStorage.setItem('pixKey', key);
+    // --- Funções de Configuração de PIX (AGORA COM API) ---
+    async function updatePixKeyDisplay() {
+        try {
+            const data = await apiRequest('/pix-key'); // GET para /pix-key
+            pixChaveDisplay.textContent = data.key || 'Chave PIX não configurada.';
+        } catch (error) {
+            pixChaveDisplay.textContent = 'Erro ao carregar chave PIX.';
+            console.error("Erro ao carregar chave PIX para exibição:", error);
+        }
     }
 
-    // Atualiza a chave PIX exibida no modal de compra para o usuário final
-    function updatePixKeyDisplay() {
-        pixChaveDisplay.textContent = getPixKey();
+    async function loadPixKeyForAdmin() {
+        if (localStorage.getItem('isAdmin') !== 'true') return;
+        try {
+            const data = await apiRequest('/pix-key', 'GET', null, true); // GET para /pix-key
+            currentPixKeyDisplay.value = data.key || 'Chave PIX não configurada.';
+        } catch (error) {
+            currentPixKeyDisplay.value = 'Erro ao carregar chave PIX.';
+            console.error("Erro ao carregar chave PIX para admin:", error);
+        }
     }
 
-    // Carrega a chave PIX no campo de texto para o admin no modal de administração (só admin)
-    function loadPixKeyForAdmin() {
-        if (localStorage.getItem('isAdmin') !== 'true') return; // Segurança extra
-        currentPixKeyDisplay.value = getPixKey();
-    }
-
-    function updatePixKey() {
-        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; } // Segurança extra
+    async function updatePixKey() {
+        if (localStorage.getItem('isAdmin') !== 'true') { alert('Acesso negado.'); return; }
 
         const newKey = newPixKeyInput.value.trim();
         if (!newKey) {
             alert('Por favor, digite uma nova chave PIX.');
             return;
         }
-        savePixKey(newKey);
-        newPixKeyInput.value = ''; // Limpa o campo de nova chave
-        currentPixKeyDisplay.value = newKey; // Atualiza o campo de visualização no admin
-        updatePixKeyDisplay(); // Garante que a chave no modal de compra seja atualizada
-        alert('Chave PIX atualizada com sucesso!');
+        try {
+            await apiRequest('/pix-key', 'PUT', { key: newKey }, true); // PUT para /pix-key
+            alert('Chave PIX atualizada com sucesso!');
+            newPixKeyInput.value = '';
+            currentPixKeyDisplay.value = newKey;
+            await updatePixKeyDisplay();
+        } catch (error) {
+            console.error("Erro ao atualizar chave PIX:", error);
+            alert(`Erro ao atualizar chave PIX: ${error.message}`);
+        }
     }
 
     // --- Funções de Abas do Painel de Administração ---
     function openAdminTab(evt, tabName) {
-        if (localStorage.getItem('isAdmin') !== 'true') return; // Segurança extra
+        if (localStorage.getItem('isAdmin') !== 'true') return;
 
         let i, tabcontent, tablinks;
-        // Oculta todas as abas de conteúdo
         tabcontent = adminModal.getElementsByClassName("admin-tab-content");
         for (i = 0; i < tabcontent.length; i++) {
             tabcontent[i].style.display = "none";
         }
-        // Remove a classe 'active' de todos os botões de aba
         tablinks = adminModal.getElementsByClassName("admin-tab-button");
         for (i = 0; i < tablinks.length; i++) {
             tablinks[i].className = tablinks[i].className.replace(" active", "");
         }
-        // Exibe o conteúdo da aba selecionada
         document.getElementById(tabName).style.display = "block";
-        // Adiciona a classe 'active' ao botão da aba clicada
-        if (evt) { // Se a função foi chamada por um evento de clique
+        if (evt) {
             evt.currentTarget.className += " active";
-        } else { // Se a função foi chamada programaticamente (ex: ao abrir o modal)
-            // Encontra o botão da aba padrão e o ativa manualmente
+        } else {
             const defaultButton = adminModal.querySelector(`.admin-tab-button[onclick*="'${tabName}'"]`);
             if (defaultButton) {
                 defaultButton.className += " active";
