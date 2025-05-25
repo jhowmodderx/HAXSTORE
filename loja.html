@@ -425,8 +425,8 @@
 
   <script>
     const productsContainer = document.getElementById('products-container');
-    const adminPanelBtn = document.getElementById('adminPanelBtn'); // Novo botão na header
-    const adminModal = document.getElementById('adminModal'); // Novo modal de administração
+    const adminPanelBtn = document.getElementById('adminPanelBtn'); // Botão "Painel de Administração"
+    const adminModal = document.getElementById('adminModal'); // Modal de administração
     const adminProductsList = document.getElementById('admin-products-list');
     const warningsContainer = document.getElementById('warnings-container');
     const adminWarningsList = document.getElementById('admin-warnings-list');
@@ -436,14 +436,20 @@
 
     // --- Funções Iniciais e Verificação de Admin ---
     document.addEventListener('DOMContentLoaded', () => {
+        // Obtenha o valor de isAdmin do localStorage
         const isAdmin = localStorage.getItem('isAdmin') === 'true';
+
+        // Log para depuração: verifique se isAdmin está sendo lido corretamente
+        console.log("isAdmin no loja.html:", isAdmin); 
+
         if (isAdmin) {
             adminPanelBtn.style.display = 'block'; // Mostra o botão "Painel de Administração"
-            // Não carrega adminPanel diretamente no DOM, ele será um modal
-            loadAdminProducts(); // Carrega os produtos na lista do admin
-            loadAdminWarnings(); // Carrega os avisos na lista do admin
-            loadPixKeyForAdmin(); // Carrega a chave PIX para o painel de admin
-            openAdminTab(null, 'manage-products'); // Abre a primeira aba por padrão ao carregar o modal
+            // As funções de carregamento de dados (produtos, avisos, PIX) para o admin
+            // não precisam ser chamadas aqui, pois serão chamadas ao abrir o modal
+            // ou quando as abas forem ativadas dentro do modal.
+        } else {
+            // Se não for admin, garante que o botão esteja oculto
+            adminPanelBtn.style.display = 'none';
         }
 
         renderProducts(); // Renderiza os produtos na loja (visível para todos)
@@ -471,12 +477,10 @@
     adminPanelBtn.addEventListener('click', () => {
         adminModal.style.display = 'flex';
         // Garante que a primeira aba e os dados sejam carregados ao abrir o modal
-        // Essas funções já são chamadas no DOMContentLoaded para o admin, mas
-        // é bom garantir que estejam atualizadas ao abrir o modal novamente.
         openAdminTab(null, 'manage-products'); // Abre a aba de produtos por padrão
-        loadAdminProducts();
-        loadAdminWarnings();
-        loadPixKeyForAdmin();
+        loadAdminProducts(); // Carrega os produtos na lista do admin
+        loadAdminWarnings(); // Carrega os avisos na lista do admin
+        loadPixKeyForAdmin(); // Carrega a chave PIX para o painel de admin
     });
 
     function closeAdminModal() {
