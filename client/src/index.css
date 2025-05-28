@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 240 10% 4%; /* #0f0f0f */
+  --foreground: 0 0% 98%; /* #fafafa */
+  --muted: 240 4% 12%; /* #1e1e1e */
+  --muted-foreground: 240 5% 65%; /* #a1a1aa */
+  --popover: 240 10% 8%; /* #121212 */
+  --popover-foreground: 0 0% 98%;
+  --card: 240 4% 12%; /* #1e1e1e */
+  --card-foreground: 0 0% 98%;
+  --border: 240 4% 18%; /* #2a2a2a */
+  --input: 240 4% 18%;
+  --primary: 0 84% 49%; /* #e50914 */
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 4% 18%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 240 4% 18%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 0 84% 49%;
+  --radius: 0.5rem;
+  
+  /* HAX Store specific colors */
+  --hax-red: 0 84% 49%; /* #e50914 */
+  --hax-red-dark: 0 83% 38%; /* #b20710 */
+  --hax-green: 119 100% 50%; /* #00ff41 */
+  --hax-green-dark: 119 100% 40%; /* #00cc33 */
+  --hax-dark: 240 100% 5%; /* #0f0f0f */
+  --hax-dark-light: 240 10% 7%; /* #121212 */
+  --hax-surface: 240 4% 12%; /* #1e1e1e */
+  --hax-surface-light: 240 4% 16%; /* #2a2a2a */
+}
+
+.dark {
+  --background: 240 10% 4%;
+  --foreground: 0 0% 98%;
+  --muted: 240 4% 12%;
+  --muted-foreground: 240 5% 65%;
+  --popover: 240 10% 8%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 4% 12%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 4% 18%;
+  --input: 240 4% 18%;
+  --primary: 0 84% 49%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 240 4% 18%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 240 4% 18%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 0 84% 49%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    background-color: hsl(var(--hax-dark));
+    color: hsl(var(--foreground));
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  }
+}
+
+@layer utilities {
+  .hax-red {
+    @apply text-[hsl(var(--hax-red))];
+  }
+  
+  .hax-red-bg {
+    @apply bg-[hsl(var(--hax-red))];
+  }
+  
+  .hax-green {
+    @apply text-[hsl(var(--hax-green))];
+  }
+  
+  .hax-green-bg {
+    @apply bg-[hsl(var(--hax-green))];
+  }
+  
+  .hax-surface {
+    @apply bg-[hsl(var(--hax-surface))];
+  }
+  
+  .glass-card {
+    background: rgba(30, 30, 30, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .admin-glow {
+    box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: hsl(var(--hax-surface));
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--hax-red));
+    border-radius: 3px;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 20px rgba(229, 9, 20, 0.3); }
+  to { box-shadow: 0 0 30px rgba(229, 9, 20, 0.6); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite alternate;
+}

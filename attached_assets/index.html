@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - HAX STORE</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0c0c0c;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    form {
+      background-color: #111;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      border: 2px solid #e50914;
+      box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+    }
+
+    form h2 {
+      color: #e50914;
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
+
+    form input {
+      width: calc(100% - 20px);
+      padding: 12px;
+      margin-bottom: 15px;
+      background-color: #222;
+      border: 1px solid #333;
+      color: #fff;
+      border-radius: 6px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    form input::placeholder {
+      color: #888;
+    }
+
+    form input:focus {
+      border-color: #e50914;
+      box-shadow: 0 0 8px rgba(229, 9, 20, 0.4);
+    }
+
+    form button {
+      background-color: #e50914;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      font-size: 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.3s;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    form button:hover {
+      background-color: #b20710;
+    }
+
+    form p#msg {
+      margin-top: 20px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+
+    form a {
+      display: block;
+      margin-top: 20px;
+      color: #e50914;
+      text-decoration: none;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+
+    form a:hover {
+      text-decoration: underline;
+      color: #ff3344;
+    }
+  </style>
+</head>
+<body>
+  <form id="loginForm">
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Seu usuário" required>
+    <input type="password" id="pass" placeholder="Sua senha" required>
+    <button type="submit">Entrar</button>
+    <p id="msg"></p>
+    <a href="register.html">Criar nova conta</a>
+  </form>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginForm = document.getElementById("loginForm");
+      const usernameInput = document.getElementById("username");
+      const passwordInput = document.getElementById("pass");
+      const messageDisplay = document.getElementById("msg");
+
+      // Pré-popula o nome de usuário se o registro foi recente
+      const justRegistered = localStorage.getItem("justRegistered");
+      if (justRegistered) {
+        usernameInput.value = justRegistered;
+        localStorage.removeItem("justRegistered");
+      }
+
+      // Garante que o usuário admin 'jhow' com senha 'modder' sempre exista
+      function ensureAdminUserExists() {
+        let users = JSON.parse(localStorage.getItem("users") || "[]");
+        const adminUser = { username: "jhow", pass: "modder" };
+        const adminExists = users.some(u => u.username === adminUser.username && u.pass === adminUser.pass);
+
+        if (!adminExists) {
+          users.push(adminUser);
+          localStorage.setItem("users", JSON.stringify(users));
+        }
+      }
+
+      ensureAdminUserExists(); // Chama ao carregar a página para garantir o admin
+
+      loginForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const username = usernameInput.value.toLowerCase().trim();
+        const password = passwordInput.value.trim();
+
+        // Recupera a lista de usuários novamente, para garantir que o admin esteja lá
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const foundUser = users.find(u => u.username === username && u.pass === password);
+
+        if (foundUser) {
+          localStorage.setItem("loggedUser", username); // Salva o usuário logado
+
+          // Lógica para definir se o usuário é administrador
+          if (username === "jhow" && password === "modder") {
+            localStorage.setItem("isAdmin", "true");
+          } else {
+            localStorage.removeItem("isAdmin"); // Remove a flag se não for admin
+          }
+
+          window.location.href = "loja.html"; // Redireciona para a página da loja
+        } else {
+          messageDisplay.textContent = "Usuário ou senha incorretos.";
+          messageDisplay.style.color = "red";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
