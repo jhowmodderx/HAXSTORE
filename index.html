@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAX STORE LINKS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Animation -->
+    <div class="background-animation">
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>HAX STORE LINKS</h1>
+                <p>By RodrigoGTyx</p>
+            </div>
+            <nav class="nav">
+                <button class="btn-credits" onclick="openCredits()">
+                    <i class="fas fa-info-circle"></i> Créditos
+                </button>
+                <a href="https://discord.gg/gJ79TUn6Bb" target="_blank" class="btn-discord">
+                    <i class="fab fa-discord"></i> Discord
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="hero-content">
+                    <h2 class="hero-title">Download HAX STORE</h2>
+                    <p class="hero-subtitle">Experiência completa em downloads premium</p>
+                    
+                    <!-- Main Download Card -->
+                    <div class="main-download-card" id="mainDownloadCard">
+                        <div class="download-image">
+                            <img id="mainDownloadImage" src="https://via.placeholder.com/100x100/0066ff/ffffff?text=HAX" alt="Download Principal">
+                        </div>
+                        <div class="download-info">
+                            <h3 id="mainDownloadTitle">HAX STORE v1.0</h3>
+                            <p class="download-desc">Versão Mais Recente</p>
+                        </div>
+                        <a href="#" id="mainDownloadBtn" class="download-btn">
+                            <i class="fas fa-download"></i> Download Agora
+                        </a>
+                    </div>
+
+                    <!-- Features -->
+                    <div class="features">
+                        <div class="feature-card">
+                            <i class="fas fa-users"></i>
+                            <h4>Comunidade Ativa</h4>
+                            <p>Junte-se à nossa comunidade</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-code"></i>
+                            <h4>Multi Plataforma</h4>
+                            <p>Funciona em múltiplas plataformas</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-bolt"></i>
+                            <h4>Performance</h4>
+                            <p>Alta velocidade e desempenho</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Additional Links Section -->
+            <section class="additional-links" id="additionalLinks">
+                <h3>Downloads Adicionais</h3>
+                <div class="links-container" id="linksContainer">
+                    <!-- Links will be dynamically added here -->
+                </div>
+            </section>
+
+            <!-- Latest Updates -->
+            <section class="updates">
+                <h3><i class="fas fa-clock"></i> Últimas Atualizações</h3>
+                <div class="updates-list">
+                    <div class="update-item">A estabilidade foi melhorada</div>
+                    <div class="update-item">Corrigido problema de performance</div>
+                    <div class="update-item">Nova interface implementada</div>
+                    <div class="update-item">Sistema de downloads otimizado</div>
+                    <div class="update-item">Correção de bugs importantes</div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <p>© 2025 HAX STORE - ByRodrigoGTyx</p>
+            </div>
+            <div class="footer-right">
+                <p>Desenvolvido com ❤️ por RodrigoGTyx</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Credits Modal -->
+    <div class="modal" id="creditsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Créditos</h2>
+                <button class="close-btn" onclick="closeCredits()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="credits-info">
+                    <div class="owner-info">
+                        <h3>Owner: RodrigoGTyx</h3>
+                        <p>Desenvolvedor Full Stack</p>
+                    </div>
+                    <div class="languages">
+                        <h4>Linguagens de Programação:</h4>
+                        <div class="language-tags">
+                            <span class="language-tag cpp">C++</span>
+                            <span class="language-tag lua">Lua</span>
+                            <span class="language-tag js">JavaScript</span>
+                            <span class="language-tag php">PHP</span>
+                        </div>
+                    </div>
+                    <div class="contact-info">
+                        <p>Entre em contato através do Discord:</p>
+                        <a href="https://discord.gg/gJ79TUn6Bb" target="_blank" class="discord-link">
+                            <i class="fab fa-discord"></i> Servidor Discord
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAX STORE - Painel Admin</title>
+    <link rel="stylesheet" href="admin-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Background Animation -->
+    <div class="background-animation">
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+        <div class="floating-ball"></div>
+    </div>
+
+    <!-- Login Screen -->
+    <div class="login-container" id="loginContainer">
+        <div class="login-box">
+            <div class="login-header">
+                <h1>HAX STORE</h1>
+                <h2>Painel Administrativo</h2>
+                <p>Acesso restrito - RodrigoGTyx</p>
+            </div>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="username">Usuário:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+            </form>
+            <div class="login-error" id="loginError"></div>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel" style="display: none;">
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="admin-header-content">
+                <div class="admin-logo">
+                    <h1>HAX STORE - Admin</h1>
+                    <p>Painel de Controle</p>
+                </div>
+                <div class="admin-nav">
+                    <a href="index.html" target="_blank" class="btn-view-site">
+                        <i class="fas fa-external-link-alt"></i> Ver Site
+                    </a>
+                    <button class="btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <div class="admin-container">
+                <!-- Main Download Section -->
+                <section class="admin-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-download"></i> Download Principal</h2>
+                        <p>Configure o link e imagem do download principal</p>
+                    </div>
+                    <div class="section-content">
+                        <form class="admin-form" id="mainDownloadForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="mainTitle">Título do Download:</label>
+                                    <input type="text" id="mainTitle" name="mainTitle" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mainUrl">URL do Download:</label>
+                                    <input type="url" id="mainUrl" name="mainUrl" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="mainImage">URL da Imagem:</label>
+                                <input type="url" id="mainImage" name="mainImage">
+                            </div>
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save"></i> Salvar Alterações
+                            </button>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Additional Links Section -->
+                <section class="admin-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-link"></i> Links Adicionais</h2>
+                        <p>Gerencie os links adicionais do site</p>
+                    </div>
+                    <div class="section-content">
+                        <!-- Add New Link Form -->
+                        <div class="add-link-form">
+                            <h3>Adicionar Novo Link</h3>
+                            <form class="admin-form" id="addLinkForm">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="linkTitle">Título:</label>
+                                        <input type="text" id="linkTitle" name="linkTitle" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="linkUrl">URL:</label>
+                                        <input type="url" id="linkUrl" name="linkUrl" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="linkImage">URL da Imagem:</label>
+                                    <input type="url" id="linkImage" name="linkImage">
+                                </div>
+                                <button type="submit" class="btn-add">
+                                    <i class="fas fa-plus"></i> Adicionar Link
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Links List -->
+                        <div class="links-list">
+                            <h3>Links Existentes</h3>
+                            <div class="links-container" id="adminLinksContainer">
+                                <!-- Links will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Site Statistics -->
+                <section class="admin-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-bar"></i> Estatísticas</h2>
+                        <p>Informações sobre o site</p>
+                    </div>
+                    <div class="section-content">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-download"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="totalLinks">0</h3>
+                                    <p>Total de Links</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3 id="lastUpdate">--</h3>
+                                    <p>Última Atualização</p>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <h3>RodrigoGTyx</h3>
+                                    <p>Owner</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div class="notification" id="notification"></div>
+
+    <script src="admin-script.js"></script>
+</body>
+</html>
